@@ -58,3 +58,6 @@ target/
 
 # Migrations
 migrations/
+
+# Vim Backups
+*~

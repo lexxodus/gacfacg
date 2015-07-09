@@ -6,7 +6,7 @@ from dummy.word_domination import WordDomination
 from random import choice, randint, random
 
 
-class Simulation():
+class Simulation(object):
 
     ACTIONS = ["shooting", "surviving", "assisting", "quiz solving", "base capturing", "base defense"]
     INITIAL_ACTIONS = ["shoot", "base capture"]
@@ -19,7 +19,7 @@ class Simulation():
         self.wd = WordDomination(self.bases, self.quiz)
         for t in range(2):
             team_name = "Team %s" % t
-            team = self.wd.add_team(team_name)
+            team = self.wd.create_team(team_name)
             self.teams[team] = []
             for p in range(0+t*3,3+t*3):
                 player_name = "Player %s" % p
@@ -29,6 +29,7 @@ class Simulation():
                     "team": team
                 }
                 self.teams[team].append(player)
+        self.perform_actions()
 
     def generate_quiz(self):
         questions = []
@@ -46,7 +47,7 @@ class Simulation():
                     answers.append(Answer("Answer %s" % a, False))
             if q < 4:
                 difficulty = "easy"
-            if q < 8:
+            elif q < 8:
                 difficulty = "medium"
             else:
                 difficulty = "hard"
@@ -63,10 +64,7 @@ class Simulation():
     def perform_actions(self):
         for event in range(120):
             player = choice(list(self.sim_players))
-            self.perform_initial_action(self, player)
-
-        for w in self.weaknesses:
-            pass
+            self.perform_initial_action(player)
 
     def perform_initial_action(self, player):
         action = choice(self.INITIAL_ACTIONS)
@@ -74,7 +72,7 @@ class Simulation():
             enemy_shot = False
             hit = False
             weapon = "3d"
-            if self.sim_players[player]["weakness"] == self.ACTIONS["shooting"]:
+            if self.sim_players[player]["weakness"] == "shooting":
                 if random() < 0.3:
                     hit = True
                     if random() < 0.6:
@@ -94,18 +92,17 @@ class Simulation():
             if hit:
                 friendly_team = self.sim_players[player]["team"]
                 if enemy_shot:
-                    for t in self.teams():
+                    for t in self.teams:
                        if t is not friendly_team:
-                           target = choice(self.team[t])
+                           target = choice(self.teams[t])
                            break
                 else:
-                    for t in self.teams():
+                    for t in self.teams:
                         if t is friendly_team:
-                            allies = [p for p in t if p != player]
-                            target = choice(self.allies)
+                            allies = [p for p in self.teams[t] if p != player]
+                            target = choice(allies)
                             break
                 self.wd.player_shoots_player(player, target, weapon)
-                target.question_ready.wait()
                 answers = self.answer_question(target.question, target)
                 target.give_answers(answers)
 
@@ -120,29 +117,31 @@ class Simulation():
         for a in question.answers:
             if a.right:
                 right_answers.append(a)
+            else:
+                wrong_answers.append(a)
         rnd_right = random()
         rnd_wrong = random()
-        if self.sim_players[player]["weakness"] == self.ACTIONS["quiz solving"]:
+        if self.sim_players[player]["weakness"] == "quiz solving":
             if question.difficulty == "easy":
                 for a in right_answers:
                     if rnd_right < 0.6:
                         given_answers.append(a)
                 for a in wrong_answers:
-                    if rnd_wrong < 0.4:
+                    if rnd_wrong < 0.2:
                         given_answers.append(a)
             elif question.difficulty == "medium":
                 for a in right_answers:
                     if rnd_right < 0.4:
                         given_answers.append(a)
                 for a in wrong_answers:
-                    if rnd_wrong < 0.6:
+                    if rnd_wrong < 0.3:
                         given_answers.append(a)
             else:
                 for a in right_answers:
                     if rnd_right < 0.2:
                         given_answers.append(a)
                 for a in wrong_answers:
-                    if rnd_wrong < 0.8:
+                    if rnd_wrong < 0.4:
                         given_answers.append(a)
         else:
             if question.difficulty == "easy":
@@ -150,20 +149,20 @@ class Simulation():
                     if rnd_right < 0.9:
                         given_answers.append(a)
                 for a in wrong_answers:
-                    if rnd_wrong < 0.1:
+                    if rnd_wrong < 0.05:
                         given_answers.append(a)
             elif question.difficulty == "medium":
                 for a in right_answers:
                     if rnd_right < 0.7:
                         given_answers.append(a)
                 for a in wrong_answers:
-                    if rnd_wrong < 0.3:
+                    if rnd_wrong < 0.1:
                         given_answers.append(a)
             else:
                 for a in right_answers:
                     if rnd_right < 0.5:
                         given_answers.append(a)
                 for a in wrong_answers:
-                    if rnd_wrong < 0.5:
+                    if rnd_wrong < 0.2:
                         given_answers.append(a)
         return given_answers

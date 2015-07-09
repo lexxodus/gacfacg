@@ -2,11 +2,8 @@ from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
 from dummy.game_objects import Answer, Base, Question, Quiz, Player, Team
-import threading
-from random import choice, randint
 
-
-class WordDomination():
+class WordDomination(object):
 
     WEAPONS_TO_QUESTION_DIFFICULTY = {
         "1d": "hard",
@@ -39,10 +36,7 @@ class WordDomination():
         player.hit_target(target, weapon)
         target.was_hit(player, weapon)
         question = self.quiz.load_question(self.WEAPONS_TO_QUESTION_DIFFICULTY[weapon])
-        question_ready = threading.Event()
-        answers_ready = threading.Event()
-        quiz = threading.Thread(target=target.ask_question, args=(question, question_ready, answers_ready,))
-        quiz.start()
+        target.ask_question(question)
 
     def player_answers_question(self, player, answers):
         player.answer_question(answers)

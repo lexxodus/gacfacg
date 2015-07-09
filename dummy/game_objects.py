@@ -22,7 +22,11 @@ class Base(object):
         self.owned_by = None
 
     def __str__(self):
-        return self.number
+        return "Base %s" % self.number
+
+    def captured(self, team):
+        self.owned_by = team
+        print("%s was captured by %s" % (self, team))
 
 class Player(object):
 
@@ -30,17 +34,48 @@ class Player(object):
         self.name = name
         self.answers = None
         self.question = None
+        self.team = None
+        self.active = True
         if clan:
             self.clan = clan
 
-    def hit_target(self, target, weapon):
-        # send triggered_event
-        print("%s hit %s with %s" % (self, target, weapon))
+    def assign_to_team(self, team):
+        self.team = team
 
-    def was_hit(self, player, weapon):
-        pass
+    def player_in_team(self, team):
+        return team
+
+    def hit_target(self, target, weapon, base=None):
         # send triggered_event
-        print("%s was hit by %s with %s" % (self, player, weapon))
+        if self.team is not target.team:
+            print("%s hit %s with %s" % (self, target, weapon))
+        else:
+            print("%s teamhit %s with %s" % (self, target, weapon))
+
+    def misses(self):
+        print("%s misses" % self)
+
+    def captured(self, base):
+        print("%s captured %s" % (self, base))
+
+    def assisted(self, player, base):
+        print("%s assisted %s capturing %s" % (self, player, base))
+
+    def failed_to_defend(self, base, player):
+        print("%s failed to defend %s against %s" % (self, base, player))
+
+    def defended(self, base):
+        print("%s defended %s" % (self, base))
+
+    def assisted_defender(self, defender, base):
+        print("%s assisted %s defending %s" % (self, defender, base))
+
+    def was_hit(self, player, weapon, base=None):
+        # send triggered_event
+        if base:
+            print("%s was hit by %s with %s while defending %s" (self, player, weapon, base))
+        else:
+            print("%s was hit by %s with %s" % (self, player, weapon))
 
     def ask_question(self, question):
         print("%s is asked %s a %s question" % (self, question, question.difficulty))
@@ -54,6 +89,7 @@ class Player(object):
                 # send right answer
                 print("%s answered %s correctly with %s" % (self, self.question, a))
             else:
+                self.active = False
                 # send wrong answer
                 print("%s answered %s wrong with %s" % (self, self.question, a))
 

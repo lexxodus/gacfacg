@@ -29,6 +29,7 @@ class WordDomination(object):
             if t.player_name_in_team(player_name):
                 raise Exception("Player %s already exists!" % player_name)
         player = Player(player_name)
+        player.assign_to_team(team)
         team.add_player(player)
         return player
 
@@ -40,3 +41,16 @@ class WordDomination(object):
 
     def player_answers_question(self, player, answers):
         player.answer_question(answers)
+
+    def player_captures_base(self, player, base, supporters, defenders):
+        player.captured(base)
+        base.captured(player.team)
+        for s in supporters:
+            s.assisted(player, base)
+        for d in defenders:
+            d.failed_to_defend(base, player)
+
+    def player_defends_base(self, player, defender, hit_attackers, base):
+        player.defended(base)
+        for p in defender:
+            p.assisted_defender(player, base)

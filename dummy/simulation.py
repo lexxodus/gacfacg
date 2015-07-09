@@ -3,7 +3,7 @@ __author__ = 'lexxodus'
 
 from dummy.game_objects import Answer, Base, Question, Quiz, Player, Team
 from dummy.word_domination import WordDomination
-from random import choice, randint, random
+from random import choice, randint, random, shuffle
 
 
 class Simulation(object):
@@ -26,7 +26,8 @@ class Simulation(object):
                 player = self.wd.add_player_to_team(player_name, team)
                 self.sim_players[player] = {
                     "weakness": "Weakness %s" % self.ACTIONS[p],
-                    "team": team
+                    "team": team,
+                    "location": None,
                 }
                 self.teams[team].append(player)
         self.perform_actions()
@@ -73,6 +74,8 @@ class Simulation(object):
             hit = False
             weapon = "3d"
             if self.sim_players[player]["weakness"] == "shooting":
+                for s in range(randint(1, 30)):
+                    player.misses()
                 if random() < 0.3:
                     hit = True
                     if random() < 0.6:
@@ -84,6 +87,8 @@ class Simulation(object):
                    else:
                        weapon = "1d"
             else:
+                for s in range(randint(1, 10)):
+                    player.misses()
                 if random() < 0.5:
                     hit = True
                     if random() < 0.9:
@@ -107,7 +112,58 @@ class Simulation(object):
                 target.give_answers(answers)
 
         if action == "base capture":
-            pass
+            player_locations = {}
+            for b in self.bases:
+                player_locations[b] = []
+            player_locations[None] = []
+            for p in self.sim_players:
+                if p.active and random() < 0.6:
+                    location = choice(self.bases)
+                else:
+                    location = None
+                self.sim_players[p]["location"] = location
+                player_locations[location].append(p)
+            success_rate = 0
+            location = self.sim_players[player]["location"]
+            supporters = []
+            defense = []
+            if location:
+                for p in player_locations[location]:
+                    if self.sim_players[p]["team"]\
+                            is self.sim_players[player]["team"]:
+                        if p is not player:
+                            supporters.append(p)
+                        if self.sim_players[p]["weakness"] ==\
+                                "base capturing" or "assisting":
+                            capture_aid = 4
+                        else:
+                            capture_aid = 10
+                    else:
+                        defense.append(p)
+                        if self.sim_players[p]["weakness"] == "base defense":
+                            capture_aid = -4
+                        else:
+                            capture_aid = -10
+                    success_rate += capture_aid
+            if success_rate > 0 and random() < 0.7:
+                # success and reward
+                self.wd.player_captures_base(
+                    player, location, supporters, defense)
+            elif  len(defense) > 0:
+                # fail
+                attackers = list(supporters)
+                attackers.append(player)
+                shuffle(attackers)
+                hit_attackers = attackers[:randint(0, len(attackers) - 1)]
+                recapturer = choice(defense)
+                if self.sim_players[recapturer]["weakness"] == "base defense":
+                    recapturer = choice(defense)
+                defenders = [p for p in defense if p is not recapturer]
+                self.wd.player_defends_base(recapturer, defenders, hit_attackers, location)
+
+            # unfreeze players
+            for p in self.sim_players:
+                p.active = True
 
 
     def answer_question(self, question, player):

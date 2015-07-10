@@ -11,9 +11,8 @@ class Player(db.Model):
     __tablename__ = "player"
 
     id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String, unique=True)
     custom_values = db.Column(JSONB)
-
-    levels = db.relationship('Level', backref='player')
 
     def __init__(self, custom_values=None):
         self.custom_values = custom_values
@@ -26,6 +25,7 @@ class Level(db.Model):
     __tablename__ = "level"
 
     id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String, unique=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text())
     custom_values = db.Column(JSONB)
@@ -88,7 +88,6 @@ class LevelInstance(db.Model):
     __tablename__ = "level_instance"
 
     id = db.Column(db.Integer, primary_key=True)
-    pid = db.Column(db.Integer, db.ForeignKey("player.id"))
     lid = db.Column(db.Integer, db.ForeignKey("level.id"))
     start_time = db.Column(db.DateTime(timezone=False))
     end_time = db.Column(db.DateTime(timezone=False))
@@ -112,6 +111,11 @@ class LevelInstance(db.Model):
     def __repr__(self):
         return "<player: %s, level: %s, atempt: %s>" % (self.player, self.level, self.atempt)
 
+participation = db.Table(
+    "participation",
+    db.Column('pid', db.Integer, db.ForeignKey('player.id')),
+    db.Column('liid', db.Integer, db.ForeignKey('level_instance.id')),
+)
 
 class Event(db.Model):
     __tablename__ = "event"

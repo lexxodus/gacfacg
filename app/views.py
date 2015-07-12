@@ -23,6 +23,11 @@ def create_player():
     db.session.commit()
     return "%s" % player.id, 201
 
+@app.route('/worddomination1/api/player/', methods=['GET'])
+def get_all_players():
+    print(db.session.query(Player, Player.id))
+    return "%s" % 0, 201
+
 @app.route('/worddomination1/api/level_instance/', methods=['POST'])
 def start_level_instance():
     expected_values = ["level", "players", "start_time", "atempt", "end_time"]

@@ -11,7 +11,6 @@ class Player(db.Model):
     __tablename__ = "player"
 
     id = db.Column(db.Integer, primary_key=True)
-    slug = db.Column(db.String, unique=True)
     custom_values = db.Column(JSONB)
 
     def __init__(self, custom_values=None):
@@ -25,7 +24,6 @@ class Level(db.Model):
     __tablename__ = "level"
 
     id = db.Column(db.Integer, primary_key=True)
-    slug = db.Column(db.String, unique=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text())
     custom_values = db.Column(JSONB)
@@ -94,7 +92,6 @@ class LevelInstance(db.Model):
     atempt = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
-    player = db.relationship("Player", foreign_keys="LevelInstance.pid")
     level = db.relationship("Level", foreign_keys="LevelInstance.lid")
 
     __table_args__ = (
@@ -110,12 +107,6 @@ class LevelInstance(db.Model):
 
     def __repr__(self):
         return "<player: %s, level: %s, atempt: %s>" % (self.player, self.level, self.atempt)
-
-participation = db.Table(
-    "participation",
-    db.Column('pid', db.Integer, db.ForeignKey('player.id')),
-    db.Column('liid', db.Integer, db.ForeignKey('level_instance.id')),
-)
 
 class Event(db.Model):
     __tablename__ = "event"
@@ -149,16 +140,18 @@ class Event(db.Model):
 class TriggeredEvent(db.Model):
     __tablename__ = "triggered_event"
 
-    id = db.Column(db.Integer, primary_key=True)
+    pid = db.Column(db.Integer, db.ForeignKey("player.id"), primary_key=True)
     liid = db.Column(db.Integer, db.ForeignKey("level_instance.id"))
     eid = db.Column(db.Integer, db.ForeignKey("event.id"))
     timestamp = db.Column(db.DateTime(timezone=False))
     custom_values = db.Column(JSONB)
 
+    player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
     level_instance = db.relationship("LevelInstance", foreign_keys="TriggeredEvent.liid")
     event = db.relationship("Event", foreign_keys="TriggeredEvent.eid")
 
-    def __init__(self, liid, eid, custom_values):
+    def __init__(self, pid, liid, eid, custom_values):
+        self.pid = pid
         self.liid = liid
         self.eid = eid
         self.timestamp = datetime.now()
@@ -180,8 +173,8 @@ class EventSkill(db.Model):
     high_score = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
-    player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
-    event = db.relationship("Event", foreign_keys="TriggeredEvent.eid")
+    player = db.relationship("Player", foreign_keys="EventSkill.pid")
+    event = db.relationship("Event", foreign_keys="EventSkill.eid")
 
     def __init__(self, pid, eid):
         self.pid = pid
@@ -204,8 +197,8 @@ class TaskSkill(db.Model):
     high_score = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
-    player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
-    task = db.relationship("Task", foreign_keys="TriggeredEvent.tid")
+    player = db.relationship("Player", foreign_keys="TaskSkill.pid")
+    task = db.relationship("Task", foreign_keys="TaskSkill.tid")
 
     def __init__(self, pid, tid):
         self.pid = pid
@@ -228,8 +221,8 @@ class LevelSkill(db.Model):
     high_score = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
-    player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
-    level = db.relationship("Level", foreign_keys="TriggeredEvent.lid")
+    player = db.relationship("Player", foreign_keys="LevelSkill.pid")
+    level = db.relationship("Level", foreign_keys="LevelSkill.lid")
 
     def __init__(self, pid, lid):
         self.pid = pid
@@ -245,15 +238,15 @@ class LevelTypeSkill(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     pid = db.Column(db.Integer, db.ForeignKey("player.id"))
-    ltid = db.Column(db.Integer, db.ForeignKey("level.id"))
+    ltid = db.Column(db.Integer, db.ForeignKey("level_type.id"))
     calculated_on = db.Column(db.DateTime(timezone=False))
     considered_rows = db.Column(db.Integer())
     skill_points = db.Column(db.Integer())
     high_score = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
-    player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
-    level = db.relationship("LevelType", foreign_keys="TriggeredEvent.ltid")
+    player = db.relationship("Player", foreign_keys="LevelTypeSkill.pid")
+    level = db.relationship("LevelType", foreign_keys="LevelTypeSkill.ltid")
 
     def __init__(self, pid, ltid):
         self.pid = pid

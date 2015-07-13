@@ -27,10 +27,8 @@ class Level(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text())
     custom_values = db.Column(JSONB)
-
-    # levels = db.relationship('Level', backref='level_instance')
-    # types = db.relationship('Types', secondary=types,
-    #     backref=db.backref('leveltypes', lazy='dynamic'))
+#     level_types = db.relationship("LevelType",
+#                     secondary=type_assignment)
 
     def __init__(self, name, description, custom_values=None):
         self.name = name
@@ -58,8 +56,8 @@ class LevelType(db.Model):
         return "<lvltype: %s>" % self.name
 
 
-types = db.Table(
-    "types",
+type_assignment = db.Table(
+    "type_assignment",
     db.Column('lid', db.Integer, db.ForeignKey('level.id')),
     db.Column('ltid', db.Integer, db.ForeignKey('level_type.id')),
 )
@@ -110,13 +108,13 @@ class Event(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text())
     score_points = db.Column(db.Integer(), nullable=False)
-    score_point_interval = db.Column(db.Integer(), nullable=False)
+    score_interval = db.Column(db.Integer(), nullable=False)
     skill_points = db.Column(db.Integer(), nullable=False)
-    skill_point_interval = db.Column(db.Integer(), nullable=False)
+    skill_interval = db.Column(db.Integer(), nullable=False)
     custom_values = db.Column(JSONB)
 
     __table_args__ = (
-        db.CheckConstraint(score_point_interval >= 0, name='check_score_points_positive'),
+        db.CheckConstraint(score_interval >= 0, name='check_score_points_positive'),
     )
 
     task = db.relationship("Task", foreign_keys="Event.tid")
@@ -148,8 +146,8 @@ class Participation(db.Model):
     atempt = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
-    player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
-    level_instance = db.relationship("LevelInstance", foreign_keys="TriggeredEvent.liid")
+    player = db.relationship("Player", foreign_keys="Participation.pid")
+    level_instance = db.relationship("LevelInstance", foreign_keys="Participation.liid")
 
     __table_args__ = (
         db.CheckConstraint(atempt >= 0, name='check_atempt_positive'),

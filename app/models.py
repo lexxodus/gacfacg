@@ -32,7 +32,7 @@ class Level(db.Model):
     # types = db.relationship('Types', secondary=types,
     #     backref=db.backref('leveltypes', lazy='dynamic'))
 
-    def __init__(self, name, description, custom_values):
+    def __init__(self, name, description, custom_values=None):
         self.name = name
         self.description = description
         self.custom_values = custom_values
@@ -49,7 +49,7 @@ class LevelType(db.Model):
     description = db.Column(db.Text())
     custom_values = db.Column(JSONB)
 
-    def __init__(self, name, description, custom_values):
+    def __init__(self, name, description, custom_values=None):
         self.name = name
         self.description = description
         self.custom_values = custom_values
@@ -73,7 +73,7 @@ class Task(db.Model):
     description = db.Column(db.Text())
     custom_values = db.Column(JSONB)
 
-    def __init__(self, name, description, custom_values):
+    def __init__(self, name, description, custom_values=None):
         self.name = name
         self.description = description
         self.custom_values = custom_values
@@ -89,24 +89,18 @@ class LevelInstance(db.Model):
     lid = db.Column(db.Integer, db.ForeignKey("level.id"))
     start_time = db.Column(db.DateTime(timezone=False))
     end_time = db.Column(db.DateTime(timezone=False))
-    atempt = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
     level = db.relationship("Level", foreign_keys="LevelInstance.lid")
 
-    __table_args__ = (
-        db.CheckConstraint(atempt >= 0, name='check_atempt_positive'),
-    )
-
-    def __init__(self, pid, lid, name, description, custom_values):
-        self.pid = pid
+    def __init__(self, lid, start_time, end_time=None, custom_values=None):
         self.lid = lid
-        self.name = name
-        self.description = description
+        self.start_time = start_time
+        self.end_time = end_time
         self.custom_values = custom_values
 
     def __repr__(self):
-        return "<player: %s, level: %s, atempt: %s>" % (self.player, self.level, self.atempt)
+        return "<%s, level: %s>" % (self.start_time, self.level)
 
 class Event(db.Model):
     __tablename__ = "event"
@@ -127,38 +121,72 @@ class Event(db.Model):
 
     task = db.relationship("Task", foreign_keys="Event.tid")
 
-    def __init__(self, tid, name, description, custom_values):
+    def __init__(self, tid, name, description, skill_points, score_points,
+                 skill_points_interval=1, score_point_interval=1,
+                 custom_values=None):
         self.tid = tid
         self.name = name
         self.description = description
+        self.skill_points = skill_points
+        self.score_points = score_points
+        self.skill_point_interval = skill_points_interval
+        self.score_point_interval = score_point_interval
         self.custom_values = custom_values
 
     def __repr__(self):
         return "<event: %s>" % self.name
 
 
-class TriggeredEvent(db.Model):
-    __tablename__ = "triggered_event"
+class Participation(db.Model):
+    __tablename__ = "participation"
 
-    pid = db.Column(db.Integer, db.ForeignKey("player.id"), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    pid = db.Column(db.Integer, db.ForeignKey("player.id"))
     liid = db.Column(db.Integer, db.ForeignKey("level_instance.id"))
-    eid = db.Column(db.Integer, db.ForeignKey("event.id"))
-    timestamp = db.Column(db.DateTime(timezone=False))
+    start_time = db.Column(db.DateTime(timezone=False))
+    end_time = db.Column(db.DateTime(timezone=False))
+    atempt = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
     player = db.relationship("Player", foreign_keys="TriggeredEvent.pid")
     level_instance = db.relationship("LevelInstance", foreign_keys="TriggeredEvent.liid")
-    event = db.relationship("Event", foreign_keys="TriggeredEvent.eid")
 
-    def __init__(self, pid, liid, eid, custom_values):
+    __table_args__ = (
+        db.CheckConstraint(atempt >= 0, name='check_atempt_positive'),
+    )
+
+    def __init__(self, pid, liid, start_time, atempt, end_time=None, custom_values=None):
         self.pid = pid
         self.liid = liid
-        self.eid = eid
-        self.timestamp = datetime.now()
+        self.start_time = start_time
+        self.end_time = end_time
+        self.atempt = atempt
         self.custom_values = custom_values
 
     def __repr__(self):
-        return "<%s: %s, player: %s, level: %s, event: %s>" % (self.timestamp, self.level_instance.player, self.event)
+        return "<pid: %s, liid: %s, atempt: %s" % (self.pid, self.liid, self.atempt)
+
+
+class TriggeredEvent(db.Model):
+    __tablename__ = "triggered_event"
+
+    id = db.Column(db.Integer, primary_key=True)
+    paid = db.Column(db.Integer, db.ForeignKey("participation.id"))
+    eid = db.Column(db.Integer, db.ForeignKey("event.id"))
+    timestamp = db.Column(db.DateTime(timezone=False))
+    custom_values = db.Column(JSONB)
+
+    participation = db.relationship("Participation", foreign_keys="TriggeredEvent.paid")
+    event = db.relationship("Event", foreign_keys="TriggeredEvent.eid")
+
+    def __init__(self, paid, eid, timestamp=None, custom_values=None):
+        self.paid = paid
+        self.eid = eid
+        self.timestamp = timestamp
+        self.custom_values = custom_values
+
+    def __repr__(self):
+        return "<%s, participation: %s, event: %s>" % (self.timestamp, self.paid, self.event)
 
 
 class EventSkill(db.Model):

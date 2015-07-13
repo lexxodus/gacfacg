@@ -23,10 +23,13 @@ def get_player_json(player, public=True):
 @app.route('/worddomination1/api/player/', methods=['POST'])
 def create_player():
     data = request.get_json()
+    if not data["name"]:
+        abort(400)
+    name = data["name"]
     custom_values = {}
     for k, v in data.iteritems():
         custom_values[k] = v
-    player = Player(custom_values=custom_values)
+    player = Player(name, custom_values)
     db.session.add(player)
     db.session.commit()
     return jsonify(get_player_json(player)), 201
@@ -54,6 +57,8 @@ def update_player(id):
     if not player:
         abort(404)
     data = request.get_json()
+    if data["name"]:
+        player.name = data["name"]
     custom_values = {}
     for k, v in data.iteritems():
         custom_values[k] = v
@@ -83,15 +88,18 @@ def get_level_json(level, public=True):
 
 @app.route('/worddomination1/api/level/', methods=['POST'])
 def create_level():
-    expected_values = ["name", "description"]
+    expected_values = ["name", "description", "level_types"]
     data = request.get_json()
+    if not data["name"]:
+        abort(400)
     name = data["name"]
-    description = data["description"]
+    description = data.get("description", "")
+    level_types = data.get("level_types", None)
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
             custom_values[k] = v
-    level = Level(name, description, custom_values=custom_values)
+    level = Level(name, description, level_types, custom_values)
     db.session.add(level)
     db.session.commit()
     return jsonify(get_level_json(level)), 201
@@ -120,8 +128,12 @@ def update_level(id):
     if not level:
         abort(404)
     data = request.get_json()
-    level.name = data["name"]
-    level.description = data["description"]
+    if data["name"]:
+        level.name = data["name"]
+    if data["description"]:
+        level.description = data["description"]
+    if data["level_types"]:
+        level.level_types = data["level_types"]
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
@@ -154,13 +166,16 @@ def get_level_type_json(level_type, public=True):
 def create_level_type():
     expected_values = ["name", "description"]
     data = request.get_json()
+    if not data["name"]:
+        abort(400)
     name = data["name"]
-    description = data["description"]
+    description = data.get("description", "")
+    levels = data.get("levels", None)
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
             custom_values[k] = v
-    level_type = LevelType(name, description, custom_values=custom_values)
+    level_type = LevelType(name, description, levels, custom_values)
     db.session.add(level_type)
     db.session.commit()
     return jsonify(get_level_type_json(level_type)), 201
@@ -189,8 +204,12 @@ def update_level_type(id):
     if not level_type:
         abort(404)
     data = request.get_json()
-    level_type.name = data["name"]
-    level_type.description = data["description"]
+    if data["name"]:
+        level_type.name = data["name"]
+    if data["description"]:
+        level_type.description = data["description"]
+    if data["levels"]:
+        level_type.assign_to_level(data["levels"])
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
@@ -208,15 +227,6 @@ def delete_level_type(id):
     db.session.commit()
     return "", 204
 
-# @app.route('/worddomination1/api/type_assignment/', methods=['POST'])
-# def create_task():
-#     data = request.get_json()
-#     name = data["name"]
-#     description = data["description"]
-#     type_assignment = TypeAssignment(name, description, custom_values=custom_values)
-#     db.session.add(task)
-#     db.session.commit()
-#     return jsonify(get_task_json(task)), 201
 
 def get_task_json(task, public=True):
     data = {}
@@ -233,13 +243,15 @@ def get_task_json(task, public=True):
 def create_task():
     expected_values = ["name", "description"]
     data = request.get_json()
+    if not data["name"]:
+        abort(400)
     name = data["name"]
-    description = data["description"]
+    description = data.get("description", "")
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
             custom_values[k] = v
-    task = Task(name, description, custom_values=custom_values)
+    task = Task(name, description, custom_values)
     db.session.add(task)
     db.session.commit()
     return jsonify(get_task_json(task)), 201
@@ -268,8 +280,10 @@ def update_task(id):
     if not task:
         abort(404)
     data = request.get_json()
-    task.name = data["name"]
-    task.description = data["description"]
+    if data["name"]:
+        task.name = data["name"]
+    if data["description"]:
+        task.description = data["description"]
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
@@ -306,20 +320,24 @@ def get_event_json(event, public=True):
 @app.route('/worddomination1/api/event/', methods=['POST'])
 def create_event():
     expected_values = ["tid", "name", "description", "skill_points", "score_points", "skill_interval", "score_interval"]
+    required_values = ["tid", "name"]
     data = request.get_json()
+    for v in required_values:
+        if not data[v]:
+            abort(400)
     tid = data["tid"]
     name = data["name"]
-    description = data["description"]
-    skill_points = data["skill_points"]
-    score_points = data["score_points"]
-    skill_interval = data["skill_interval"]
-    score_interval = data["score_interval"]
+    description = data.get("description", "")
+    skill_points = data.get("skill_points", 0)
+    score_points = data.get("score_points", 0)
+    skill_interval = data.get("skill_interval", 1)
+    score_interval = data.get("score_interval", 1)
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
             custom_values[k] = v
     event = Event(tid, name, description, skill_points, score_points,
-                  skill_interval, score_interval, custom_values=custom_values)
+                  skill_interval, score_interval, custom_values)
     db.session.add(event)
     db.session.commit()
     return jsonify(get_event_json(event)), 201
@@ -348,13 +366,20 @@ def update_event(id):
     if not event:
         abort(404)
     data = request.get_json()
-    event.tid = data["tid"]
-    event.name = data["name"]
-    event.description = data["description"]
-    event.skill_points = data["skill_points"]
-    event.score_points = data["score_points"]
-    event.skill_interval = data["skill_interval"]
-    event.score_interval = data["score_interval"]
+    if data["tid"]:
+        event.tid = data["tid"]
+    if data["name"]:
+        event.name = data["name"]
+    if data["description"]:
+        event.description = data["description"]
+    if data["skill_points"]:
+        event.skill_points = data["skill_points"]
+    if data["score_points"]:
+        event.score_points = data["score_points"]
+    if data["skill_interval"]:
+        event.skill_interval = data["skill_interval"]
+    if data["score_interval"]:
+        event.score_interval = data.get["score_interval"]
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
@@ -384,7 +409,7 @@ def delete_event(id):
 #         if k not in expected_values:
 #            custom_values[k] = v
 #     atempt = 1
-#     level_instance = LevelInstance(custom_values=custom_values)
+#     level_instance = LevelInstance(custom_values)
 #     db.session.add(player)
 #     db.session.commit(
 #     return "bla", 201

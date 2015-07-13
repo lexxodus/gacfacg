@@ -20,19 +20,29 @@ class Player(db.Model):
         return "<player: %s>" % self.id
 
 
+type_assignment = db.Table(
+    "type_assignment",
+    db.Column('lid', db.Integer, db.ForeignKey('level.id')),
+    db.Column('ltid', db.Integer, db.ForeignKey('level_type.id')),
+)
+
+
 class Level(db.Model):
     __tablename__ = "level"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text())
+    level_types = db.relationship("LevelType",
+                                  secondary=type_assignment)
     custom_values = db.Column(JSONB)
-#     level_types = db.relationship("LevelType",
-#                     secondary=type_assignment)
 
-    def __init__(self, name, description, custom_values=None):
+    def __init__(self, name, description, level_types, custom_values=None):
         self.name = name
         self.description = description
+        if level_types:
+            for lt in level_types:
+                self.level_types.append(lt)
         self.custom_values = custom_values
 
     def __repr__(self):
@@ -47,20 +57,21 @@ class LevelType(db.Model):
     description = db.Column(db.Text())
     custom_values = db.Column(JSONB)
 
-    def __init__(self, name, description, custom_values=None):
+    def __init__(self, name, description, levels=None, custom_values=None):
         self.name = name
         self.description = description
         self.custom_values = custom_values
+        if levels:
+            self.assign_to_level(levels)
 
     def __repr__(self):
         return "<lvltype: %s>" % self.name
 
+    def assign_to_level(self, levels):
+        for l in levels:
+            level = l.query.get(l)
+            level.level_types.append(self)
 
-type_assignment = db.Table(
-    "type_assignment",
-    db.Column('lid', db.Integer, db.ForeignKey('level.id')),
-    db.Column('ltid', db.Integer, db.ForeignKey('level_type.id')),
-)
 
 
 class Task(db.Model):

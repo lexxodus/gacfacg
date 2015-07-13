@@ -154,22 +154,16 @@ class Participation(db.Model):
     liid = db.Column(db.Integer, db.ForeignKey("level_instance.id"))
     start_time = db.Column(db.DateTime(timezone=False))
     end_time = db.Column(db.DateTime(timezone=False))
-    atempt = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
     player = db.relationship("Player", foreign_keys="Participation.pid")
     level_instance = db.relationship("LevelInstance", foreign_keys="Participation.liid")
 
-    __table_args__ = (
-        db.CheckConstraint(atempt >= 0, name='check_atempt_positive'),
-    )
-
-    def __init__(self, pid, liid, start_time, atempt, end_time=None, custom_values=None):
+    def __init__(self, pid, liid, start_time, end_time=None, custom_values=None):
         self.pid = pid
         self.liid = liid
         self.start_time = start_time
         self.end_time = end_time
-        self.atempt = atempt
         self.custom_values = custom_values
 
     def __repr__(self):
@@ -256,10 +250,15 @@ class LevelSkill(db.Model):
     considered_rows = db.Column(db.Integer())
     skill_points = db.Column(db.Integer())
     high_score = db.Column(db.Integer())
+    attempt = db.Column(db.Integer())
     custom_values = db.Column(JSONB)
 
     player = db.relationship("Player", foreign_keys="LevelSkill.pid")
     level = db.relationship("Level", foreign_keys="LevelSkill.lid")
+
+    __table_args__ = (
+        db.CheckConstraint(attempt >= 0, name='check_attempt_positive'),
+    )
 
     def __init__(self, pid, lid):
         self.pid = pid

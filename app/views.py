@@ -23,7 +23,7 @@ def get_player_json(player, public=True):
 @app.route('/worddomination1/api/player/', methods=['POST'])
 def create_player():
     data = request.get_json()
-    if not data["name"]:
+    if "name" not in data:
         abort(400)
     name = data["name"]
     custom_values = {}
@@ -57,7 +57,7 @@ def update_player(id):
     if not player:
         abort(404)
     data = request.get_json()
-    if data["name"]:
+    if "name" in data:
         player.name = data["name"]
     custom_values = {}
     for k, v in data.iteritems():
@@ -90,7 +90,7 @@ def get_level_json(level, public=True):
 def create_level():
     expected_values = ["name", "description", "level_types"]
     data = request.get_json()
-    if not data["name"]:
+    if "name" not in data:
         abort(400)
     name = data["name"]
     description = data.get("description", "")
@@ -128,11 +128,11 @@ def update_level(id):
     if not level:
         abort(404)
     data = request.get_json()
-    if data["name"]:
+    if "name" in data:
         level.name = data["name"]
-    if data["description"]:
+    if "description" in data:
         level.description = data["description"]
-    if data["level_types"]:
+    if "level_types" in data:
         level.level_types = data["level_types"]
     custom_values = {}
     for k, v in data.iteritems():
@@ -166,7 +166,7 @@ def get_level_type_json(level_type, public=True):
 def create_level_type():
     expected_values = ["name", "description"]
     data = request.get_json()
-    if not data["name"]:
+    if "name" not in data:
         abort(400)
     name = data["name"]
     description = data.get("description", "")
@@ -204,11 +204,11 @@ def update_level_type(id):
     if not level_type:
         abort(404)
     data = request.get_json()
-    if data["name"]:
+    if "name" in data:
         level_type.name = data["name"]
-    if data["description"]:
+    if "description" in data:
         level_type.description = data["description"]
-    if data["levels"]:
+    if "levels" in data:
         level_type.assign_to_level(data["levels"])
     custom_values = {}
     for k, v in data.iteritems():
@@ -243,7 +243,7 @@ def get_task_json(task, public=True):
 def create_task():
     expected_values = ["name", "description"]
     data = request.get_json()
-    if not data["name"]:
+    if "name" not in data:
         abort(400)
     name = data["name"]
     description = data.get("description", "")
@@ -280,9 +280,9 @@ def update_task(id):
     if not task:
         abort(404)
     data = request.get_json()
-    if data["name"]:
+    if "name" in data:
         task.name = data["name"]
-    if data["description"]:
+    if "description" in data:
         task.description = data["description"]
     custom_values = {}
     for k, v in data.iteritems():
@@ -322,9 +322,8 @@ def create_event():
     expected_values = ["tid", "name", "description", "skill_points", "score_points", "skill_interval", "score_interval"]
     required_values = ["tid", "name"]
     data = request.get_json()
-    for v in required_values:
-        if not data[v]:
-            abort(400)
+    if not all(v in data for v in required_values):
+        abort(400)
     tid = data["tid"]
     name = data["name"]
     description = data.get("description", "")
@@ -366,19 +365,19 @@ def update_event(id):
     if not event:
         abort(404)
     data = request.get_json()
-    if data["tid"]:
+    if "tid" in data:
         event.tid = data["tid"]
-    if data["name"]:
+    if "name" in data:
         event.name = data["name"]
-    if data["description"]:
+    if "description" in data:
         event.description = data["description"]
-    if data["skill_points"]:
+    if "skill_points" in data:
         event.skill_points = data["skill_points"]
-    if data["score_points"]:
+    if "score_points" in data:
         event.score_points = data["score_points"]
-    if data["skill_interval"]:
+    if "skill_interval" in data:
         event.skill_interval = data["skill_interval"]
-    if data["score_interval"]:
+    if "score_interval" in data:
         event.score_interval = data.get["score_interval"]
     custom_values = {}
     for k, v in data.iteritems():

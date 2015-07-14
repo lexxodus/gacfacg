@@ -5,6 +5,7 @@ __author__ = 'lexxodus'
 
 from app import db
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.sql import func
 
 
 class Player(db.Model):
@@ -159,7 +160,7 @@ class Participation(db.Model):
     player = db.relationship("Player", foreign_keys="Participation.pid")
     level_instance = db.relationship("LevelInstance", foreign_keys="Participation.liid")
 
-    def __init__(self, pid, liid, start_time, end_time=None, custom_values=None):
+    def __init__(self, pid, liid, start_time=None, end_time=None, custom_values=None):
         self.pid = pid
         self.liid = liid
         self.start_time = start_time
@@ -202,7 +203,6 @@ class EventSkill(db.Model):
     considered_rows = db.Column(db.Integer())
     skill_points = db.Column(db.Integer())
     high_score = db.Column(db.Integer())
-    custom_values = db.Column(JSONB)
 
     player = db.relationship("Player", foreign_keys="EventSkill.pid")
     event = db.relationship("Event", foreign_keys="EventSkill.eid")
@@ -211,6 +211,10 @@ class EventSkill(db.Model):
         self.pid = pid
         self.eid = eid
         self.calculated_on = datetime.now()
+        # query = db.session.query(func.sum(Event.SkillPoints).label("sum"),\
+        #                          func.count(TriggeredEvent.id).label("count")).\
+        #     filter(Participation.pid == self.pid).\
+        #     filter(TriggeredEvent.eid == self.eid)
 
     def __repr__(self):
         return "<player: %s, event: %s, skill: %s, %s>" % (self.player, self.event, self.skill_points, self.calculated_on)

@@ -3,7 +3,7 @@ __author__ = 'lexxodus'
 
 from app import app, db
 from app.models import Player, Level, LevelInstance, LevelType, Task,\
-    Event
+    Event, Participation, TriggeredEvent, EventSkill
 from datetime import datetime
 from flask import abort, jsonify, request, url_for
 
@@ -396,19 +396,290 @@ def delete_event(id):
     db.session.commit()
     return "", 204
 
-# @app.route('/worddomination1/api/level_instance/', methods=['POST'])
-# def start_level_instance():
-#     expected_values = ["level", "players", "start_time", "atempt", "end_time"]
+def get_level_instance_json(level_instance, public=True):
+    data = {}
+    data["id"] = level_instance.id
+    data["lid"] = level_instance.lid
+    data["start_time"] = level_instance.start_time
+    data["end_time"] = level_instance.end_time
+    data["players"] = Participation.query.with_entities(Participation.pid).\
+        filter_by(lid=level_instance.lid).all()
+    if public:
+        data['api_url'] = url_for('get_level_instance', id=data['id'], _external=True)
+    for k, v in level_instance.custom_values.iteritems():
+        data[k] = v
+    return data
+
+@app.route('/worddomination1/api/level_instance/', methods=['POST'])
+def start_level_instance():
+    expected_values = ["lid", "start_time", "end_time", "players"]
+    data = request.get_json()
+    if "lid" not in data:
+        abort(404)
+    lid = data["lid"]
+    start_time = data.get("start_time", datetime.now())
+    end_time = data.get("end_time", None)
+    players = data.get("players", None)
+    custom_values = {}
+    for k, v in data.iteritems():
+        if k not in expected_values:
+           custom_values[k] = v
+    level_instance = LevelInstance(lid, start_time, end_time, players, custom_values)
+    db.session.add(level_instance)
+    db.session.commit()
+    return jsonify(get_level_instance_json(level_instance)), 201
+
+@app.route('/worddomination1/api/level_instance/', methods=['GET'])
+def get_all_level_instances():
+    level_instances = LevelInstance.query.order_by(LevelInstance.id).all()
+    if not level_instances:
+        abort(404)
+    data = []
+    for li in level_instances:
+        data.append(get_level_instance_json(level_instances))
+    return jsonify({"data":data})
+
+@app.route('/worddomination1/api/level_instance/<int:id>', methods=['GET'])
+def get_level_instance(id):
+    level_instance = LevelInstance.query.get(id)
+    if not level_instance:
+        abort(404)
+    return jsonify(get_level_instance_json(level_instance))
+
+@app.route('/worddomination1/api/level_instance/<int:id>', methods=['PUT'])
+def update_level_instance(id):
+    expected_values = ["lid", "start_time", "end_time"]
+    level_instance = LevelInstance.query.get(id)
+    if not level_instance:
+        abort(404)
+    data = request.get_json()
+    if "lid" in data:
+        level_instance.lid = data["lid"]
+    if "start_time" in data:
+        level_instance.start_time = data["start_time"]
+    if "end_time" in data:
+        level_instance.end_time = data["end_time"]
+    custom_values = {}
+    for k, v in data.iteritems():
+        if k not in expected_values:
+            custom_values[k] = v
+    level_instance.custom_values = custom_values
+    db.session.commit()
+    return jsonify(get_event_json(level_instance))
+
+@app.route('/worddomination1/api/level_instance/<int:id>', methods=['DELETE'])
+def delete_level_instance(id):
+    level_instance = LevelInstance.query.get(id)
+    if not level_instance:
+        abort(404)
+    db.session.delete(level_instance)
+    db.session.commit()
+    return "", 204
+
+def get_triggered_event_json(triggered_event, public=True):
+    data = {}
+    data["id"] = triggered_event.id
+    data["paid"] = triggered_event.paid
+    data["eid"] = triggered_event.eid
+    data["timestamp"] = triggered_event.time_stamp
+    if public:
+        data['api_url'] = url_for('get_triggered_event', id=data['id'], _external=True)
+    for k, v in triggered_event.custom_values.iteritems():
+        data[k] = v
+    return data
+
+@app.route('/worddomination1/api/triggered_event/', methods=['POST'])
+def create_triggered_event():
+    expected_values = ["paid", "eid", "timestamp"]
+    required_values = ["paid", "eid"]
+    data = request.get_json()
+    if not all(v in data for v in required_values):
+        abort(404)
+    paid = data["paid"]
+    eid = data["eid"]
+    time_stamp = data.get("timestamp", datetime.now())
+    custom_values = {}
+    for k, v in data.iteritems():
+        if k not in expected_values:
+           custom_values[k] = v
+    triggered_event = LevelInstance(paid, eid, time_stamp, custom_values)
+    db.session.add(triggered_event)
+    db.session.commit()
+    return jsonify(get_triggered_event_json(triggered_event)), 201
+
+@app.route('/worddomination1/api/triggered_event/', methods=['GET'])
+def get_all_triggered_events():
+    args = request.args
+    query = TriggeredEvent.query
+    pids = args.getlist("pid")
+    liids = args.getlist("liid")
+    lids = args.getlist("lid")
+    ltids = args.getlist("ltid")
+    tids = args.getlist("tid")
+    eids = args.getlist("eid")
+    if pids or liids or lids or ltids:
+        participations = Participation.query.with_entities(Participation.id)
+        if pids:
+            participations = Participation.query.with_entities(Participation.id).filter(Participation.pid in pids)
+        if ltids or lids:
+            level_instance = LevelInstance.query
+            if ltids:
+                levels = Level.query.with_entities(Level.id).filter(ltids in ltids).all()
+                lids += levels
+            if lids:
+                level_instances = level_instance.filter(LevelInstance.lid in lids).all()
+                liids += level_instances
+        if liids:
+            participations = participations.filter(Participation.pid in liids)
+        query = query.filter(TriggeredEvent.paid in participations)
+        if tids:
+            tasks = Event.query.with_entities(Event.id).filter(Event.tid in tids).all()
+            eids += tasks
+        if eids:
+            query = query.filter(TriggeredEvent.eid in eids)
+    triggered_events = query.order_by(TriggeredEvent.id).all()
+    if not triggered_events:
+        abort(404)
+    data = []
+    for t in triggered_events:
+        data.append(get_triggered_event_json(t))
+    return jsonify({"data":data})
+
+@app.route('/worddomination1/api/triggered_event/<int:id>', methods=['GET'])
+def get_triggered_event(id):
+    triggered_event = TriggeredEvent.query.get(id)
+    if not triggered_event:
+        abort(404)
+    return jsonify(get_triggered_event_json(triggered_event))
+
+@app.route('/worddomination1/api/triggered_event/<int:id>', methods=['PUT'])
+def update_triggered_event(id):
+    expected_values = ["paid", "eid", "timestamp"]
+    triggered_event = TriggeredEvent.query.get(id)
+    if not triggered_event:
+        abort(404)
+    data = request.get_json()
+    if "paid" in data:
+        triggered_event.paid = data["lid"]
+    if "eid" in data:
+        triggered_event.eid = data["eid"]
+    if "timestamp" in data:
+        triggered_event.timestamp = data["timestamp"]
+    custom_values = {}
+    for k, v in data.iteritems():
+        if k not in expected_values:
+            custom_values[k] = v
+    triggered_event.custom_values = custom_values
+    db.session.commit()
+    return jsonify(get_triggered_event_json(triggered_event))
+
+@app.route('/worddomination1/api/triggered_event/<int:id>', methods=['DELETE'])
+def delete_triggered_event(id):
+    triggered_event = TriggeredEvent.query.get(id)
+    if not triggered_event:
+        abort(404)
+    db.session.delete(triggered_event)
+    db.session.commit()
+    return "", 204
+
+
+def get_event_skill_json(event_skill, public=True):
+    data = {}
+    data["id"] = event_skill.id
+    data["paid"] = event_skill.paid
+    data["eid"] = event_skill.eid
+    data["calculated_on"] = event_skill.calculated_on
+    data["considered_rows"] = event_skill.considered_rows
+    data["skill_points"] = event_skill.skill_points
+    data["score_points"] = event_skill.score_points
+    if public:
+        data['api_url'] = url_for('get_triggered_event', id=data['id'], _external=True)
+    return data
+
+@app.route('/worddomination1/api/event_skill/', methods=['POST'])
+def calculate_event_skill():
+    required_values = ["pid", "eid"]
+    data = request.get_json()
+    if not all(v in data for v in required_values):
+        abort(404)
+    pid = data["pid"]
+    eid = data["eid"]
+    event_skill = EventSkill(pid, eid)
+    db.session.add(event_skill)
+    db.session.commit()
+    return jsonify(get_event_skill_json(event_skill)), 201
+
+# @app.route('/worddomination1/api/event_skill/', methods=['GET'])
+# def get_all_event_skill():
+#     args = request.args
+#     query = EventSkill.query
+#     pids = args.getlist("pid")
+#     liids = args.getlist("liid")
+#     lids = args.getlist("lid")
+#     ltids = args.getlist("ltid")
+#     tids = args.getlist("tid")
+#     eids = args.getlist("eid")
+#     if pids or liids or lids or ltids:
+#         participations = Participation.query.with_entities(Participation.id)
+#         if pids:
+#             participations = Participation.query.with_entities(Participation.id).filter(Participation.pid in pids)
+#         if ltids or lids:
+#             level_instance = LevelInstance.query
+#             if ltids:
+#                 levels = Level.query.with_entities(Level.id).filter(ltids in ltids).all()
+#                 lids += levels
+#             if lids:
+#                 level_instances = level_instance.filter(LevelInstance.lid in lids).all()
+#                 liids += level_instances
+#         if liids:
+#             participations = participations.filter(Participation.pid in liids)
+#         query = query.filter(TriggeredEvent.paid in participations)
+#         if tids:
+#             tasks = Event.query.with_entities(Event.id).filter(Event.tid in tids).all()
+#             eids += tasks
+#         if eids:
+#             query = query.filter(TriggeredEvent.eid in eids)
+#     triggered_events = query.order_by(TriggeredEvent.id).all()
+#     if not triggered_events:
+#         abort(404)
+#     data = []
+#     for t in triggered_events:
+#         data.append(get_triggered_event_json(t))
+#     return jsonify({"data":data})
+#
+# @app.route('/worddomination1/api/triggered_event/<int:id>', methods=['GET'])
+# def get_triggered_event(id):
+#     triggered_event = TriggeredEvent.query.get(id)
+#     if not triggered_event:
+#         abort(404)
+#     return jsonify(get_triggered_event_json(triggered_event))
+#
+# @app.route('/worddomination1/api/triggered_event/<int:id>', methods=['PUT'])
+# def update_triggered_event(id):
+#     expected_values = ["paid", "eid", "timestamp"]
+#     triggered_event = TriggeredEvent.query.get(id)
+#     if not triggered_event:
+#         abort(404)
 #     data = request.get_json()
-#     lid = data["lid"]
-#     start_time = data.get("start_time", datetime.now())
-#     players = data.get("players", [])
+#     if "paid" in data:
+#         triggered_event.paid = data["lid"]
+#     if "eid" in data:
+#         triggered_event.eid = data["eid"]
+#     if "timestamp" in data:
+#         triggered_event.timestamp = data["timestamp"]
 #     custom_values = {}
 #     for k, v in data.iteritems():
 #         if k not in expected_values:
-#            custom_values[k] = v
-#     atempt = 1
-#     level_instance = LevelInstance(custom_values)
-#     db.session.add(player)
-#     db.session.commit(
-#     return "bla", 201
+#             custom_values[k] = v
+#     triggered_event.custom_values = custom_values
+#     db.session.commit()
+#     return jsonify(get_triggered_event_json(triggered_event))
+#
+# @app.route('/worddomination1/api/triggered_event/<int:id>', methods=['DELETE'])
+# def delete_triggered_event(id):
+#     triggered_event = TriggeredEvent.query.get(id)
+#     if not triggered_event:
+#         abort(404)
+#     db.session.delete(triggered_event)
+#     db.session.commit()
+#     return "", 204

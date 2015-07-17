@@ -1,9 +1,11 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
+from dummy import event_handler
 from dummy.game_objects import Answer, Base, Question, Quiz, Player, Team
 from dummy.word_domination import WordDomination
 from random import choice, randint, random, shuffle
+import string
 
 
 class Simulation(object):
@@ -12,25 +14,53 @@ class Simulation(object):
     INITIAL_ACTIONS = ["shoot", "base capture"]
 
     def __init__(self):
+        bases = self.generate_bases(4)
+        quiz = self.generate_quiz()
+        self.wd = WordDomination(bases, quiz)
+
+    def create_players(self, amount):
+        for p in range(1, amount + 1):
+            name = "Player %s" % p
+            # is in clan
+            if random() < 0.3:
+                clan_letters = []
+                clan_letters.append(choice(string.ascii_uppercase))
+                clan_letters.append(choice(string.ascii_uppercase))
+                clan_letters.append(choice(string.ascii_uppercase))
+                clan ="".join(clan_letters)
+            else:
+                clan = None
+            self.wd.create_player(name, clan)
+
+    def load_players(self, max_amount):
+        players = event_handler.get_all_players()[:max_amount]
+        # assign each player to a team
+        self.players = []
+        # create teams
+        self.create_teams()
+        for i, p in enumerate(players):
+            # assign player round robbin
+            team = self.teams.keys()[i % len(self.teams.keys())]
+            # give player a strength and weakness
+            strength = self.ACTIONS[i % len(players)]
+            weakness = self.ACTIONS[-(i+1) % len(players)]
+            player = self.wd.load_player(p["id"])
+            self.wd.add_player_to_team(player, team)
+            self.players.append({
+                "player": player,
+                "team": team,
+                "strength": strength,
+                "weakness": weakness,
+                "location": None,
+            })
+            self.teams[team].append(p)
+
+    def create_teams(self, amount=2):
         self.teams = {}
-        self.sim_players = {}
-        self.bases = self.generate_bases()
-        self.quiz = self.generate_quiz()
-        self.wd = WordDomination(self.bases, self.quiz)
-        for t in range(2):
-            team_name = "Team %s" % t
-            team = self.wd.create_team(team_name)
+        for t in range(amount):
+            team = Team("Team %s" % t)
             self.teams[team] = []
-            for p in range(0+t*3,3+t*3):
-                player_name = "Player %s" % p
-                player = self.wd.add_player_to_team(player_name, team)
-                self.sim_players[player] = {
-                    "weakness": "Weakness %s" % self.ACTIONS[p],
-                    "team": team,
-                    "location": None,
-                }
-                self.teams[team].append(player)
-        self.perform_actions()
+        return self.teams
 
     def generate_quiz(self):
         questions = []
@@ -55,116 +85,196 @@ class Simulation(object):
             questions.append(Question("Question %s" % q, difficulty, answers))
         return Quiz(questions)
 
-    def generate_bases(self):
+    def generate_bases(self, amount):
         bases = []
-        for b in range(3):
+        for b in range(1, amount):
             bases.append(Base(b))
         return bases
 
-
-    def perform_actions(self):
-        for event in range(120):
-            player = choice(list(self.sim_players))
+    def perform_actions(self, amount):
+        for event in range(amount):
+            player = choice(self.players)
             self.perform_initial_action(player)
 
     def perform_initial_action(self, player):
+        if not player["player"].active:
+            player["player"].active = True
+            return
         action = choice(self.INITIAL_ACTIONS)
         if action == "shoot":
-            enemy_shot = False
-            hit = False
-            weapon = "3d"
-            if self.sim_players[player]["weakness"] == "shooting":
-                for s in range(randint(1, 30)):
-                    player.misses()
-                if random() < 0.3:
-                    hit = True
-                    if random() < 0.6:
-                        enemy_shot = True
-                rnd = random()
-                if rnd < 0.4:
-                   if rnd < 0.3:
-                       weapon = "2d"
-                   else:
-                       weapon = "1d"
-            else:
-                for s in range(randint(1, 10)):
-                    player.misses()
-                if random() < 0.5:
-                    hit = True
-                    if random() < 0.9:
-                        enemy_shot = True
-                weapon = "%sd" % randint(1,3)
-            if hit:
-                friendly_team = self.sim_players[player]["team"]
-                if enemy_shot:
-                    for t in self.teams:
-                       if t is not friendly_team:
-                           target = choice(self.teams[t])
-                           break
-                else:
-                    for t in self.teams:
-                        if t is friendly_team:
-                            allies = [p for p in self.teams[t] if p != player]
-                            target = choice(allies)
-                            break
-                self.wd.player_shoots_player(player, target, weapon)
-                answers = self.answer_question(target.question, target)
-                target.give_answers(answers)
-
+            self.action_shoot(player)
         if action == "base capture":
+            self.capture_base(player)
+
+
+    def capture_base(self, player):
+        if player["strength"] == "base capturing":
+            atempt_chance = 0.9
+        if player["weakness"] == "base capturing":
+            atempt_chance = 0.5
+        else:
+            atempt_chance = 0.7
+        if random() < atempt_chance:
             player_locations = {}
-            for b in self.bases:
+            for b in self.wd.bases:
                 player_locations[b] = []
-            player_locations[None] = []
-            for p in self.sim_players:
-                if p.active and random() < 0.6:
-                    location = choice(self.bases)
+                player_locations[None] = []
+            for p in self.players:
+                if p["player"].active and random() < 0.6:
+                    location = choice(self.wd.bases)
                 else:
                     location = None
-                self.sim_players[p]["location"] = location
+                p["location"] = location
                 player_locations[location].append(p)
             success_rate = 0
-            location = self.sim_players[player]["location"]
+            location = player["location"]
             supporters = []
             defense = []
+            hit_attackers = []
             if location:
                 for p in player_locations[location]:
-                    if self.sim_players[p]["team"]\
-                            is self.sim_players[player]["team"]:
+                    # tries to shoot enemy player last player is removed
+                    if random() < 0.2:
+                        if len(player_locations[location]) > 1:
+                            target, weapon = self.action_shoot(p, player_locations[location])
+                            if target:
+                                hit_player = target
+                                player_locations[location].remove(p)
+                                if hit_player["team"] is player["team"]:
+                                    hit_attackers.append(hit_player)
+                            continue
+                    if p["team"] is player["team"]:
                         if p is not player:
-                            supporters.append(p)
-                        if self.sim_players[p]["weakness"] ==\
-                                "base capturing" or "assisting":
-                            capture_aid = 4
+                            supporters.append(p["player"])
+                        if p["strength"] == "assisting":
+                            capture_aid = 20
+                        elif p["weakness"] == "assisting":
+                            capture_aid = 5
                         else:
                             capture_aid = 10
                     else:
                         defense.append(p)
-                        if self.sim_players[p]["weakness"] == "base defense":
+                        if p["strength"] == "base defense":
+                            capture_aid = -16
+                        elif p["weakness"] == "base defense":
                             capture_aid = -4
                         else:
-                            capture_aid = -10
+                            capture_aid = -8
                     success_rate += capture_aid
-            if success_rate > 0 and random() < 0.7:
-                # success and reward
-                self.wd.player_captures_base(
-                    player, location, supporters, defense)
-            elif  len(defense) > 0:
-                # fail
-                attackers = list(supporters)
-                attackers.append(player)
-                shuffle(attackers)
-                hit_attackers = attackers[:randint(0, len(attackers) - 1)]
-                recapturer = choice(defense)
-                if self.sim_players[recapturer]["weakness"] == "base defense":
-                    recapturer = choice(defense)
-                defenders = [p for p in defense if p is not recapturer]
-                self.wd.player_defends_base(recapturer, defenders, hit_attackers, location)
+                if success_rate > 0 and random() < 0.7:
+                    # success and reward
+                    defenders = [p["player"] for p in defense]
+                    self.wd.player_captures_base(
+                        player["player"], location, supporters, defenders)
+                elif  len(defense) > 0:
+                    # fail
+                    attackers = list(supporters)
+                    attackers.append(player["player"])
+                    recapturer = None
+                    defenders = []
+                    for p in defense:
+                        if p["team"] is not player["team"]:
+                            recapture_chance = 0.0
+                            if p["strength"] == "base defense":
+                                recapture_chance = (1.0 / len(defense)) * 2.0
+                            elif p["weakness"] == "base defense":
+                                recapture_chance = (1.0 / len(defense)) / 2.0
+                            if random() < recapture_chance:
+                                recapturer = p["player"]
+                                defense.remove(p)
+                            else:
+                                defenders.append(p["player"])
+                    if not recapturer:
+                        recapturer = choice(defense)["player"]
+                    self.wd.player_defends_base(
+                        recapturer, defenders, hit_attackers, location)
 
             # unfreeze players
-            for p in self.sim_players:
-                p.active = True
+            for p in self.players:
+                p["player"].active = True
 
+    def action_shoot(self, player, possible_targets=None):
+        if possible_targets:
+            # there are no enemy players, he will not shoot
+            will_shoot = False
+            for t in possible_targets:
+                if player["team"] is not t["team"]:
+                    will_shoot = True
+                    break
+            if not will_shoot:
+                return None, None
+        enemy_shot = False
+        weapon = "3d"
+        if player["strength"] == "shooting":
+            # randomly missed shots
+            miss_limit = 5
+            genereal_hit_chance = 0.7
+            enemy_hit_chance = 0.9
+            weapon_chance_3d = 0.2
+            # if not 3d
+            weapon_chance_2d = 0.3
+        elif player["weakness"] == "shooting":
+            # randomly missed shots
+            miss_limit = 20
+            genereal_hit_chance = 0.3
+            enemy_hit_chance = 0.6
+            weapon_chance_3d = 0.6
+            # if not 3d
+            weapon_chance_2d = 0.7
+        else:
+            # randomly missed shots
+            miss_limit = 10
+            genereal_hit_chance = 0.5
+            enemy_hit_chance = 0.9
+            weapon_chance_3d = 0.33
+            # if not 3d
+            weapon_chance_2d = 0.5
+        for s in range(randint(1, miss_limit)):
+            player["player"].misses()
+        if random() < genereal_hit_chance:
+            if random() < enemy_hit_chance:
+                enemy_shot = True
+        else:
+            return None, None
+        rnd = random()
+        if rnd < 1 - weapon_chance_3d:
+           if rnd < weapon_chance_2d:
+               weapon = "2d"
+           else:
+               weapon = "1d"
+        friendly_team = player["team"]
+        if possible_targets:
+            nearby_targets = possible_targets
+        else:
+            nearby_targets = self.players
+        real_targets = []
+        if enemy_shot:
+            for p in nearby_targets:
+                if p["team"] is not friendly_team:
+                    real_targets.append(p)
+        else:
+            for p in nearby_targets:
+                if p["team"] is friendly_team and p is not player:
+                    real_targets.append(p)
+        for p in real_targets:
+            if player["strength"] == "surviving":
+                if random() < (1.0 / len(real_targets)) / 3:
+                    target = p
+                    real_targets.remove(p)
+                    break
+            elif player["weakness"] == "surviving":
+                if random() < (1.0 / len(real_targets)) * 3:
+                    target = p
+                    real_targets.remove(p)
+                    break
+        if not "target" in locals():
+            if not real_targets:
+                return None, None
+            target = choice(real_targets)
+        self.wd.player_shoots_player(player["player"], target["player"], weapon)
+        answers = self.answer_question(target["player"].question, target)
+        target["player"].give_answers(answers)
+        return target, weapon
 
     def answer_question(self, question, player):
         given_answers = []
@@ -177,7 +287,7 @@ class Simulation(object):
                 wrong_answers.append(a)
         rnd_right = random()
         rnd_wrong = random()
-        if self.sim_players[player]["weakness"] == "quiz solving":
+        if player["weakness"] == "quiz solving":
             if question.difficulty == "easy":
                 for a in right_answers:
                     if rnd_right < 0.6:

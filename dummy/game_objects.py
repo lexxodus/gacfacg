@@ -30,8 +30,10 @@ class Base(object):
 
 class Player(object):
 
-    def __init__(self, name, clan=None):
+    def __init__(self, id, name, public_url, clan=None):
+        self.id = id
         self.name = name
+        self.public_url = public_url
         self.answers = None
         self.question = None
         self.team = None
@@ -84,14 +86,17 @@ class Player(object):
     def give_answers(self, answers):
         self.answers = answers
         # evaluate answer
+        answered_correctly = True
         for a in answers:
             if a.right:
                 # send right answer
                 print("%s answered %s correctly with %s" % (self, self.question, a))
             else:
                 self.active = False
+                answered_correctly = False
                 # send wrong answer
                 print("%s answered %s wrong with %s" % (self, self.question, a))
+        return answered_correctly
 
     def __str__(self):
         return self.name

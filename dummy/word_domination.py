@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
+from dummy import event_handler
 from dummy.game_objects import Answer, Base, Question, Quiz, Player, Team
 
 class WordDomination(object):
@@ -11,10 +12,19 @@ class WordDomination(object):
         "3d": "easy"
     }
 
-    def __init__(self, base_amount, quiz):
+    def __init__(self, bases, quiz):
         self.teams = []
-        self.base = Base(base_amount)
+        self.bases = []
+        self.bases = bases
         self.quiz = quiz
+
+    def create_player(self, name, clan=None):
+        id, api_url = event_handler.create_player(name, clan)
+        return Player(id, name, clan, api_url)
+
+    def load_player(self, id):
+        player = event_handler.get_player(id)
+        return Player(id, player["name"], player["clan"], player["api_url"])
 
     def create_team(self, team_name):
         for t in self.teams:
@@ -24,14 +34,12 @@ class WordDomination(object):
         self.teams.append(team)
         return team
 
-    def add_player_to_team(self, player_name, team):
+    def add_player_to_team(self, player, team):
         for t in self.teams:
-            if t.player_name_in_team(player_name):
-                raise Exception("Player %s already exists!" % player_name)
-        player = Player(player_name)
+            if t.player(player):
+                raise Exception("Player %s already exists!" % player.name)
         player.assign_to_team(team)
         team.add_player(player)
-        return player
 
     def player_shoots_player(self, player, target, weapon):
         player.hit_target(target, weapon)

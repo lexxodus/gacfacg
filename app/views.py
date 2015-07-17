@@ -23,13 +23,10 @@ def get_player_json(player, public=True):
 @app.route('/worddomination1/api/player/', methods=['POST'])
 def create_player():
     data = request.get_json()
-    if "name" not in data:
-        abort(400)
-    name = data["name"]
     custom_values = {}
     for k, v in data.iteritems():
         custom_values[k] = v
-    player = Player(name, custom_values)
+    player = Player(custom_values)
     db.session.add(player)
     db.session.commit()
     return jsonify(get_player_json(player)), 201

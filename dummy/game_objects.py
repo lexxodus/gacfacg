@@ -78,23 +78,36 @@ class Player(GameObjects):
     def hit_target(self, target, weapon, base=None):
         # send triggered_event
         if self.team is not target.team:
+            trigger_event(self.participation, self.events["hit"],
+                          target=target.id, weapon=weapon)
             print("%s hit %s with %s" % (self, target, weapon))
         else:
+            trigger_event(self.participation, self.events["teamhit"],
+                          target=target.id, weapon=weapon)
             print("%s teamhit %s with %s" % (self, target, weapon))
 
     def misses(self):
+        trigger_event(self.participation, self.events["neverhit"])
         print("%s misses" % self)
 
     def captured(self, base):
+        trigger_event(self.participation, self.events["base captured"],
+                      base=str(base))
         print("%s captured %s" % (self, base))
 
     def assisted(self, player, base):
+        trigger_event(self.participation, self.events["base assist"],
+                      base=str(base), player=player.id)
         print("%s assisted %s capturing %s" % (self, player, base))
 
     def failed_to_defend(self, base, player):
+        trigger_event(self.participation, self.events["weak defender"],
+                      base=str(base), player=player.id)
         print("%s failed to defend %s against %s" % (self, base, player))
 
     def defended(self, base):
+        trigger_event(self.participation, self.events["base defended"],
+                      base=str(base))
         print("%s defended %s" % (self, base))
 
     def assisted_defender(self, defender, base):
@@ -103,12 +116,18 @@ class Player(GameObjects):
     def was_hit(self, player, weapon, base=None):
         # send triggered_event
         if base:
-            print("%s was hit by %s with %s while defending %s" (self, player, weapon, base))
+            trigger_event(self.participation, self.events["hit in action"],
+                          player=player.id, weapon=weapon, base=str(base))
+            print("%s was hit by %s with %s while defending %s" %
+                  (self, player, weapon, base))
         else:
+            trigger_event(self.participation, self.events["teamhit"],
+                          player=player.id, weapon=weapon)
             print("%s was hit by %s with %s" % (self, player, weapon))
 
     def ask_question(self, question):
-        print("%s is asked %s a %s question" % (self, question, question.difficulty))
+        print("%s is asked %s a %s question" %
+              (self, question, question.difficulty))
         self.question = question
 
     def give_answers(self, answers):
@@ -124,6 +143,21 @@ class Player(GameObjects):
                 answered_correctly = False
                 # send wrong answer
                 print("%s answered %s wrong with %s" % (self, self.question, a))
+        answers_str = [str(a) for a in answers]
+        answer_options = [str(a) for a in self.question.answers]
+        correct_answers = [str(a) for a in self.question.answers if a.right]
+        if answered_correctly:
+            trigger_event(self.participation, self.events["correct answer"],
+                          given_answers=answers_str, question=str(self.question),
+                          answer_options=answer_options,
+                          difficulty=self.question.difficulty,
+                          correct_answers=correct_answers)
+        else:
+            trigger_event(self.participation, self.events["wrong answer"],
+                          given_answers=answers_str, question=str(self.question),
+                          answer_options=answer_options,
+                          difficulty=self.question.difficulty,
+                          correct_answers=correct_answers)
         return answered_correctly
 
     def __str__(self):

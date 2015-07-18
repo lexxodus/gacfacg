@@ -92,6 +92,6 @@ def trigger_event(paid, eid, **kwargs):
         "paid": paid,
         "eid": eid,
     }
-    date.update(kwargs)
+    data.update(kwargs)
     response = requests.post(url, params=params, json=data).json()
 

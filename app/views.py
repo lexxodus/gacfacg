@@ -560,7 +560,7 @@ def get_triggered_event_json(triggered_event, public=True):
     data["id"] = triggered_event.id
     data["paid"] = triggered_event.paid
     data["eid"] = triggered_event.eid
-    data["timestamp"] = triggered_event.time_stamp
+    data["timestamp"] = triggered_event.timestamp
     if public:
         data['api_url'] = url_for('get_triggered_event', id=data['id'], _external=True)
     for k, v in triggered_event.custom_values.iteritems():
@@ -576,12 +576,12 @@ def create_triggered_event():
         abort(404)
     paid = data["paid"]
     eid = data["eid"]
-    time_stamp = data.get("timestamp", datetime.now())
+    timestamp = data.get("timestamp", datetime.now())
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
            custom_values[k] = v
-    triggered_event = LevelInstance(paid, eid, time_stamp, custom_values)
+    triggered_event = TriggeredEvent(paid, eid, timestamp, custom_values)
     db.session.add(triggered_event)
     db.session.commit()
     return jsonify(get_triggered_event_json(triggered_event)), 201

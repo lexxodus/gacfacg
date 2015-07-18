@@ -71,7 +71,7 @@ class Simulation(object):
                 if a == 3 and not has_right:
                     answers.append(Answer("Answer %s" % a, True))
                     break
-                if not has_right and randint(0, 3) == 0:
+                if not has_right and random() < 0.25:
                     answers.append(Answer("Answer %s" % a, True))
                     has_right = True
                 else:
@@ -286,49 +286,49 @@ class Simulation(object):
             else:
                 wrong_answers.append(a)
         rnd_right = random()
-        rnd_wrong = random()
-        if player["weakness"] == "quiz solving":
-            if question.difficulty == "easy":
-                for a in right_answers:
-                    if rnd_right < 0.6:
-                        given_answers.append(a)
-                for a in wrong_answers:
-                    if rnd_wrong < 0.2:
-                        given_answers.append(a)
-            elif question.difficulty == "medium":
-                for a in right_answers:
-                    if rnd_right < 0.4:
-                        given_answers.append(a)
-                for a in wrong_answers:
-                    if rnd_wrong < 0.3:
-                        given_answers.append(a)
-            else:
-                for a in right_answers:
-                    if rnd_right < 0.2:
-                        given_answers.append(a)
-                for a in wrong_answers:
-                    if rnd_wrong < 0.4:
-                        given_answers.append(a)
+        if player["strength"] == "quiz solving":
+            easy_right_chance = 0.9
+            medium_right_chance = 0.8
+            hard_right_chance = 0.7
+        elif player["weakness"] == "quiz solving":
+            easy_right_chance = 0.7
+            medium_right_chance = 0.5
+            hard_right_chance = 0.3
         else:
-            if question.difficulty == "easy":
-                for a in right_answers:
-                    if rnd_right < 0.9:
-                        given_answers.append(a)
-                for a in wrong_answers:
-                    if rnd_wrong < 0.05:
-                        given_answers.append(a)
-            elif question.difficulty == "medium":
-                for a in right_answers:
-                    if rnd_right < 0.7:
-                        given_answers.append(a)
-                for a in wrong_answers:
-                    if rnd_wrong < 0.1:
-                        given_answers.append(a)
+            easy_right_chance = 0.8
+            medium_right_chance = 0.6
+            hard_right_chance = 0.4
+        if question.difficulty == "easy":
+            if rnd_right < easy_right_chance:
+                given_answers = right_answers
             else:
-                for a in right_answers:
-                    if rnd_right < 0.5:
-                        given_answers.append(a)
-                for a in wrong_answers:
-                    if rnd_wrong < 0.2:
-                        given_answers.append(a)
+                for w in wrong_answers:
+                    if random < 0.4:
+                        given_answers.append(w)
+                if not given_answers:
+                    given_answers.append(choice(wrong_answers))
+                if random < easy_right_chance:
+                    given_answers.append(choice(right_answers))
+        elif question.difficulty == "medium":
+            if rnd_right < medium_right_chance:
+                given_answers = right_answers
+            else:
+                for w in wrong_answers:
+                    if random < 0.4:
+                        given_answers.append(w)
+                if not given_answers:
+                    given_answers.append(choice(wrong_answers))
+                if random < medium_right_chance:
+                    given_answers.append(choice(right_answers))
+        else:
+            if rnd_right < hard_right_chance:
+                given_answers = right_answers
+            else:
+                for w in wrong_answers:
+                    if random < 0.4:
+                        given_answers.append(w)
+                if not given_answers:
+                    given_answers.append(choice(wrong_answers))
+                if random < hard_right_chance:
+                    given_answers.append(choice(right_answers))
         return given_answers

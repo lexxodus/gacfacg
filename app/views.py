@@ -7,6 +7,7 @@ from app.models import Player, Level, LevelInstance, LevelType, Task,\
 from datetime import datetime
 from flask import abort, jsonify, request, url_for
 
+
 @app.route('/')
 def hello_world():
     return 'Hello World!'
@@ -399,8 +400,6 @@ def get_level_instance_json(level_instance, public=True):
     data["lid"] = level_instance.lid
     data["start_time"] = level_instance.start_time
     data["end_time"] = level_instance.end_time
-    data["players"] = Participation.query.with_entities(Participation.pid).\
-        filter_by(lid=level_instance.lid).all()
     if public:
         data['api_url'] = url_for('get_level_instance', id=data['id'], _external=True)
     for k, v in level_instance.custom_values.iteritems():
@@ -408,20 +407,19 @@ def get_level_instance_json(level_instance, public=True):
     return data
 
 @app.route('/worddomination1/api/level_instance/', methods=['POST'])
-def start_level_instance():
-    expected_values = ["lid", "start_time", "end_time", "players"]
+def create_level_instance():
+    expected_values = ["lid", "start_time", "end_time"]
     data = request.get_json()
     if "lid" not in data:
         abort(404)
     lid = data["lid"]
     start_time = data.get("start_time", datetime.now())
     end_time = data.get("end_time", None)
-    players = data.get("players", None)
     custom_values = {}
     for k, v in data.iteritems():
         if k not in expected_values:
            custom_values[k] = v
-    level_instance = LevelInstance(lid, start_time, end_time, players, custom_values)
+    level_instance = LevelInstance(lid, start_time, end_time, custom_values)
     db.session.add(level_instance)
     db.session.commit()
     return jsonify(get_level_instance_json(level_instance)), 201
@@ -462,7 +460,7 @@ def update_level_instance(id):
             custom_values[k] = v
     level_instance.custom_values = custom_values
     db.session.commit()
-    return jsonify(get_event_json(level_instance))
+    return jsonify(get_level_instance_json(level_instance))
 
 @app.route('/worddomination1/api/level_instance/<int:id>', methods=['DELETE'])
 def delete_level_instance(id):
@@ -470,6 +468,90 @@ def delete_level_instance(id):
     if not level_instance:
         abort(404)
     db.session.delete(level_instance)
+    db.session.commit()
+    return "", 204
+
+def get_participation_json(participation, public=True):
+    data = {}
+    data["id"] = participation.id
+    data["pid"] = participation.pid
+    data["liid"] = participation.liid
+    data["start_time"] = participation.start_time
+    data["end_time"] = participation.end_time
+    if public:
+        data['api_url'] = url_for('get_participation', id=data['id'], _external=True)
+    for k, v in participation.custom_values.iteritems():
+        data[k] = v
+    return data
+
+@app.route('/worddomination1/api/participation/', methods=['POST'])
+def create_participation():
+    expected_values = ["pid", "liid", "start_time", "end_time"]
+    required_values = ["pid", "liid"]
+    data = request.get_json()
+    for v in required_values:
+        if v not in data:
+            abort(404)
+    pid = data["pid"]
+    liid = data["liid"]
+    start_time = data.get("start_time", datetime.now())
+    end_time = data.get("end_time", None)
+    custom_values = {}
+    for k, v in data.iteritems():
+        if k not in expected_values:
+           custom_values[k] = v
+    participation = Participation(pid, liid, start_time, end_time, custom_values)
+    db.session.add(participation)
+    db.session.commit()
+    return jsonify(get_participation_json(participation)), 201
+
+@app.route('/worddomination1/api/participation/', methods=['GET'])
+def get_all_participations():
+# TODO: Offer filters
+    participations = Participation.query.order_by(Participation.id).all()
+    if not participations:
+        abort(404)
+    data = []
+    for pa in participations:
+        data.append(get_participation_json(pa))
+    return jsonify({"data":data})
+
+@app.route('/worddomination1/api/participation/<int:id>', methods=['GET'])
+def get_participation(id):
+    participation = Participation.query.get(id)
+    if not participation:
+        abort(404)
+    return jsonify(get_paricipation_json(participation))
+
+@app.route('/worddomination1/api/participaton/<int:id>', methods=['PUT'])
+def update_participation(id):
+    expected_values = ["pid", "liid", "start_time", "end_time"]
+    participation = Participation.query.get(id)
+    if not participation:
+        abort(404)
+    data = request.get_json()
+    if "pid" in data:
+        participation.pid = data["pid"]
+    if "lid" in data:
+        participation.liid = data["liid"]
+    if "start_time" in data:
+        participation.start_time = data["start_time"]
+    if "end_time" in data:
+        participation.end_time = data["end_time"]
+    custom_values = {}
+    for k, v in data.iteritems():
+        if k not in expected_values:
+            custom_values[k] = v
+    participation.custom_values = custom_values
+    db.session.commit()
+    return jsonify(get_participation_json(participation))
+
+@app.route('/worddomination1/api/participation/<int:id>', methods=['DELETE'])
+def delete_participation(id):
+    participation = Participation.query.get(id)
+    if not participation:
+        abort(404)
+    db.session.delete(participation)
     db.session.commit()
     return "", 204
 

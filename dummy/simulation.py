@@ -14,9 +14,11 @@ class Simulation(object):
     INITIAL_ACTIONS = ["shoot", "base capture"]
 
     def __init__(self):
-        bases = self.generate_bases(4)
         quiz = self.generate_quiz()
-        self.wd = WordDomination(bases, quiz)
+        self.wd = WordDomination(1, quiz)
+
+    def start_level(self):
+        self.wd.start_level_instance()
 
     def create_players(self, amount):
         for p in range(1, amount + 1):
@@ -58,7 +60,7 @@ class Simulation(object):
     def create_teams(self, amount=2):
         self.teams = {}
         for t in range(amount):
-            team = Team("Team %s" % t)
+            team = self.wd.create_team("Team %s" % t)
             self.teams[team] = []
         return self.teams
 
@@ -85,12 +87,6 @@ class Simulation(object):
             questions.append(Question("Question %s" % q, difficulty, answers))
         return Quiz(questions)
 
-    def generate_bases(self, amount):
-        bases = []
-        for b in range(1, amount):
-            bases.append(Base(b))
-        return bases
-
     def perform_actions(self, amount):
         for event in range(amount):
             player = choice(self.players)
@@ -110,18 +106,18 @@ class Simulation(object):
     def capture_base(self, player):
         if player["strength"] == "base capturing":
             atempt_chance = 0.9
-        if player["weakness"] == "base capturing":
+        elif player["weakness"] == "base capturing":
             atempt_chance = 0.5
         else:
             atempt_chance = 0.7
         if random() < atempt_chance:
             player_locations = {}
-            for b in self.wd.bases:
+            for b in self.wd.level.bases:
                 player_locations[b] = []
                 player_locations[None] = []
             for p in self.players:
                 if p["player"].active and random() < 0.6:
-                    location = choice(self.wd.bases)
+                    location = choice(self.wd.level.bases)
                 else:
                     location = None
                 p["location"] = location

@@ -28,6 +28,22 @@ class Base(object):
         self.owned_by = team
         print("%s was captured by %s" % (self, team))
 
+class Level(object):
+
+    def __init__ (self, id, public_url, vision, terrain, base_amount):
+        self.id = id
+        self.lid = None
+        self.public_url = public_url
+        self.vision = vision
+        self.terrain = terrain
+        self.bases = self.generate_bases(base_amount)
+
+    def generate_bases(self, amount):
+        bases = []
+        for b in range(1, amount):
+            bases.append(Base(b))
+        return bases
+
 class Player(object):
 
     def __init__(self, id, name, public_url, clan=None):
@@ -38,6 +54,7 @@ class Player(object):
         self.question = None
         self.team = None
         self.active = True
+        self.participation = None
         if clan:
             self.clan = clan
 
@@ -146,6 +163,9 @@ class Team(object):
             if p.name == player_name:
                 return True
         return False
+
+    def get_players(self):
+        return self._player[:]
 
     def __str__(self):
         return self.name

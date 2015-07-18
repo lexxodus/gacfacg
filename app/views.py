@@ -341,7 +341,7 @@ def create_event():
 
 @app.route('/worddomination1/api/event/', methods=['GET'])
 def get_all_events():
-    events = Event.query.order_by(Task.id).all()
+    events = Event.query.order_by(Event.id).all()
     if not events:
         abort(404)
     data = []

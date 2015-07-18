@@ -2,22 +2,31 @@ from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
 from datetime import datetime
+from event_handler import get_events, trigger_event
 from random import choice
 import time
 
 
-class Answer(object):
+class GameObjects(object):
+
+    def __init__(self):
+        self.events = get_events()
+
+class Answer(GameObjects):
 
     def __init__(self, answer, right):
+        super(Answer, self).__init__()
         self.answer = answer
         self.right = right
 
     def __str__(self):
         return self.answer
 
-class Base(object):
+
+class Base(GameObjects):
 
     def __init__(self, number):
+        super(Base, self).__init__()
         self.number = number
         self.owned_by = None
 
@@ -28,9 +37,10 @@ class Base(object):
         self.owned_by = team
         print("%s was captured by %s" % (self, team))
 
-class Level(object):
+class Level(GameObjects):
 
     def __init__ (self, id, public_url, vision, terrain, base_amount):
+        super(Level, self).__init__()
         self.id = id
         self.lid = None
         self.public_url = public_url
@@ -44,9 +54,10 @@ class Level(object):
             bases.append(Base(b))
         return bases
 
-class Player(object):
+class Player(GameObjects):
 
     def __init__(self, id, name, public_url, clan=None):
+        super(Player, self).__init__()
         self.id = id
         self.name = name
         self.public_url = public_url
@@ -119,9 +130,10 @@ class Player(object):
         return self.name
 
 
-class Question(object):
+class Question(GameObjects):
 
     def __init__(self, question, difficulty, answers):
+        super(Question, self).__init__()
         self.question = question
         self.difficulty = difficulty
         self.answers = answers
@@ -130,9 +142,10 @@ class Question(object):
         return self.question
 
 
-class Quiz(object):
+class Quiz(GameObjects):
 
     def __init__(self, questions):
+        super(Quiz, self).__init__()
         self.questions = questions
 
     def load_question(self, difficulty):
@@ -141,11 +154,10 @@ class Quiz(object):
         ]
         return choice(questions)
 
-
-
-class Team(object):
+class Team(GameObjects):
 
     def __init__(self, team_name):
+        super(Team, self).__init__()
         self.name = team_name
         self._player = []
 

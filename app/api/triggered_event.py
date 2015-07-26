@@ -18,7 +18,7 @@ def get_triggered_event_json(triggered_event, public=True):
     data["id"] = triggered_event.id
     data["paid"] = triggered_event.paid
     data["eid"] = triggered_event.eid
-    data["timestamp"] = triggered_event.timestamp
+    data["timestamp"] = triggered_event.timestamp.isoformat()
     if public:
         data['api_url'] = api.url_for(TriggeredEvent)
     for k, v in triggered_event.custom_values.iteritems():
@@ -71,27 +71,28 @@ class TriggeredEvent(Resource):
             if pids:
                 participations = ParticipationModel.query.with_entities(
                     ParticipationModel.id).filter(
-                    ParticipationModel.pid in pids)
+                    ParticipationModel.pid._in(pids))
             if ltids or lids:
                 level_instance = LevelInstanceModel.query
                 if ltids:
                     levels = LevelModel.query.with_entities(
-                        LevelModel.id).filter(ltids in ltids).all()
+                        LevelModel.id).join(LevelModel.level_types).\
+                        filter(LevelModel.level_types._in(ltids)).all()
                     lids += levels
                 if lids:
                     level_instances = level_instance.filter(
-                        LevelInstanceModel.lid in lids).all()
+                        LevelInstanceModel.lid._in(lids)).all()
                     liids += level_instances
             if liids:
                 participations = participations.filter(
-                    ParticipationModel.pid in liids)
-            query = query.filter(TriggeredEvent.paid in participations)
+                    ParticipationModel.pid._in(liids))
+            query = query.filter(TriggeredEvent.paid._in(participations))
             if tids:
                 tasks = EventModel.query.with_entities(
-                    EventModel.id).filter(EventModel.tid in tids).all()
+                    EventModel.id).filter(EventModel.tid_in(tids)).all()
                 eids += tasks
             if eids:
-                query = query.filter(TriggeredEvent.eid in eids)
+                query = query.filter(TriggeredEvent.eid._in(eids))
         triggered_events = query.order_by(TriggeredEvent.id).all()
         if not triggered_events:
             abort(404)

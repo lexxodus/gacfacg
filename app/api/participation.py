@@ -14,8 +14,9 @@ def get_participation_json(participation, public=True):
     data["id"] = participation.id
     data["pid"] = participation.pid
     data["liid"] = participation.liid
-    data["start_time"] = participation.start_time
-    data["end_time"] = participation.end_time
+    data["start_time"] = participation.start_time.isoformat()
+    data["end_time"] = participation.end_time.isoformat()\
+        if participation.end_time else None
     if public:
         data['api_url'] = api.url_for(Participation)
     for k, v in participation.custom_values.iteritems():
@@ -28,9 +29,8 @@ class Participation(Resource):
         expected_values = ["pid", "liid", "start_time", "end_time"]
         required_values = ["pid", "liid"]
         data = request.get_json()
-        for v in required_values:
-            if v not in data:
-                abort(404)
+        if not all(v in data for v in required_values):
+            abort(404)
         pid = data["pid"]
         liid = data["liid"]
         start_time = data.get("start_time", datetime.now())

@@ -7,13 +7,11 @@ angular.module('aPIServices', ["ngResource"])
     }])
     .factory("Player", ["$resource",
         function($resource){
-        return $resource("worddomination1/api/player/:id", {}, {
-            query: {
-                method: "GET",
-                params: {},
-                isArray: false
-            }
-        });
+        return $resource("/api/player/:id");
+    }])
+    .factory("Level", ["$resource",
+        function($resource){
+        return $resource("/api/level/:id");
     }])
 ;
 

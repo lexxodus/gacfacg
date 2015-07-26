@@ -1,3 +1,9 @@
-<div>
-   {{ players }}
-</div>
+<table border="1">
+   <tr>
+       <th>Player ID</th>
+   </tr>
+   <tr ng-repeat="player in players">
+      <td>{{ player.id }}</td>
+   </tr>
+</table>
+{{ players }}

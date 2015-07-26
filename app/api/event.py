@@ -59,7 +59,7 @@ class Event(Resource):
             return self.get_all()
 
     def get_all(self):
-        events = EventModel.query.order_by(Event.id).all()
+        events = EventModel.query.order_by(EventModel.id).all()
         if not events:
             abort(404)
         data = []

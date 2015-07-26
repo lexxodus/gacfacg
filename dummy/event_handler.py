@@ -3,7 +3,7 @@ __author__ = 'lexxodus'
 
 import requests
 
-ROOT_URL = "http://localhost:5000/worddomination1/api/"
+ROOT_URL = "http://localhost:5000/api/"
 events = None
 
 def create_player(name, clan):
@@ -27,7 +27,7 @@ def get_all_players():
     url = ROOT_URL + "player/"
     params = {}
     response = requests.get(url, params=params)
-    response = response.json()["data"]
+    response = response.json()
     players = []
     for i in response:
         players.append(i)
@@ -71,10 +71,10 @@ def login_player_into_level_instance(pid, liid, team):
 def load_events():
     url = ROOT_URL + "event/"
     params = {}
-    response = requests.get(url, params=params).json()["data"]
+    response = requests.get(url, params=params).json()
     loaded_events = {}
     for e in response:
-       loaded_events[e["name"]] = e["id"]
+        loaded_events[e["name"]] = e["id"]
     global events
     events = loaded_events
     return events

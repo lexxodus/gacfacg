@@ -9,13 +9,20 @@ api = restful.Api(app)
 from app.api.event import Event
 from app.api.level import Level
 from app.api.level_instance import LevelInstance
+from app.api.level_skill import LevelSkill
 from app.api.level_type import LevelType
+from app.api.level_type_skill import LevelTypeSkill
 from app.api.participation import Participation
 from app.api.player import Player
 from app.api.task import Task
 from app.api.triggered_event import TriggeredEvent
 
 ROOT_URL = "/api/"
+api.add_resource(
+    Event,
+    ROOT_URL + "event/",
+    ROOT_URL + "event/<int:id>",
+)
 api.add_resource(
     Player,
     ROOT_URL + "player/",
@@ -50,4 +57,14 @@ api.add_resource(
     TriggeredEvent,
     ROOT_URL + "triggered_event/",
     ROOT_URL + "triggered_event/<int:id>",
+    )
+api.add_resource(
+    LevelSkill,
+    ROOT_URL + "level_skill/",
+    ROOT_URL + "level_skill/<int:id>",
+    )
+api.add_resource(
+    LevelTypeSkill,
+    ROOT_URL + "level_type_skill/",
+    ROOT_URL + "level_type_skill/<int:id>",
     )

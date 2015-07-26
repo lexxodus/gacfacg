@@ -13,8 +13,9 @@ def get_level_instance_json(level_instance, public=True):
     data = {}
     data["id"] = level_instance.id
     data["lid"] = level_instance.lid
-    data["start_time"] = level_instance.start_time
-    data["end_time"] = level_instance.end_time
+    data["start_time"] = level_instance.start_time.isoformat()
+    data["end_time"] = level_instance.end_time.isoformat()\
+        if level_instance.end_time else None
     if public:
         data['api_url'] = api.url_for(LevelInstance)
     for k, v in level_instance.custom_values.iteritems():

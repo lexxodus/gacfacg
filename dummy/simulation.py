@@ -26,9 +26,8 @@ class Simulation(object):
             # is in clan
             if random() < 0.3:
                 clan_letters = []
-                clan_letters.append(choice(string.ascii_uppercase))
-                clan_letters.append(choice(string.ascii_uppercase))
-                clan_letters.append(choice(string.ascii_uppercase))
+                for i in range(3):
+                    clan_letters.append(choice(string.ascii_uppercase))
                 clan ="".join(clan_letters)
             else:
                 clan = None

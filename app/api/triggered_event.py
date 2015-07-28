@@ -21,8 +21,9 @@ def get_triggered_event_json(triggered_event, public=True):
     data["timestamp"] = triggered_event.timestamp.isoformat()
     if public:
         data['api_url'] = api.url_for(TriggeredEvent)
-    for k, v in triggered_event.custom_values.iteritems():
-        data[k] = v
+    if triggered_event.custom_values:
+        for k, v in triggered_event.custom_values.iteritems():
+            data[k] = v
     return data
 
 

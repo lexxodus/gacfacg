@@ -5,6 +5,9 @@ import requests
 
 ROOT_URL = "http://localhost:5000/api/"
 events = None
+tasks = None
+levels = None
+level_types = None
 
 def create_player(name, clan):
     url = ROOT_URL + "player/"
@@ -27,10 +30,7 @@ def get_all_players():
     url = ROOT_URL + "player/"
     params = {}
     response = requests.get(url, params=params)
-    response = response.json()
-    players = []
-    for i in response:
-        players.append(i)
+    players = response.json()
     return players
 
 def get_level(id):
@@ -84,6 +84,57 @@ def get_events():
         return events
     else:
         return load_events()
+
+def load_levels():
+    url = ROOT_URL + "level/"
+    params = {}
+    response = requests.get(url, params=params).json()
+    loaded_levels = {}
+    for e in response:
+        loaded_levels[e["name"]] = e["id"]
+    global levels
+    levels = loaded_levels
+    return levels
+
+def get_levels():
+    if levels:
+        return levels
+    else:
+        return load_levels()
+
+def load_level_types():
+    url = ROOT_URL + "level_type/"
+    params = {}
+    response = requests.get(url, params=params).json()
+    loaded_level_types = {}
+    for e in response:
+        loaded_level_types[e["name"]] = e["id"]
+    global level_types
+    level_types = loaded_level_types
+    return level_types
+
+def get_level_types():
+    if level_types:
+        return level_types
+    else:
+        return load_level_types()
+
+def load_tasks():
+    url = ROOT_URL + "task/"
+    params = {}
+    response = requests.get(url, params=params).json()
+    loaded_tasks = {}
+    for e in response:
+        loaded_tasks[e["name"]] = e["id"]
+    global tasks
+    tasks = loaded_tasks
+    return tasks
+
+def get_tasks():
+    if tasks:
+        return tasks
+    else:
+        return load_tasks()
 
 def trigger_event(paid, eid, **kwargs):
     url = ROOT_URL + "triggered_event/"

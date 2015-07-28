@@ -7,6 +7,7 @@ from flask.ext import restful
 api = restful.Api(app)
 
 from app.api.event import Event
+from app.api.event_skill import EventSkill
 from app.api.level import Level
 from app.api.level_instance import LevelInstance
 from app.api.level_skill import LevelSkill
@@ -15,6 +16,7 @@ from app.api.level_type_skill import LevelTypeSkill
 from app.api.participation import Participation
 from app.api.player import Player
 from app.api.task import Task
+from app.api.task_skill import TaskSkill
 from app.api.triggered_event import TriggeredEvent
 
 ROOT_URL = "/api/"
@@ -67,4 +69,14 @@ api.add_resource(
     LevelTypeSkill,
     ROOT_URL + "level_type_skill/",
     ROOT_URL + "level_type_skill/<int:id>",
+    )
+api.add_resource(
+    TaskSkill,
+    ROOT_URL + "task_skill/",
+    ROOT_URL + "task_skill/<int:id>",
+    )
+api.add_resource(
+    EventSkill,
+    ROOT_URL + "event_skill/",
+    ROOT_URL + "event_skill/<int:id>",
     )

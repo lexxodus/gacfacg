@@ -87,18 +87,28 @@ class Simulation(object):
         return Quiz(questions)
 
     def calculate_et_skills(self, player):
-        events = event_handler.get_events
-        for a in self.ACTIONS:
-            pass
-        for e in events:
-            pass
+        events = event_handler.get_events()
+        tasks = event_handler.get_tasks()
+        for k, v in tasks.iteritems():
+            event_handler.calc_task_skill(player, v)
+        for k, v in events.iteritems():
+            event_handler.calc_event_skill(player, v)
+
+    def calculate_llt_skills(self, player):
+        levels = event_handler.get_levels()
+        level_types = event_handler.get_level_types()
+        for k, v in levels.iteritems():
+            event_handler.calc_level_skill(player, v)
+        for k, v in level_types.iteritems():
+            event_handler.calc_level_type_skill(player, v)
 
     def perform_actions(self, amount):
         for event in range(amount):
             player = choice(self.players)
             self.perform_initial_action(player)
-            for p in self.players:
-                self.calculate_et_skills(p)
+            for p in event_handler.get_all_players():
+                self.calculate_et_skills(p["id"])
+                self.calculate_llt_skills(p["id"])
 
     def perform_initial_action(self, player):
         if not player["player"].active:

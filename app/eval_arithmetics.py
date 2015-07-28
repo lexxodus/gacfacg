@@ -31,21 +31,17 @@ class Evaluator(object):
 
     def _safe_eval(self, node):
         if isinstance(node, ast.Num):
-            print(node.n)
             return node.n
         elif isinstance(node, ast.Name):
-            print(node.id)
             return self._get_variables(node.id)
         elif isinstance(node, ast.BinOp):
             op = _operations[node.op.__class__] # KeyError -> Unsafe operation
             left = self._safe_eval(node.left)
-            print(left)
             right = self._safe_eval(node.right)
             if self.calc_timedelta:
                 assert op is operator.sub
                 self.calc_timedelta = False
                 return op(left, right).total_seconds()
-            print(right)
             if isinstance(node.op, ast.Pow):
                 assert right < 100
             return op(left, right)
@@ -68,29 +64,29 @@ class Evaluator(object):
         # only custom_values can apply
         if parts[0] == "player":
             player = Player.query.join(Participation).\
-                filter(Participation.id == self.paid)[0]
+                filter(Participation.id == self.paid).first()
             custom_value = self._try_datetime(player.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "level":
             level = Level.query.join(LevelInstance, Participation).\
-                filter(Participation.id == self.paid)[0]
+                filter(Participation.id == self.paid).first()
             custom_value = self._try_datetime(level.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "level_type":
             level_type = LevelType.query.join(
                 Level, Level.level_types, LevelInstance, Participation).\
-                filter(Participation.id == self.paid)[0]
+                filter(Participation.id == self.paid).first()
             custom_value = self._try_datetime(
                 level_type.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "task":
             task = Task.query.join(Event).\
-                filter(Event.id == self.eid)[0]
+                filter(Event.id == self.eid).first()
             custom_value = self._try_datetime(task.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "level_instance":
             level_instance = LevelInstance.query.join(Participation).\
-                filter(Participation.id == self.paid)[0]
+                filter(Participation.id == self.paid).first()
             if parts[1] == "start_time":
                 self.calc_timedelta = True
                 return level_instance.start_time
@@ -103,7 +99,6 @@ class Evaluator(object):
                 return custom_value
         elif parts[0] == "event":
             event = Event.query.get(self.eid)
-            print(event.name)
             if not self.calc_timedelta:
                 if parts[1] == "skill_points":
                     return event.skill_points

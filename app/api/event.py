@@ -20,8 +20,9 @@ def get_event_json(event, public=True):
     data["score_interval"] = event.score_interval
     if public:
         data['api_url'] = api.url_for(Event)
-    for k, v in event.custom_values.iteritems():
-        data[k] = v
+    if event.custom_values:
+        for k, v in event.custom_values.iteritems():
+            data[k] = v
     return data
 
 class Event(Resource):

@@ -231,9 +231,7 @@ class TriggeredEvent(db.Model):
                 self.amount = 1 + TriggeredEvent.query.\
                     filter(TriggeredEvent.paid.in_(paids)).\
                     filter(TriggeredEvent.eid == self.eid).count()
-            print(self.amount)
             gives_points = not bool(self.amount % interval)
-            print(interval, gives_points)
         self.given_skill_points = points if gives_points else 0
 
     def calc_given_score_points(self, event):
@@ -255,9 +253,7 @@ class TriggeredEvent(db.Model):
                 self.amount = 1 + TriggeredEvent.query.\
                     filter(TriggeredEvent.paid.in_(paids)).\
                     filter(TriggeredEvent.eid == self.eid).count()
-            print(self.amount)
             gives_points = not bool(self.amount % interval)
-            print(interval, points)
         self.given_score_points = points if gives_points else 0
 
 class EventSkill(db.Model):
@@ -290,7 +286,7 @@ class EventSkill(db.Model):
             join(Participation).\
             filter(Participation.pid == self.pid).\
             filter(TriggeredEvent.eid == self.eid)
-        return query.all()[0]
+        return query.all()[0] if query.all() else 0
 
 
 class TaskSkill(db.Model):
@@ -325,7 +321,7 @@ class TaskSkill(db.Model):
             join(Event).\
             filter(Participation.pid == self.pid).\
             filter(Event.tid == self.tid)
-        return query.all()[0]
+        return query.all()[0] if query.all() else 0
 
 
 class LevelSkill(db.Model):
@@ -350,7 +346,8 @@ class LevelSkill(db.Model):
     def __init__(self, pid, lid):
         self.pid = pid
         self.lid = lid
-        considered_rows, skill_points, score_points, attempt = self.calc_level_skill()
+        considered_rows, skill_points, score_points, attempt =\
+            self.calc_level_skill()
         self.calculated_on = datetime.now()
         self.considered_rows = considered_rows
         self.skill_points = skill_points
@@ -371,18 +368,19 @@ class LevelSkill(db.Model):
             filter(Participation.pid == self.pid).\
             filter(LevelInstance.lid == self.lid)
         query2 = db.session.query(
-            func.sum(TriggeredEvent.given_score_points)).\
+            func.sum(TriggeredEvent.given_score_points).label("sum_1")).\
             join(Participation).\
             join(LevelInstance).\
+            join(Level).\
             filter(Participation.pid == self.pid).\
             filter(LevelInstance.lid == self.lid).\
-            group_by(LevelType.id).order_by(desc("sum_1"))
+            group_by(LevelInstance.lid).order_by(desc("sum_1"))
         query3 = db.session.query(func.count(LevelInstance.id)). \
             join(Participation). \
             filter(Participation.pid == self.pid). \
             filter(LevelInstance.lid == self.lid)
         considered_rows, skill_points = query1.all()[0]
-        score_points = query2.all()[0]
+        score_points = query2.all()[0][0] if query2.all() else 0
         attempt = query3.all()[0]
         return considered_rows, skill_points, score_points, attempt
 
@@ -434,5 +432,5 @@ class LevelTypeSkill(db.Model):
             filter(LevelType.id == self.ltid).\
             group_by(LevelType.id).order_by(desc("sum_1"))
         considered_rows, skill_points = query1.all()[0]
-        score_points = query2.all()[0]
+        score_points = query2.all()[0][0] if query2.all() else 0
         return considered_rows, skill_points, score_points

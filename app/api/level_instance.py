@@ -18,8 +18,9 @@ def get_level_instance_json(level_instance, public=True):
         if level_instance.end_time else None
     if public:
         data['api_url'] = api.url_for(LevelInstance)
-    for k, v in level_instance.custom_values.iteritems():
-        data[k] = v
+    if level_instance.custom_values:
+        for k, v in level_instance.custom_values.iteritems():
+            data[k] = v
     return data
 
 class LevelInstance(Resource):

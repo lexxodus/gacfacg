@@ -14,8 +14,9 @@ def get_level_json(level, public=True):
     data["description"] = level.description
     if public:
         data['api_url'] = api.url_for(Level)
-    for k, v in level.custom_values.iteritems():
-        data[k] = v
+    if level.custom_values:
+        for k, v in level.custom_values.iteritems():
+            data[k] = v
     return data
 
 

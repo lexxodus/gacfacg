@@ -19,8 +19,9 @@ def get_participation_json(participation, public=True):
         if participation.end_time else None
     if public:
         data['api_url'] = api.url_for(Participation)
-    for k, v in participation.custom_values.iteritems():
-        data[k] = v
+    if participation.custom_values:
+        for k, v in participation.custom_values.iteritems():
+            data[k] = v
     return data
 
 class Participation(Resource):

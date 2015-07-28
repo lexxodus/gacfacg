@@ -29,6 +29,8 @@ class EventSkill(Resource):
             abort(404)
         pid = data["pid"]
         eid = data["eid"]
+        # until = data.get("until", None)
+        # event_skill = EventSkillModel(pid, eid, until)
         event_skill = EventSkillModel(pid, eid)
         db.session.add(event_skill)
         db.session.commit()

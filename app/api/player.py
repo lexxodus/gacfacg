@@ -12,8 +12,9 @@ def get_player_json(player, public=True):
     data["id"] = player.id
     if public:
         data['api_url'] = api.url_for(Player)
-    for k, v in player.custom_values.iteritems():
-        data[k] = v
+    if player.custom_values:
+        for k, v in player.custom_values.iteritems():
+            data[k] = v
     return data
 
 

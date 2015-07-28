@@ -15,8 +15,9 @@ def get_task_json(task, public=True):
     data["description"] = task.description
     if public:
         data['api_url'] = api.url_for(Task)
-    for k, v in task.custom_values.iteritems():
-        data[k] = v
+    if task.custom_values:
+        for k, v in task.custom_values.iteritems():
+            data[k] = v
     return data
 
 

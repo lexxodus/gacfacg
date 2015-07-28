@@ -4,6 +4,7 @@ from datetime import datetime
 __author__ = 'lexxodus'
 
 from app import db
+from sqlalchemy import desc
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 
@@ -134,15 +135,15 @@ class Event(db.Model):
     task = db.relationship("Task", foreign_keys="Event.tid")
 
     def __init__(self, tid, name, description, skill_points, score_points,
-                 skill_points_interval=1, score_point_interval=1,
+                 skill_interval=1, score_interval=1,
                  custom_values=None):
         self.tid = tid
         self.name = name
         self.description = description
         self.skill_points = skill_points
         self.score_points = score_points
-        self.skill_point_interval = skill_points_interval
-        self.score_point_interval = score_point_interval
+        self.skill_interval = skill_interval
+        self.score_interval = score_interval
         self.custom_values = custom_values
 
     def __repr__(self):
@@ -170,7 +171,7 @@ class Participation(db.Model):
         self.custom_values = custom_values
 
     def __repr__(self):
-        return "<pid: %s, liid: %s, atempt: %s" % (self.pid, self.liid, self.atempt)
+        return "<pid: %s, liid: %s>" % (self.pid, self.liid)
 
 
 class TriggeredEvent(db.Model):
@@ -180,6 +181,8 @@ class TriggeredEvent(db.Model):
     paid = db.Column(db.Integer, db.ForeignKey("participation.id"))
     eid = db.Column(db.Integer, db.ForeignKey("event.id"))
     timestamp = db.Column(db.DateTime(timezone=False))
+    given_skill_points = db.Column(db.Integer, nullable=False)
+    given_score_points = db.Column(db.Integer, nullable=False)
     custom_values = db.Column(JSONB)
 
     participation = db.relationship("Participation", foreign_keys="TriggeredEvent.paid")
@@ -190,10 +193,27 @@ class TriggeredEvent(db.Model):
         self.eid = eid
         self.timestamp = timestamp
         self.custom_values = custom_values
+        self.calc_given_skill_points()
+        self.calc_given_score_points()
+        self.given_skill_points = None
+        self.given_score_points = None
 
     def __repr__(self):
         return "<%s, participation: %s, event: %s>" % (self.timestamp, self.paid, self.event)
 
+    def parse_rule(self):
+        pass
+
+    def calc_given_skill_points(self):
+        rule = Event.query.get(self.eid).skill_rule
+        base_points = Event.query.get(self.eid).skill_points
+        interval = Event.query.get(self.eid).skill_interval
+        if rule:
+            self.parse_rule()
+        pass
+
+    def calc_given_score_points(self):
+        pass
 
 class EventSkill(db.Model):
     __tablename__ = "event_skill"
@@ -297,21 +317,29 @@ class LevelSkill(db.Model):
                (self.player, self.level, self.skill_points, self.calculated_on)
 
     def calc_level_skill(self):
-        query1 = db.session.query(func.count(TriggeredEvent.id),
-                                 func.sum(Event.skill_points),
-                                 func.max(Event.score_points)).\
+        query1 = db.session.query(
+            func.count(TriggeredEvent.id),
+            func.sum(Event.skill_points)).\
             join(Participation).\
             join(LevelInstance).\
             join(Event).\
             filter(Participation.pid == self.pid).\
             filter(LevelInstance.lid == self.lid)
-        query2 = db.session.query(func.count(LevelInstance.id)). \
-            join(Participation). \
+        query2 = db.session.query(
+            func.sum(TriggeredEvent.given_score_points)).\
+            join(Participation).\
+            join(LevelInstance).\
             filter(Participation.pid == self.pid).\
+            filter(LevelInstance.lid == self.lid).\
+            group_by(LevelType.id).order_by(desc("sum_1"))
+        query3 = db.session.query(func.count(LevelInstance.id)). \
+            join(Participation). \
+            filter(Participation.pid == self.pid). \
             filter(LevelInstance.lid == self.lid)
-        considered_rows, skill_points, score_points = query1.all()[0]
-        print(query2)
-        return considered_rows, skill_points, score_points, query2.all()[0][0]
+        considered_rows, skill_points = query1.all()[0]
+        score_points = query2.all()[0]
+        attempt = query3.all()[0]
+        return considered_rows, skill_points, score_points, attempt
 
 
 class LevelTypeSkill(db.Model):
@@ -342,14 +370,24 @@ class LevelTypeSkill(db.Model):
         return "<player: %s, lvltype: %s, skill: %s, %s>" % (self.player, self.level_type, self.skill_points, self.calculated_on)
 
     def calc_level_type_skill(self):
-        query = db.session.query(func.count(TriggeredEvent.id),
-                                 func.sum(Event.skill_points),
-                                 func.max(Event.score_points)).\
+        query1 = db.session.query(
+            func.count(TriggeredEvent.id),
+            func.sum(TriggeredEvent.given_skill_points).label("sum_1")).\
             join(Participation).\
             join(LevelInstance).\
             join(Level).\
             join(Level.level_types).\
-            join(Event).\
             filter(Participation.pid == self.pid).\
             filter(LevelType.id == self.ltid)
-        return query.all()[0]
+        query2 = db.session.query(
+            func.sum(TriggeredEvent.given_score_points)).\
+            join(Participation).\
+            join(LevelInstance).\
+            join(Level).\
+            join(Level.level_types).\
+            filter(Participation.pid == self.pid).\
+            filter(LevelType.id == self.ltid).\
+            group_by(LevelType.id).order_by(desc("sum_1"))
+        considered_rows, skill_points = query1.all()[0]
+        score_points = query2.all()[0]
+        return considered_rows, skill_points, score_points

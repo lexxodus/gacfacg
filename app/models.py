@@ -4,6 +4,7 @@ from datetime import datetime
 __author__ = 'lexxodus'
 
 from app import db
+from app.eval_arithmetics import Evaluator
 from sqlalchemy import desc
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
@@ -191,29 +192,60 @@ class TriggeredEvent(db.Model):
     def __init__(self, paid, eid, timestamp=None, custom_values=None):
         self.paid = paid
         self.eid = eid
-        self.timestamp = timestamp
+        if timestamp:
+            self.timestamp = timestamp
+        else:
+            self.timestamp = datetime.now()
+        self.amount = 0
         self.custom_values = custom_values
-        self.calc_given_skill_points()
-        self.calc_given_score_points()
         self.given_skill_points = None
         self.given_score_points = None
 
     def __repr__(self):
         return "<%s, participation: %s, event: %s>" % (self.timestamp, self.paid, self.event)
 
-    def parse_rule(self):
-        pass
+    def parse_rule(self, rule):
+        e = Evaluator()
+        return e.safe_eval(rule, self.paid, self.eid, self.timestamp)
 
-    def calc_given_skill_points(self):
-        rule = Event.query.get(self.eid).skill_rule
-        base_points = Event.query.get(self.eid).skill_points
-        interval = Event.query.get(self.eid).skill_interval
+    def calc_given_points(self):
+        event = Event.query.get(self.eid)
+        self.calc_given_skill_points(event)
+        self.calc_given_score_points(event)
+
+    def calc_given_skill_points(self, event):
+        rule = event.skill_rule
+        base_points = event.skill_points
+        interval = event.skill_interval
         if rule:
-            self.parse_rule()
-        pass
+            points = self.parse_rule(rule)
+        else:
+            points = base_points
+        gives_points = True
+        if interval != 1:
+            if not self.amount:
+                self.amount = 1 + TriggeredEvent.query.filter(
+                    TriggeredEvent.paid == self.paid).\
+                    filter(TriggeredEvent.eid == self.eid).count()
+            gives_points = not bool(self.amount % interval)
+        self.given_score_points = points if gives_points else 0
 
-    def calc_given_score_points(self):
-        pass
+    def calc_given_score_points(self, event):
+        rule = event.score_rule
+        base_points = event.score_points
+        interval = event.score_interval
+        if rule:
+            points = self.parse_rule(rule)
+        else:
+            points = base_points
+        gives_points = True
+        if interval != 1:
+            if not self.amount:
+                self.amount = 1 + TriggeredEvent.query.filter(
+                    TriggeredEvent.paid == self.paid).\
+                    filter(TriggeredEvent.eid == self.eid).count()
+            gives_points = not bool(self.amount % interval)
+        self.given_score_points = points if gives_points else 0
 
 class EventSkill(db.Model):
     __tablename__ = "event_skill"

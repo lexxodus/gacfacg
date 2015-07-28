@@ -94,4 +94,48 @@ def trigger_event(paid, eid, **kwargs):
     }
     data.update(kwargs)
     response = requests.post(url, params=params, json=data).json()
+    return response
 
+def calc_task_skill(pid, tid, timestamp=None):
+    url = ROOT_URL + "task_skill/"
+    params = {}
+    data = {
+        "pid": pid,
+        "tid": tid,
+        "until": timestamp,
+    }
+    response = requests.post(url, params=params, json=data).json()
+    return response
+
+def calc_event_skill(pid, eid, timestamp=None):
+    url = ROOT_URL + "event_skill/"
+    params = {}
+    data = {
+        "pid": pid,
+        "eid": eid,
+        "until": timestamp,
+    }
+    response = requests.post(url, params=params, json=data).json()
+    return response
+
+def calc_level_skill(pid, lid, timestamp=None):
+    url = ROOT_URL + "level_skill/"
+    params = {}
+    data = {
+        "pid": pid,
+        "lid": lid,
+        "until": timestamp,
+    }
+    response = requests.post(url, params=params, json=data).json()
+    return response
+
+def calc_level_type_skill(pid, ltid, timestamp=None):
+    url = ROOT_URL + "level_type_skill/"
+    params = {}
+    data = {
+        "pid": pid,
+        "ltid": ltid,
+        "until": timestamp,
+    }
+    response = requests.post(url, params=params, json=data).json()
+    return response

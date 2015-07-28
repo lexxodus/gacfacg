@@ -86,10 +86,19 @@ class Simulation(object):
             questions.append(Question("Question %s" % q, difficulty, answers))
         return Quiz(questions)
 
+    def calculate_et_skills(self, player):
+        events = event_handler.get_events
+        for a in self.ACTIONS:
+            pass
+        for e in events:
+            pass
+
     def perform_actions(self, amount):
         for event in range(amount):
             player = choice(self.players)
             self.perform_initial_action(player)
+            for p in self.players:
+                self.calculate_et_skills(p)
 
     def perform_initial_action(self, player):
         if not player["player"].active:

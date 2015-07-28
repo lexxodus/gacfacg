@@ -198,8 +198,7 @@ class TriggeredEvent(db.Model):
             self.timestamp = datetime.now()
         self.amount = 0
         self.custom_values = custom_values
-        self.given_skill_points = None
-        self.given_score_points = None
+        self.calc_given_points()
 
     def __repr__(self):
         return "<%s, participation: %s, event: %s>" % (self.timestamp, self.paid, self.event)
@@ -224,11 +223,18 @@ class TriggeredEvent(db.Model):
         gives_points = True
         if interval != 1:
             if not self.amount:
-                self.amount = 1 + TriggeredEvent.query.filter(
-                    TriggeredEvent.paid == self.paid).\
+                pid = Participation.query.get(self.paid).pid
+                liid = Participation.query.get(self.paid).liid
+                paids = db.session.query(Participation.id). \
+                    filter(Participation.liid == liid).\
+                    filter(Participation.pid == pid)
+                self.amount = 1 + TriggeredEvent.query.\
+                    filter(TriggeredEvent.paid.in_(paids)).\
                     filter(TriggeredEvent.eid == self.eid).count()
+            print(self.amount)
             gives_points = not bool(self.amount % interval)
-        self.given_score_points = points if gives_points else 0
+            print(interval, gives_points)
+        self.given_skill_points = points if gives_points else 0
 
     def calc_given_score_points(self, event):
         rule = event.score_rule
@@ -241,10 +247,17 @@ class TriggeredEvent(db.Model):
         gives_points = True
         if interval != 1:
             if not self.amount:
-                self.amount = 1 + TriggeredEvent.query.filter(
-                    TriggeredEvent.paid == self.paid).\
+                pid = Participation.query.get(self.paid).pid
+                liid = Participation.query.get(self.paid).liid
+                paids = db.session.query(Participation.id). \
+                    filter(Participation.liid == liid).\
+                    filter(Participation.pid == pid)
+                self.amount = 1 + TriggeredEvent.query.\
+                    filter(TriggeredEvent.paid.in_(paids)).\
                     filter(TriggeredEvent.eid == self.eid).count()
+            print(self.amount)
             gives_points = not bool(self.amount % interval)
+            print(interval, points)
         self.given_score_points = points if gives_points else 0
 
 class EventSkill(db.Model):

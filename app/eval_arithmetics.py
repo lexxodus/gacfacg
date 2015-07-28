@@ -5,8 +5,8 @@ __author__ = 'lexxodus'
 # by http://stackoverflow.com/users/680727/aleksi-torhamo
 
 from app import db
-from app.models import Event, Player, Level, LevelInstance, LevelType, \
-    Participation, Task, TriggeredEvent
+# from app.models import Event, Player, Level, LevelInstance, LevelType, \
+#    Participation, Task, TriggeredEvent
 import ast
 from datetime import datetime
 from dateutil import parser

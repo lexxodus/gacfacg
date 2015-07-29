@@ -23,7 +23,7 @@ def get_event_skill_json(event_skill, public=True):
 class EventSkill(Resource):
 
     def post(self):
-        required_values = ["pid", "tid"]
+        required_values = ["pid", "eid"]
         data = request.get_json()
         if not all(v in data for v in required_values):
             abort(404)

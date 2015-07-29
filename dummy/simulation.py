@@ -106,9 +106,10 @@ class Simulation(object):
         for event in range(amount):
             player = choice(self.players)
             self.perform_initial_action(player)
-            for p in event_handler.get_all_players():
-                self.calculate_et_skills(p["id"])
-                self.calculate_llt_skills(p["id"])
+            # for p in event_handler.get_all_players():
+            #     self.calculate_et_skills(p["id"])
+        for p in event_handler.get_all_players():
+            self.calculate_llt_skills(p["id"])
 
     def perform_initial_action(self, player):
         if not player["player"].active:

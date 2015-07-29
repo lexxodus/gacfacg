@@ -281,12 +281,13 @@ class EventSkill(db.Model):
         return "<player: %s, event: %s, skill: %s, %s>" % (self.player, self.event, self.skill_points, self.calculated_on)
 
     def calc_event_skill(self):
-        query = db.session.query(func.count(TriggeredEvent.id),
-                                 func.sum(Event.skill_points)).\
+        query = db.session.query(
+            func.count(TriggeredEvent.id),
+            func.sum(TriggeredEvent.given_skill_points)).\
             join(Participation).\
             filter(Participation.pid == self.pid).\
             filter(TriggeredEvent.eid == self.eid)
-        return query.all()[0] if query.all() else 0
+        return query.all()[0] if query.all()[0][0] else (0, 0)
 
 
 class TaskSkill(db.Model):
@@ -298,7 +299,6 @@ class TaskSkill(db.Model):
     calculated_on = db.Column(db.DateTime(timezone=False))
     considered_rows = db.Column(db.Integer())
     skill_points = db.Column(db.Integer())
-    custom_values = db.Column(JSONB)
 
     player = db.relationship("Player", foreign_keys="TaskSkill.pid")
     task = db.relationship("Task", foreign_keys="TaskSkill.tid")
@@ -315,13 +315,14 @@ class TaskSkill(db.Model):
         return "<player: %s, task: %s, skill: %s, %s>" % (self.player, self.task, self.skill_points, self.calculated_on)
 
     def calc_task_skill(self):
-        query = db.session.query(func.count(TriggeredEvent.id),
-                                 func.sum(Event.skill_points)).\
+        query = db.session.query(
+            func.count(TriggeredEvent.id),
+            func.sum(TriggeredEvent.given_skill_points)).\
             join(Participation).\
             join(Event).\
             filter(Participation.pid == self.pid).\
             filter(Event.tid == self.tid)
-        return query.all()[0] if query.all() else 0
+        return query.all()[0] if query.all()[0][0] else (0, 0)
 
 
 class LevelSkill(db.Model):
@@ -361,7 +362,7 @@ class LevelSkill(db.Model):
     def calc_level_skill(self):
         query1 = db.session.query(
             func.count(TriggeredEvent.id),
-            func.sum(Event.skill_points)).\
+            func.sum(TriggeredEvent.given_skill_points)).\
             join(Participation).\
             join(LevelInstance).\
             join(Event).\
@@ -374,12 +375,13 @@ class LevelSkill(db.Model):
             join(Level).\
             filter(Participation.pid == self.pid).\
             filter(LevelInstance.lid == self.lid).\
-            group_by(LevelInstance.lid).order_by(desc("sum_1"))
+            group_by(LevelInstance.id).order_by(desc("sum_1"))
         query3 = db.session.query(func.count(LevelInstance.id)). \
             join(Participation). \
             filter(Participation.pid == self.pid). \
             filter(LevelInstance.lid == self.lid)
-        considered_rows, skill_points = query1.all()[0]
+        considered_rows, skill_points = query1.all()[0]\
+            if query1.all()[0][0] else (0, 0)
         score_points = query2.all()[0][0] if query2.all() else 0
         attempt = query3.all()[0]
         return considered_rows, skill_points, score_points, attempt
@@ -423,14 +425,17 @@ class LevelTypeSkill(db.Model):
             filter(Participation.pid == self.pid).\
             filter(LevelType.id == self.ltid)
         query2 = db.session.query(
-            func.sum(TriggeredEvent.given_score_points)).\
+            func.sum(TriggeredEvent.given_score_points).label("sum_1")).\
             join(Participation).\
             join(LevelInstance).\
             join(Level).\
             join(Level.level_types).\
             filter(Participation.pid == self.pid).\
             filter(LevelType.id == self.ltid).\
-            group_by(LevelType.id).order_by(desc("sum_1"))
-        considered_rows, skill_points = query1.all()[0]
+            group_by(LevelInstance.id).order_by(desc("sum_1"))
+        print(self.pid, self.ltid)
+        print(query1.all())
+        considered_rows, skill_points = query1.all()[0]\
+            if query1.all()[0] else 0
         score_points = query2.all()[0][0] if query2.all() else 0
         return considered_rows, skill_points, score_points

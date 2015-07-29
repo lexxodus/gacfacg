@@ -18,7 +18,8 @@ def get_participation_json(participation, public=True):
     data["end_time"] = participation.end_time.isoformat()\
         if participation.end_time else None
     if public:
-        data['api_url'] = api.url_for(Participation)
+        data['api_url'] = "%s%s" % (
+            api.url_for(Participation), participation.id)
     if participation.custom_values:
         for k, v in participation.custom_values.iteritems():
             data[k] = v

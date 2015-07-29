@@ -14,7 +14,7 @@ def get_task_json(task, public=True):
     data["name"] = task.name
     data["description"] = task.description
     if public:
-        data['api_url'] = api.url_for(Task)
+        data['api_url'] = "%s%s" % (api.url_for(Task), task.id)
     if task.custom_values:
         for k, v in task.custom_values.iteritems():
             data[k] = v

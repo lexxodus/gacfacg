@@ -19,7 +19,7 @@ def get_level_skill_json(level_skill, public=True):
     data["high_score"] = level_skill.high_score
     data["attempt"] = level_skill.attempt
     if public:
-        data['api_url'] = api.url_for(LevelSkill)
+        data['api_url'] = "%s%s" % (api.url_for(LevelSkill), level_skill.id)
     return data
 
 

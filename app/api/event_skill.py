@@ -17,7 +17,7 @@ def get_event_skill_json(event_skill, public=True):
     data["considered_rows"] = event_skill.considered_rows
     data["skill_points"] = event_skill.skill_points
     if public:
-        data['api_url'] = api.url_for(EventSkill)
+        data['api_url'] = "%s%s" % (api.url_for(EventSkill), event_skill.id)
     return data
 
 

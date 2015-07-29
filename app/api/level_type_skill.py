@@ -18,7 +18,7 @@ def get_level_type_skill_json(level_type_skill, public=True):
     data["skill_points"] = level_type_skill.skill_points
     data["high_score"] = level_type_skill.high_score
     if public:
-        data['api_url'] = api.url_for(LevelTypeSkill)
+        data['api_url'] = "%s%s" % (api.url_for(LevelTypeSkill), level_type_skill)
     return data
 
 

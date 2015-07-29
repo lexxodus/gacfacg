@@ -17,7 +17,7 @@ def get_level_instance_json(level_instance, public=True):
     data["end_time"] = level_instance.end_time.isoformat()\
         if level_instance.end_time else None
     if public:
-        data['api_url'] = api.url_for(LevelInstance)
+        data['api_url'] = "%s%s" % (api.url_for(LevelInstance), level_instance.id)
     if level_instance.custom_values:
         for k, v in level_instance.custom_values.iteritems():
             data[k] = v

@@ -17,7 +17,7 @@ def get_task_skill_json(task_skill, public=True):
     data["considered_rows"] = task_skill.considered_rows
     data["skill_points"] = task_skill.skill_points
     if public:
-        data['api_url'] = api.url_for(TaskSkill)
+        data['api_url'] = "%s%s" % (api.url_for(TaskSkill), task_skill.id)
     return data
 
 

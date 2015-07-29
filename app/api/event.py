@@ -19,7 +19,7 @@ def get_event_json(event, public=True):
     data["skill_interval"] = event.skill_interval
     data["score_interval"] = event.score_interval
     if public:
-        data['api_url'] = api.url_for(Event)
+        data['api_url'] = "%s%s" % (api.url_for(Event), event.id)
     if event.custom_values:
         for k, v in event.custom_values.iteritems():
             data[k] = v

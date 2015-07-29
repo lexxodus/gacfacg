@@ -108,9 +108,9 @@ class Simulation(object):
             self.perform_initial_action(player)
             if not event % 10:
                 for p in event_handler.get_all_players():
-                    self.calculate_et_skills(p["id"], "2015-07-29T13:22:34.595049")
+                    self.calculate_et_skills(p["id"])
         for p in event_handler.get_all_players():
-            self.calculate_llt_skills(p["id"], "2015-07-29T13:22:34.595049")
+            self.calculate_llt_skills(p["id"])
 
     def perform_initial_action(self, player):
         if not player["player"].active:

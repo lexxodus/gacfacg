@@ -269,24 +269,30 @@ class EventSkill(db.Model):
     player = db.relationship("Player", foreign_keys="EventSkill.pid")
     event = db.relationship("Event", foreign_keys="EventSkill.eid")
 
-    def __init__(self, pid, eid):
+    def __init__(self, pid, eid, until=None):
         self.pid = pid
         self.eid = eid
-        considered_rows, skill_points = self.calc_event_skill()
-        self.calculated_on = datetime.now()
+        considered_rows, skill_points = self.calc_event_skill(until)
+        timestamp = datetime.now()
+        if until:
+            if until < timestamp:
+                timestamp = until
+        self.calculated_on = timestamp
         self.considered_rows = considered_rows
         self.skill_points = skill_points
 
     def __repr__(self):
         return "<player: %s, event: %s, skill: %s, %s>" % (self.player, self.event, self.skill_points, self.calculated_on)
 
-    def calc_event_skill(self):
+    def calc_event_skill(self, until=None):
         query = db.session.query(
             func.count(TriggeredEvent.id),
             func.sum(TriggeredEvent.given_skill_points)).\
             join(Participation).\
             filter(Participation.pid == self.pid).\
             filter(TriggeredEvent.eid == self.eid)
+        if until:
+            query = query.filter(TriggeredEvent.timestamp < until)
         return query.all()[0] if query.all()[0][0] else (0, 0)
 
 
@@ -303,18 +309,22 @@ class TaskSkill(db.Model):
     player = db.relationship("Player", foreign_keys="TaskSkill.pid")
     task = db.relationship("Task", foreign_keys="TaskSkill.tid")
 
-    def __init__(self, pid, tid):
+    def __init__(self, pid, tid, until=None):
         self.pid = pid
         self.tid = tid
-        considered_rows, skill_points = self.calc_task_skill()
-        self.calculated_on = datetime.now()
+        considered_rows, skill_points = self.calc_task_skill(until)
+        timestamp = datetime.now()
+        if until:
+            if until < timestamp:
+                timestamp = until
+        self.calculated_on = timestamp
         self.considered_rows = considered_rows
         self.skill_points = skill_points
 
     def __repr__(self):
         return "<player: %s, task: %s, skill: %s, %s>" % (self.player, self.task, self.skill_points, self.calculated_on)
 
-    def calc_task_skill(self):
+    def calc_task_skill(self, until):
         query = db.session.query(
             func.count(TriggeredEvent.id),
             func.sum(TriggeredEvent.given_skill_points)).\
@@ -322,6 +332,8 @@ class TaskSkill(db.Model):
             join(Event).\
             filter(Participation.pid == self.pid).\
             filter(Event.tid == self.tid)
+        if until:
+            query = query.filter(TriggeredEvent.timestamp < until)
         return query.all()[0] if query.all()[0][0] else (0, 0)
 
 
@@ -344,12 +356,16 @@ class LevelSkill(db.Model):
         db.CheckConstraint(attempt >= 0, name='check_attempt_positive'),
     )
 
-    def __init__(self, pid, lid):
+    def __init__(self, pid, lid, until=None):
         self.pid = pid
         self.lid = lid
         considered_rows, skill_points, score_points, attempt =\
-            self.calc_level_skill()
-        self.calculated_on = datetime.now()
+            self.calc_level_skill(until)
+        timestamp = datetime.now()
+        if until:
+            if until < timestamp:
+                timestamp = until
+        self.calculated_on = timestamp
         self.considered_rows = considered_rows
         self.skill_points = skill_points
         self.high_score = score_points
@@ -359,7 +375,7 @@ class LevelSkill(db.Model):
         return "<player: %s, level: %s, skill: %s, %s>" %\
                (self.player, self.level, self.skill_points, self.calculated_on)
 
-    def calc_level_skill(self):
+    def calc_level_skill(self, until=None):
         query1 = db.session.query(
             func.count(TriggeredEvent.id),
             func.sum(TriggeredEvent.given_skill_points)).\
@@ -380,6 +396,10 @@ class LevelSkill(db.Model):
             join(Participation). \
             filter(Participation.pid == self.pid). \
             filter(LevelInstance.lid == self.lid)
+        if until:
+            query1 = query1.filter(TriggeredEvent.timestamp < until)
+            query2 = query2.filter(TriggeredEvent.timestamp < until)
+            query3 = query3.filter(TriggeredEvent.timestamp < until)
         considered_rows, skill_points = query1.all()[0]\
             if query1.all()[0][0] else (0, 0)
         score_points = query2.all()[0][0] if query2.all() else 0
@@ -401,12 +421,16 @@ class LevelTypeSkill(db.Model):
     player = db.relationship("Player", foreign_keys="LevelTypeSkill.pid")
     level = db.relationship("LevelType", foreign_keys="LevelTypeSkill.ltid")
 
-    def __init__(self, pid, ltid):
+    def __init__(self, pid, ltid, until=None):
         self.pid = pid
         self.ltid = ltid
         considered_rows, skill_points, score_points =\
-            self.calc_level_type_skill()
-        self.calculated_on = datetime.now()
+            self.calc_level_type_skill(until)
+        timestamp = datetime.now()
+        if until:
+            if until < timestamp:
+                timestamp = until
+        self.calculated_on = timestamp
         self.considered_rows = considered_rows
         self.skill_points = skill_points
         self.high_score = score_points
@@ -414,7 +438,7 @@ class LevelTypeSkill(db.Model):
     def __repr__(self):
         return "<player: %s, lvltype: %s, skill: %s, %s>" % (self.player, self.level_type, self.skill_points, self.calculated_on)
 
-    def calc_level_type_skill(self):
+    def calc_level_type_skill(self, until=None):
         query1 = db.session.query(
             func.count(TriggeredEvent.id),
             func.sum(TriggeredEvent.given_skill_points).label("sum_1")).\
@@ -433,8 +457,9 @@ class LevelTypeSkill(db.Model):
             filter(Participation.pid == self.pid).\
             filter(LevelType.id == self.ltid).\
             group_by(LevelInstance.id).order_by(desc("sum_1"))
-        print(self.pid, self.ltid)
-        print(query1.all())
+        if until:
+            query1 = query1.filter(TriggeredEvent.timestamp < until)
+            query2 = query2.filter(TriggeredEvent.timestamp < until)
         considered_rows, skill_points = query1.all()[0]\
             if query1.all()[0] else 0
         score_points = query2.all()[0][0] if query2.all() else 0

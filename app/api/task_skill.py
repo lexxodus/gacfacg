@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import TaskSkill as TaskSkillModel
+from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
 
@@ -29,7 +30,10 @@ class TaskSkill(Resource):
             abort(404)
         pid = data["pid"]
         tid = data["tid"]
-        task_skill = TaskSkillModel(pid, tid)
+        until = data.get("until", None)
+        if until:
+            until = parser.parse(until)
+        task_skill = TaskSkillModel(pid, tid, until)
         db.session.add(task_skill)
         db.session.commit()
         return get_task_skill_json(task_skill), 201

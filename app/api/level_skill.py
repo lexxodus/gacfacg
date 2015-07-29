@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import LevelSkill as LevelSkillModel
+from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
 
@@ -31,7 +32,10 @@ class LevelSkill(Resource):
             abort(404)
         pid = data["pid"]
         lid = data["lid"]
-        level_skill = LevelSkillModel(pid, lid)
+        until = data.get("until", None)
+        if until:
+            until = parser.parse(until)
+        level_skill = LevelSkillModel(pid, lid, until)
         db.session.add(level_skill)
         db.session.commit()
         return get_level_skill_json(level_skill), 201

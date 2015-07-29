@@ -86,30 +86,31 @@ class Simulation(object):
             questions.append(Question("Question %s" % q, difficulty, answers))
         return Quiz(questions)
 
-    def calculate_et_skills(self, player):
+    def calculate_et_skills(self, player, until=None):
         events = event_handler.get_events()
         tasks = event_handler.get_tasks()
         for k, v in tasks.iteritems():
-            event_handler.calc_task_skill(player, v)
+            event_handler.calc_task_skill(player, v, until)
         for k, v in events.iteritems():
-            event_handler.calc_event_skill(player, v)
+            event_handler.calc_event_skill(player, v, until)
 
-    def calculate_llt_skills(self, player):
+    def calculate_llt_skills(self, player, until=None):
         levels = event_handler.get_levels()
         level_types = event_handler.get_level_types()
         for k, v in levels.iteritems():
-            event_handler.calc_level_skill(player, v)
+            event_handler.calc_level_skill(player, v, until)
         for k, v in level_types.iteritems():
-            event_handler.calc_level_type_skill(player, v)
+            event_handler.calc_level_type_skill(player, v, until)
 
     def perform_actions(self, amount):
         for event in range(amount):
             player = choice(self.players)
             self.perform_initial_action(player)
-            # for p in event_handler.get_all_players():
-            #     self.calculate_et_skills(p["id"])
+            if not event % 10:
+                for p in event_handler.get_all_players():
+                    self.calculate_et_skills(p["id"], "2015-07-29T13:22:34.595049")
         for p in event_handler.get_all_players():
-            self.calculate_llt_skills(p["id"])
+            self.calculate_llt_skills(p["id"], "2015-07-29T13:22:34.595049")
 
     def perform_initial_action(self, player):
         if not player["player"].active:

@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import EventSkill as EventSkillModel
+from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
 
@@ -29,9 +30,10 @@ class EventSkill(Resource):
             abort(404)
         pid = data["pid"]
         eid = data["eid"]
-        # until = data.get("until", None)
-        # event_skill = EventSkillModel(pid, eid, until)
-        event_skill = EventSkillModel(pid, eid)
+        until = data.get("until", None)
+        if until:
+            until = parser.parse(until)
+        event_skill = EventSkillModel(pid, eid, until)
         db.session.add(event_skill)
         db.session.commit()
         return get_event_skill_json(event_skill), 201

@@ -7,23 +7,23 @@ angular.module('aPIServices', ["ngResource"])
     }])
     .factory("Player", ["$resource",
         function($resource){
-        return $resource("/api/player/:id");
+           return $resource("/api/player/:id");
     }])
     .factory("Level", ["$resource",
         function($resource){
-        return $resource("/api/level/:id");
+            return $resource("/api/level/:id");
     }])
     .factory("LevelType", ["$resource",
         function($resource){
-        return $resource("/api/level_type/:id");
+            return $resource("/api/level_type/:id");
     }])
     .factory("Task", ["$resource",
         function($resource){
-        return $resource("/api/task/:id");
+            return $resource("/api/task/:id");
     }])
     .factory("Event", ["$resource",
         function($resource){
-        return $resource("/api/event/:id");
+            return $resource("/api/event/:id");
     }])
 ;
 

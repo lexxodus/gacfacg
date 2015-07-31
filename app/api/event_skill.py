@@ -8,7 +8,7 @@ from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
 
-def get_event_skill_json(event_skill, public=True):
+def get_event_skill_json(event_skill, public=False):
     data = {}
     data["id"] = event_skill.id
     data["pid"] = event_skill.pid

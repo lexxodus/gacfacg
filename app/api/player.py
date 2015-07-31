@@ -7,7 +7,7 @@ from app.models import Player as PlayerModel
 from flask import abort, request
 from flask.ext.restful import Resource
 
-def get_player_json(player, public=True):
+def get_player_json(player, public=False):
     data = {}
     data["id"] = player.id
     if public:

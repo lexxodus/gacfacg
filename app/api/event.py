@@ -8,7 +8,7 @@ from flask import abort, request
 from flask.ext.restful import Resource
 
 
-def get_event_json(event, public=True):
+def get_event_json(event, public=False):
     data = {}
     data["id"] = event.id
     data["tid"] = event.tid

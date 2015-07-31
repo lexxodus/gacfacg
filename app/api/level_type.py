@@ -8,7 +8,7 @@ from flask import abort, request
 from flask.ext.restful import Resource
 
 
-def get_level_type_json(level_type, public=True):
+def get_level_type_json(level_type, public=False):
     data = {}
     data["id"] = level_type.id
     data["name"] = level_type.name

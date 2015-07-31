@@ -9,7 +9,7 @@ from flask import abort, request
 from flask.ext.restful import Resource
 
 
-def get_participation_json(participation, public=True):
+def get_participation_json(participation, public=False):
     data = {}
     data["id"] = participation.id
     data["pid"] = participation.pid

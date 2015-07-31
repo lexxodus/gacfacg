@@ -8,7 +8,7 @@ from flask import abort, request
 from flask.ext.restful import Resource
 
 
-def get_task_json(task, public=True):
+def get_task_json(task, public=False):
     data = {}
     data["id"] = task.id
     data["name"] = task.name

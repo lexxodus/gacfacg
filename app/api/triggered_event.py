@@ -13,7 +13,7 @@ from datetime import datetime
 from flask import abort, request
 from flask.ext.restful import Resource
 
-def get_triggered_event_json(triggered_event, public=True):
+def get_triggered_event_json(triggered_event, public=False):
     data = {}
     data["id"] = triggered_event.id
     data["paid"] = triggered_event.paid

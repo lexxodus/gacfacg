@@ -8,7 +8,7 @@ from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
 
-def get_level_type_skill_json(level_type_skill, public=True):
+def get_level_type_skill_json(level_type_skill, public=False):
     data = {}
     data["id"] = level_type_skill.id
     data["pid"] = level_type_skill.pid

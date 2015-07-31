@@ -9,7 +9,7 @@ from flask import abort, request
 from flask.ext.restful import Resource
 
 
-def get_level_instance_json(level_instance, public=True):
+def get_level_instance_json(level_instance, public=False):
     data = {}
     data["id"] = level_instance.id
     data["lid"] = level_instance.lid

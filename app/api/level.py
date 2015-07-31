@@ -7,7 +7,7 @@ from app.models import Level as LevelModel
 from flask import abort, request
 from flask.ext.restful import Resource
 
-def get_level_json(level, public=True):
+def get_level_json(level, public=False):
     data = {}
     data["id"] = level.id
     data["name"] = level.name

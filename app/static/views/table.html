@@ -1,9 +1,8 @@
-<table border="1">
+<table class="table">
    <tr>
-       <th>Player ID</th>
+       <th ng-repeat="(k, v) in rows[0]">{{ k }}</th>
    </tr>
-   <tr ng-repeat="player in players">
-      <td>{{ player.id }}</td>
+   <tr ng-repeat="row in rows">
+      <td ng-repeat="col in row">{{ col }}</td>
    </tr>
 </table>
-{{ players }}

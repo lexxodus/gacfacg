@@ -13,5 +13,17 @@ angular.module('aPIServices', ["ngResource"])
         function($resource){
         return $resource("/api/level/:id");
     }])
+    .factory("LevelType", ["$resource",
+        function($resource){
+        return $resource("/api/level_type/:id");
+    }])
+    .factory("Task", ["$resource",
+        function($resource){
+        return $resource("/api/task/:id");
+    }])
+    .factory("Event", ["$resource",
+        function($resource){
+        return $resource("/api/event/:id");
+    }])
 ;
 

@@ -436,7 +436,7 @@ class LevelTypeSkill(db.Model):
         self.high_score = score_points
 
     def __repr__(self):
-        return "<player: %s, lvltype: %s, skill: %s, %s>" % (self.player, self.level_type, self.skill_points, self.calculated_on)
+        return "<player: %s, lvltype: %s, skill: %s, %s>" % (self.pid, self.ltid, self.skill_points, self.calculated_on)
 
     def calc_level_type_skill(self, until=None):
         query1 = db.session.query(

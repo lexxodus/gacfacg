@@ -52,12 +52,13 @@ class LevelInstance(Resource):
             return self.get_all()
 
     def get_all(self):
-        level_instances = LevelInstanceModel.query.order_by(LevelInstance.id).all()
+        level_instances = LevelInstanceModel.query.\
+            order_by(LevelInstanceModel.id).all()
         if not level_instances:
             abort(404)
         data = []
         for li in level_instances:
-            data.append(get_level_instance_json(level_instances))
+            data.append(get_level_instance_json(li))
         return data
 
     def put(self, id):

@@ -60,7 +60,7 @@ class TriggeredEvent(Resource):
 
     def get_all(self):
         args = request.args
-        query = TriggeredEvent.query
+        query = TriggeredEventModel.query
         pids = args.getlist("pid")
         liids = args.getlist("liid")
         lids = args.getlist("lid")
@@ -88,14 +88,14 @@ class TriggeredEvent(Resource):
             if liids:
                 participations = participations.filter(
                     ParticipationModel.pid._in(liids))
-            query = query.filter(TriggeredEvent.paid._in(participations))
+            query = query.filter(TriggeredEventModel.paid._in(participations))
             if tids:
                 tasks = EventModel.query.with_entities(
                     EventModel.id).filter(EventModel.tid_in(tids)).all()
                 eids += tasks
             if eids:
-                query = query.filter(TriggeredEvent.eid._in(eids))
-        triggered_events = query.order_by(TriggeredEvent.id).all()
+                query = query.filter(TriggeredEventModel.eid._in(eids))
+        triggered_events = query.order_by(TriggeredEventModel.id).all()
         if not triggered_events:
             abort(404)
         data = []

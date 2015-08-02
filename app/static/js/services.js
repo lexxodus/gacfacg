@@ -25,5 +25,17 @@ angular.module('aPIServices', ["ngResource"])
         function($resource){
             return $resource("/api/event/:id");
     }])
+    .factory("LevelInstance", ["$resource",
+        function($resource){
+            return $resource("/api/level_instance/:id");
+    }])
+    .factory("Participation", ["$resource",
+        function($resource){
+            return $resource("/api/participation/:id");
+    }])
+    .factory("TriggeredEvent", ["$resource",
+        function($resource){
+            return $resource("/api/triggered_event/:id");
+    }])
 ;
 

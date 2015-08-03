@@ -17,7 +17,7 @@ def create_player(name, clan):
         "clan": clan,
     }
     response = requests.post(url, params=params, json=data).json()
-    return (response["id"], response["api_url"])
+    return (response["id"])
 
 def get_player(id):
     url = ROOT_URL + "player/%s" % id

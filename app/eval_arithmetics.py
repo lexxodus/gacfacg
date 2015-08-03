@@ -5,8 +5,7 @@ __author__ = 'lexxodus'
 # by http://stackoverflow.com/users/680727/aleksi-torhamo
 
 from app import db
-# from app.models import Event, Player, Level, LevelInstance, LevelType, \
-#    Participation, Task, TriggeredEvent
+import models
 import ast
 from datetime import datetime
 from dateutil import parser
@@ -63,30 +62,30 @@ class Evaluator(object):
             raise Exception
         # only custom_values can apply
         if parts[0] == "player":
-            player = Player.query.join(Participation).\
-                filter(Participation.id == self.paid).first()
+            player = models.Player.query.join(models.Participation).\
+                filter(models.Participation.id == self.paid).first()
             custom_value = self._try_datetime(player.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "level":
-            level = Level.query.join(LevelInstance, Participation).\
-                filter(Participation.id == self.paid).first()
+            level = models.Level.query.join(models.LevelInstance, models.Participation).\
+                filter(models.Participation.id == self.paid).first()
             custom_value = self._try_datetime(level.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "level_type":
-            level_type = LevelType.query.join(
-                Level, Level.level_types, LevelInstance, Participation).\
-                filter(Participation.id == self.paid).first()
+            level_type = models.LevelType.query.join(
+                models.Level, models.Level.level_types, models.LevelInstance, models.Participation).\
+                filter(models.Participation.id == self.paid).first()
             custom_value = self._try_datetime(
                 level_type.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "task":
-            task = Task.query.join(Event).\
-                filter(Event.id == self.eid).first()
+            task = models.Task.query.join(models.Event).\
+                filter(models.Event.id == self.eid).first()
             custom_value = self._try_datetime(task.custom_values[parts[1]])
             return custom_value
         elif parts[0] == "level_instance":
-            level_instance = LevelInstance.query.join(Participation).\
-                filter(Participation.id == self.paid).first()
+            level_instance = models.LevelInstance.query.join(models.Participation).\
+                filter(models.Participation.id == self.paid).first()
             if parts[1] == "start_time":
                 self.calc_timedelta = True
                 return level_instance.start_time
@@ -98,7 +97,7 @@ class Evaluator(object):
                     level_instance.custom_values[parts[1]])
                 return custom_value
         elif parts[0] == "event":
-            event = Event.query.get(self.eid)
+            event = models.Event.query.get(self.eid)
             if not self.calc_timedelta:
                 if parts[1] == "skill_points":
                     return event.skill_points
@@ -109,7 +108,7 @@ class Evaluator(object):
                     event.custom_values[parts[1]])
                 return custom_value
         elif parts[0] == "participation":
-            participation = Participation.query.get(Participation.id == self.paid)
+            participation = models.Participation.query.get(models.Participation.id == self.paid)
             if parts[1] == "start_time":
                 self.calc_timedelta = True
                 return participation.start_time

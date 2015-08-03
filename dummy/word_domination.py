@@ -19,7 +19,7 @@ class WordDomination(object):
 
     def load_level(self, id):
         data = event_handler.get_level(id)
-        level = Level(id, data["api_url"], data["vision"], data["terrain"], data["bases"])
+        level = Level(id, data["vision"], data["terrain"], data["bases"])
         return level
 
     def start_level_instance(self):
@@ -27,12 +27,12 @@ class WordDomination(object):
         self.level.lid = lid
 
     def create_player(self, name, clan=None):
-        id, api_url = event_handler.create_player(name, clan)
-        return Player(id, name, clan, api_url)
+        id = event_handler.create_player(name, clan)
+        return Player(id, name, clan)
 
     def load_player(self, id):
         player = event_handler.get_player(id)
-        return Player(id, player["name"], player["clan"], player["api_url"])
+        return Player(id, player["name"], player["clan"])
 
     def create_team(self, team_name):
         for t in self.teams:
@@ -52,7 +52,8 @@ class WordDomination(object):
     def player_shoots_player(self, player, target, weapon):
         player.hit_target(target, weapon)
         target.was_hit(player, weapon)
-        question = self.quiz.load_question(self.WEAPONS_TO_QUESTION_DIFFICULTY[weapon])
+        question = self.quiz.load_question(
+                self.WEAPONS_TO_QUESTION_DIFFICULTY[weapon])
         target.ask_question(question)
 
     def player_answers_question(self, player, answers):

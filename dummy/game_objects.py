@@ -37,13 +37,13 @@ class Base(GameObjects):
         self.owned_by = team
         print("%s was captured by %s" % (self, team))
 
+
 class Level(GameObjects):
 
-    def __init__ (self, id, public_url, vision, terrain, base_amount):
+    def __init__(self, id, vision, terrain, base_amount):
         super(Level, self).__init__()
         self.id = id
         self.lid = None
-        self.public_url = public_url
         self.vision = vision
         self.terrain = terrain
         self.bases = self.generate_bases(base_amount)
@@ -54,13 +54,13 @@ class Level(GameObjects):
             bases.append(Base(b))
         return bases
 
+
 class Player(GameObjects):
 
-    def __init__(self, id, name, public_url, clan=None):
+    def __init__(self, id, name, clan=None):
         super(Player, self).__init__()
         self.id = id
         self.name = name
-        self.public_url = public_url
         self.answers = None
         self.question = None
         self.team = None

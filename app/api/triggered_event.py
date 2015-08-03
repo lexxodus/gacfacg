@@ -43,7 +43,10 @@ class TriggeredEvent(Resource):
         for k, v in data.iteritems():
             if k not in expected_values:
                custom_values[k] = v
-        triggered_event = TriggeredEventModel(paid, eid, timestamp, custom_values)
+        try:
+            triggered_event = TriggeredEventModel(paid, eid, timestamp, custom_values)
+        except:
+            return 404
         db.session.add(triggered_event)
         db.session.commit()
         return get_triggered_event_json(triggered_event), 201

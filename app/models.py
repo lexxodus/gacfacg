@@ -4,7 +4,7 @@ from datetime import datetime
 __author__ = 'lexxodus'
 
 from app import db
-from app.eval_arithmetics import Evaluator
+import eval_arithmetics
 from sqlalchemy import desc
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
@@ -204,7 +204,7 @@ class TriggeredEvent(db.Model):
         return "<%s, participation: %s, event: %s>" % (self.timestamp, self.paid, self.event)
 
     def parse_rule(self, rule):
-        e = Evaluator()
+        e = eval_arithmetics.Evaluator()
         return e.safe_eval(rule, self.paid, self.eid, self.timestamp)
 
     def calc_given_points(self):
@@ -217,6 +217,7 @@ class TriggeredEvent(db.Model):
         base_points = event.skill_points
         interval = event.skill_interval
         if rule:
+            print(rule)
             points = self.parse_rule(rule)
         else:
             points = base_points

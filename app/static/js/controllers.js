@@ -1,16 +1,17 @@
 "use strict";
 
 angular.module("controllers", [])
-    .controller("MainController", ["$scope",
+    .controller("NavController", ["$scope",
         function($scope) {
             $scope.test = 0;
-        }])
-    .controller("TableController", [
+    }])
+    .controller("EntityController", [
         "$scope", "Player", "Level", "LevelType", "Task", "Event",
         "LevelInstance", "Participation", "TriggeredEvent",
         function($scope, Player, Level, LevelType, Task, Event,
                 LevelInstance, Participation, TriggeredEvent) {
             $scope.tab = 0;
+            $scope.entity = "Player";
             $scope.rows;
 
             // initialize with player
@@ -56,17 +57,11 @@ angular.module("controllers", [])
                     angular.forEach(data, function (d) {
                         var player = {};
                         player["id"] = d.id;
-                        delete d["id"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            player[k] = d[k];
-                        }
                         players.push(player);
                     });
                 });
                 $scope.rows = players;
+                $scope.entity = "Player";
             };
 
             function getLevels() {
@@ -77,19 +72,11 @@ angular.module("controllers", [])
                         level["id"] = d.id;
                         level["name"] = d.name;
                         level["description"] = d.description;
-                        delete d["id"];
-                        delete d["name"];
-                        delete d["description"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            level[k] = d[k];
-                        }
                         levels.push(level);
                     });
                 });
                 $scope.rows = levels;
+                $scope.entity = "Level";
             };
 
             function getLevelTypes() {
@@ -100,19 +87,11 @@ angular.module("controllers", [])
                         levelType["id"] = d.id;
                         levelType["name"] = d.name;
                         levelType["description"] = d.description;
-                        delete d["id"];
-                        delete d["name"];
-                        delete d["description"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            levelType[k] = d[k];
-                        }
                         levelTypes.push(levelType);
                     });
                 });
                 $scope.rows = levelTypes;
+                $scope.entity = "Level Type";
             };
 
             function getTasks() {
@@ -123,19 +102,11 @@ angular.module("controllers", [])
                         task["id"] = d.id;
                         task["name"] = d.name;
                         task["description"] = d.description;
-                        delete d["id"];
-                        delete d["name"];
-                        delete d["description"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            task[k] = d[k];
-                        }
                         tasks.push(task);
                     });
                 });
                 $scope.rows = tasks;
+                $scope.entity = "Task";
             };
 
             function getEvents() {
@@ -147,20 +118,11 @@ angular.module("controllers", [])
                         event["tid"] = d.tid;
                         event["name"] = d.name;
                         event["description"] = d.description;
-                        delete d["id"];
-                        delete d["tid"];
-                        delete d["name"];
-                        delete d["description"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            event[k] = d[k];
-                        }
                         events.push(event);
                     });
                 });
                 $scope.rows = events;
+                $scope.entity = "Event";
             };
 
             function getLevelInstances() {
@@ -172,16 +134,6 @@ angular.module("controllers", [])
                         levelInstance["lid"] = d.lid;
                         levelInstance["start time"] = d.start_time;
                         levelInstance["end time"] = d.end_time;
-                        delete d["id"];
-                        delete d["lid"];
-                        delete d["start_time"];
-                        delete d["end_time"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            levelInstance[k] = d[k];
-                        }
                         levelInstances.push(levelInstance);
                     });
                 });
@@ -197,18 +149,7 @@ angular.module("controllers", [])
                         participation["pid"] = d.pid;
                         participation["liid"] = d.liid;
                         participation["start time"] = d.start_time;
-                        participation["end time"] = d.ent_time;
-                        delete d["id"];
-                        delete d["pid"];
-                        delete d["liid"];
-                        delete d["start_time"];
-                        delete d["end_time"];
-                        for (var k in d){
-                            if (typeof(d[k]) === "function"){
-                                continue;
-                            }
-                            participation[k] = d[k];
-                        }
+                        participation["end time"] = d.end_time;
                         participations.push(participation);
                     });
                 });
@@ -224,16 +165,6 @@ angular.module("controllers", [])
                         triggeredEvent["paid"] = d.paid;
                         triggeredEvent["eid"] = d.eid;
                         triggeredEvent["timestamp"] = d.timestamp;
-                        // delete d["id"];
-                        // delete d["paid"];
-                        // delete d["eid"];
-                        // delete d["timestamp"];
-                        // for (var k in d){
-                        //     if (typeof(d[k]) === "function"){
-                        //         continue;
-                        //     }
-                        //     triggeredEvent[k] = d[k];
-                        // }
                         triggeredEvents.push(triggeredEvent);
                     });
                 });
@@ -244,5 +175,5 @@ angular.module("controllers", [])
     return function(input) {
       return input.charAt(0).toUpperCase() + input.substr(1).toLowerCase();
     }
-});
+})
 ;

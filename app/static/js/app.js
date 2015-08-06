@@ -5,14 +5,19 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
             function($routeProvider, $locationProvider) {
             $routeProvider
             .when("/", {
-                templateUrl: "static/views/table.html",
-                controller: "TableController",
-                controllerAs: "table"
+                templateUrl: "static/views/entity.html",
+                controller: "EntityController",
+                controllerAs: "entity-ctl"
             })
-            // .otherwise({
-            //     redirectTo: "/"
-            // })
             ;
+            //.when("/history", {
+            //    templateUrl: "static/views/history.html",
+            //    controller: "HistoryController",
+            //    controllerAs: "history"
+            //})
+            //.otherwise({
+            //    redirectTo: "/entities"
+            //})
 
             $locationProvider.html5Mode(true);
     }])

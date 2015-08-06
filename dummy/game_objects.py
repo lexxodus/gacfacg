@@ -63,6 +63,8 @@ class Player(GameObjects):
         self.name = name
         self.answers = None
         self.question = None
+        self.cnt_wright_answers = 0
+        self.cnt_wrong_answers = 0
         self.team = None
         self.active = True
         self.participation = None
@@ -93,6 +95,7 @@ class Player(GameObjects):
     def captured(self, base):
         trigger_event(self.participation, self.events["base captured"],
                       base=str(base))
+        trigger_event(self.participation, self.events["base capturer"])
         print("%s captured %s" % (self, base))
 
     def assisted(self, player, base):
@@ -109,21 +112,26 @@ class Player(GameObjects):
         trigger_event(self.participation, self.events["base defended"],
                       base=str(base))
         print("%s defended %s" % (self, base))
+        self.was_defender(base)
 
     def assisted_defender(self, defender, base):
         print("%s assisted %s defending %s" % (self, defender, base))
+        self.was_defender(base)
+
+    def was_defender(self, base):
+        trigger_event(self.participation, self.events["base defender"],
+                      base=str(base))
+        print("%s is defender of %s" % (self, base))
 
     def was_hit(self, player, weapon, base=None):
-        # send triggered_event
         if base:
             trigger_event(self.participation, self.events["hit in action"],
                           player=player.id, weapon=weapon, base=str(base))
             print("%s was hit by %s with %s while defending %s" %
                   (self, player, weapon, base))
-        else:
-            trigger_event(self.participation, self.events["teamhit"],
+        trigger_event(self.participation, self.events["was hit"],
                           player=player.id, weapon=weapon)
-            print("%s was hit by %s with %s" % (self, player, weapon))
+        print("%s was hit by %s with %s" % (self, player, weapon))
 
     def ask_question(self, question):
         print("%s is asked %s a %s question" %
@@ -152,13 +160,31 @@ class Player(GameObjects):
                           answer_options=answer_options,
                           difficulty=self.question.difficulty,
                           correct_answers=correct_answers)
+            self.cnt_wrong_answers = 0
+            self.cnt_wright_answers += 1
+            if self.cnt_wright_answers == 3:
+                trigger_event(self.participation, self.events["streak"])
+            elif self.cnt_wright_answers == 10:
+                trigger_event(self.participation, self.events["genius"])
         else:
             trigger_event(self.participation, self.events["wrong answer"],
                           given_answers=answers_str, question=str(self.question),
                           answer_options=answer_options,
                           difficulty=self.question.difficulty,
                           correct_answers=correct_answers)
+            self.cnt_wrong_answers += 1
+            self.cnt_wright_answers = 0
+            if self.cnt_wrong_answers == 3:
+                trigger_event(self.participation, self.events["slack"])
+            elif self.cnt_wrong_answers == 10:
+                trigger_event(self.participation, self.events["whoami"])
         return answered_correctly
+
+    def wandered_off(self, base):
+        print("%s wandered alone in %s during base capture" %
+              (self, str(base)))
+        trigger_event(self.participation, self.events["lonely wolf"],
+                      base=str(base))
 
     def __str__(self):
         return self.name

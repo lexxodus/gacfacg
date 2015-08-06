@@ -44,7 +44,7 @@ class LevelInstance(Resource):
 
     def get(self, id=None):
         if id:
-            level_instance = LevelInstance.query.get(id)
+            level_instance = LevelInstanceModel.query.get(id)
             if not level_instance:
                 abort(404)
             return get_level_instance_json(level_instance)

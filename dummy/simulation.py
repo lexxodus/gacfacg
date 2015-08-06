@@ -20,6 +20,9 @@ class Simulation(object):
     def start_level(self):
         self.wd.start_level_instance()
 
+    def end_level(self):
+        self.wd.end_level_instance()
+
     def create_players(self, amount):
         for p in range(1, amount + 1):
             name = "Player %s" % p
@@ -146,18 +149,14 @@ class Simulation(object):
             location = player["location"]
             supporters = []
             defense = []
-            hit_attackers = []
             if location:
                 for p in player_locations[location]:
                     # tries to shoot enemy player last player is removed
                     if random() < 0.2:
                         if len(player_locations[location]) > 1:
-                            target, weapon = self.action_shoot(p, player_locations[location])
+                            target, weapon = self.action_shoot(p, player_locations[location], location)
                             if target:
-                                hit_player = target
                                 player_locations[location].remove(p)
-                                if hit_player["team"] is player["team"]:
-                                    hit_attackers.append(hit_player)
                             continue
                     if p["team"] is player["team"]:
                         if p is not player:
@@ -180,9 +179,17 @@ class Simulation(object):
                 if success_rate > 0 and random() < 0.7:
                     # success and reward
                     defenders = [p["player"] for p in defense]
+                    lone_wolves = []
+                    for b in self.wd.level.bases:
+                        if len(player_locations[b]) < 2:
+                            for p in player_locations[b]:
+                                wolf = p["player"]
+                                if wolf.active:
+                                    lone_wolves.append(wolf)
                     self.wd.player_captures_base(
-                        player["player"], location, supporters, defenders)
-                elif  len(defense) > 0:
+                        player["player"], location, supporters,
+                        defenders, lone_wolves)
+                elif len(defense) > 0:
                     # fail
                     attackers = list(supporters)
                     attackers.append(player["player"])
@@ -203,13 +210,13 @@ class Simulation(object):
                     if not recapturer:
                         recapturer = choice(defense)["player"]
                     self.wd.player_defends_base(
-                        recapturer, defenders, hit_attackers, location)
+                        recapturer, location, defenders)
 
             # unfreeze players
             for p in self.players:
                 p["player"].active = True
 
-    def action_shoot(self, player, possible_targets=None):
+    def action_shoot(self, player, possible_targets=None, location=None):
         if possible_targets:
             # there are no enemy players, he will not shoot
             will_shoot = False
@@ -287,7 +294,7 @@ class Simulation(object):
             if not real_targets:
                 return None, None
             target = choice(real_targets)
-        self.wd.player_shoots_player(player["player"], target["player"], weapon)
+        self.wd.player_shoots_player(player["player"], target["player"], weapon, location)
         answers = self.answer_question(target["player"].question, target)
         target["player"].give_answers(answers)
         return target, weapon

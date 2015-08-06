@@ -74,33 +74,30 @@ class TriggeredEvent(Resource):
             participations = ParticipationModel.query.with_entities(
                 ParticipationModel.id)
             if pids:
-                participations = ParticipationModel.query.with_entities(
-                    ParticipationModel.id).filter(
-                    ParticipationModel.pid._in(pids))
+                participations = participations.filter(
+                    ParticipationModel.pid.in_(pids))
             if ltids or lids:
                 level_instance = LevelInstanceModel.query
                 if ltids:
                     levels = LevelModel.query.with_entities(
                         LevelModel.id).join(LevelModel.level_types).\
-                        filter(LevelModel.level_types._in(ltids)).all()
+                        filter(LevelModel.level_types.in_(ltids)).all()
                     lids += levels
                 if lids:
                     level_instances = level_instance.filter(
-                        LevelInstanceModel.lid._in(lids)).all()
+                        LevelInstanceModel.lid.in_(lids)).all()
                     liids += level_instances
             if liids:
                 participations = participations.filter(
-                    ParticipationModel.pid._in(liids))
-            query = query.filter(TriggeredEventModel.paid._in(participations))
+                    ParticipationModel.liid.in_(liids))
+            query = query.filter(TriggeredEventModel.paid.in_(participations))
             if tids:
                 tasks = EventModel.query.with_entities(
                     EventModel.id).filter(EventModel.tid_in(tids)).all()
                 eids += tasks
             if eids:
-                query = query.filter(TriggeredEventModel.eid._in(eids))
+                query = query.filter(TriggeredEventModel.eid.in_(eids))
         triggered_events = query.order_by(TriggeredEventModel.id).all()
-        if not triggered_events:
-            abort(404)
         data = []
         for t in triggered_events:
             data.append(get_triggered_event_json(t))

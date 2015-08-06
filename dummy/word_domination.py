@@ -26,6 +26,14 @@ class WordDomination(object):
         lid = event_handler.create_level_instance(self.level.id, self.teams)
         self.level.lid = lid
 
+    def end_level_instance(self):
+        event_handler.end_level_instance(self.level.lid, self.teams)
+        for t in self.teams:
+            for p in t.get_players():
+                last_hit = event_handler.get_player_last_hit(p, self.level.lid)
+                event_handler.award_player_survival(
+                    p, last_hit)
+
     def create_player(self, name, clan=None):
         id = event_handler.create_player(name, clan)
         return Player(id, name, clan)
@@ -49,9 +57,9 @@ class WordDomination(object):
         player.assign_to_team(team)
         team.add_player(player)
 
-    def player_shoots_player(self, player, target, weapon):
+    def player_shoots_player(self, player, target, weapon, base=None):
         player.hit_target(target, weapon)
-        target.was_hit(player, weapon)
+        target.was_hit(player, weapon, base)
         question = self.quiz.load_question(
                 self.WEAPONS_TO_QUESTION_DIFFICULTY[weapon])
         target.ask_question(question)
@@ -59,15 +67,18 @@ class WordDomination(object):
     def player_answers_question(self, player, answers):
         player.answer_question(answers)
 
-    def player_captures_base(self, player, base, supporters, defenders):
+    def player_captures_base(
+            self, player, base, supporters, defenders, lone_wolves):
         player.captured(base)
         base.captured(player.team)
         for s in supporters:
             s.assisted(player, base)
         for d in defenders:
             d.failed_to_defend(base, player)
+        for l in lone_wolves:
+            l.wandered_off(base)
 
-    def player_defends_base(self, player, defender, hit_attackers, base):
+    def player_defends_base(self, player, base, defender):
         player.defended(base)
         for p in defender:
             p.assisted_defender(player, base)

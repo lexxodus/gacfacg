@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
+from datetime import datetime
+from dateutil import parser
 import requests
 
 ROOT_URL = "http://localhost:5000/api/"
@@ -57,6 +59,25 @@ def create_level_instance(level_id, teams=[]):
                 p.participation = participation["id"]
     return level_instance_id
 
+
+def end_level_instance(level_instance_id, teams=[]):
+    url = ROOT_URL + "level_instance/"
+    url += str(level_instance_id)
+    params = {}
+    level_instance = requests.get(
+        url, params=params).json()
+    end_time = datetime.now().isoformat()
+    level_instance["end_time"] = end_time
+    requests.put(url, params=params, json=level_instance).json()
+    if teams:
+        for t in teams:
+            players = t.get_players()
+            for p in players:
+                logout_player_from_level_instance(
+                    p.participation, end_time)
+    return parser.parse(end_time)
+
+
 def login_player_into_level_instance(pid, liid, team):
     url = ROOT_URL + "participation/"
     params = {}
@@ -67,6 +88,14 @@ def login_player_into_level_instance(pid, liid, team):
     }
     response = requests.post(url, params=params, json=data).json()
     return response
+
+def logout_player_from_level_instance(paid, end_time):
+    url = ROOT_URL + "participation/"
+    url += str(paid)
+    params = {}
+    participation = requests.get(url, params=params).json()
+    participation["end_time"] = end_time
+    requests.put(url, params=params, json=participation).json()
 
 def load_events():
     url = ROOT_URL + "event/"
@@ -190,3 +219,65 @@ def calc_level_type_skill(pid, ltid, timestamp=None):
     }
     response = requests.post(url, params=params, json=data).json()
     return response
+
+def player_was_hit(player, liid):
+    current_hit = datetime.now()
+    last_hit = get_player_last_hit(player, liid)
+    url = ROOT_URL + "triggered_event/"
+    params = {}
+    if last_hit:
+        award_player_survival(player, last_hit, current_hit)
+    data = {
+        "paid": player.participation,
+        "eid": events["was hit"],
+    }
+    requests.post(url, params=params, json=data).json()
+
+def award_player_survival(player, last_hit, current_hit=None):
+    url = ROOT_URL + "triggered_event/"
+    params = {}
+    eid = None
+    if current_hit:
+        if (current_hit - last_hit).total_seconds() > 4 * 60:
+            eid = events["survivor"]
+        elif (current_hit - last_hit).total_seconds() > 1 * 60:
+            eid = events["amateur"]
+        else:
+            eid = events["victim"]
+    elif not last_hit:
+        eid = events["legendary"]
+    else:
+        return
+    data = {
+        "paid": player.participation,
+        "eid": eid,
+    }
+    requests.post(url, params=params, json=data).json()
+
+def get_participation(paid):
+    url = ROOT_URL + "participation/"
+    url += str(paid)
+    params = {}
+    response = requests.get(url, params=params).json()
+    return response
+
+def get_level_instance(liid):
+    url = ROOT_URL + "level_instance/"
+    url += str(liid)
+    params = {}
+    response = requests.get(url, params=params).json()
+    return response
+
+def get_player_last_hit(player, liid):
+    url = ROOT_URL + "triggered_event/"
+    params = {"pid": player.id, "liid": liid, "eid": events["was hit"]}
+    response = requests.get(url, params=params).json()
+    hits = []
+    for i in response:
+        hits.append(parser.parse(i["timestamp"]))
+    if hits:
+        hits.sort()
+        last_hit = hits[-1]
+    else:
+        last_hit = None
+    return last_hit

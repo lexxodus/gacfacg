@@ -1,0 +1,29 @@
+<div>
+<ul class="nav nav-pills">
+    <li role="presentation" ng-class="{ active: isActive(0)}"
+        ng-click="selectTab(0)"><a href="#">Level Instances</a></li>
+    <li role="presentation" ng-class="{ active: isActive(1)}"
+        ng-click="selectTab(1)"><a href="#">Participations</a></li>
+    <li role="presentation" ng-class="{ active: isActive(2)}"
+        ng-click="selectTab(2)"><a href="#">Triggered Events</a></li>
+</ul>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">{{ log }}</div>
+    <div class="panel-body">
+        <table class="table">
+           <tr>
+               <th ng-repeat="(k, v) in rows[0]">{{ k|capitalize }}</th>
+               <th>Actions</th>
+           </tr>
+           <tr ng-repeat="row in rows">
+               <td ng-repeat="col in row">{{ col }}</td>
+               <td>
+                   <button class="btn btn-default read" type="button">
+                       <span class="glyphicon glyphicon-eye-open"></span>
+                   </button>
+               </td>
+           </tr>
+        </table>
+    </div>
+</div>

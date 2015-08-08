@@ -5,11 +5,22 @@ angular.module("controllers", [])
         function($scope) {
             $scope.test = 0;
     }])
+    .controller("NavController", [
+        "$scope", function($scope) {
+            $scope.page = 0;
+
+            $scope.isActive = function (page){
+                return $scope.page === page;
+            };
+
+            $scope.selectPage = function(page){
+                $scope.page = page;
+            };
+
+    }])
     .controller("EntityController", [
         "$scope", "Player", "Level", "LevelType", "Task", "Event",
-        "LevelInstance", "Participation", "TriggeredEvent",
-        function($scope, Player, Level, LevelType, Task, Event,
-                LevelInstance, Participation, TriggeredEvent) {
+        function($scope, Player, Level, LevelType, Task, Event) {
             $scope.tab = 0;
             $scope.entity = "Player";
             $scope.rows;
@@ -124,6 +135,36 @@ angular.module("controllers", [])
                 $scope.rows = events;
                 $scope.entity = "Event";
             };
+    }])
+    .controller("HistoryController", [
+        "$scope", "LevelInstance", "Participation", "TriggeredEvent",
+        function($scope, LevelInstance, Participation, TriggeredEvent) {
+            $scope.tab = 0;
+            $scope.entity = "Level Instance";
+            $scope.rows;
+
+            // initialize with Level Instances
+            getLevelInstances();
+
+            $scope.isActive = function (tab){
+                return $scope.tab === tab;
+            };
+
+            $scope.selectTab = function(tab){
+                console.log(tab);
+                switch(tab){
+                    case 0:
+                        getLevelInstances();
+                        break;
+                    case 1:
+                        getParticipations();
+                        break;
+                    case 2:
+                        getTriggeredEvents();
+                        break;
+                }
+                $scope.tab = tab;
+            };
 
             function getLevelInstances() {
                 var levelInstances = [];
@@ -138,6 +179,7 @@ angular.module("controllers", [])
                     });
                 });
                 $scope.rows = levelInstances;
+                $scope.entity = "Level Instance";
             };
 
             function getParticipations() {
@@ -154,6 +196,7 @@ angular.module("controllers", [])
                     });
                 });
                 $scope.rows = participations;
+                $scope.entity = "Participations";
             };
 
             function getTriggeredEvents() {
@@ -169,8 +212,9 @@ angular.module("controllers", [])
                     });
                 });
                 $scope.rows = triggeredEvents;
+                $scope.entity = "Triggered Events";
             };
-        }])
+    }])
     .filter('capitalize', function() {
     return function(input) {
       return input.charAt(0).toUpperCase() + input.substr(1).toLowerCase();

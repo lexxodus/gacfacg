@@ -1,0 +1,38 @@
+img {
+    margin: 10px;
+}
+
+.read {
+    background: #55E555;
+}
+
+.update {
+    background: #8888E8;
+}
+
+.delete {
+    background: #E55555;
+}
+
+/* by http://www.jonathanbriehl.com/2014/01/17/vertical-menu-for-bootstrap-3/ */
+/* make sidebar nav vertical */
+@media (min-width: 768px) {
+  .sidebar-nav .navbar .navbar-collapse {
+    padding: 0;
+    max-height: none;
+  }
+  .sidebar-nav .navbar ul {
+    float: none;
+  }
+  .sidebar-nav .navbar ul:not {
+    display: block;
+  }
+  .sidebar-nav .navbar li {
+    float: none;
+    display: block;
+  }
+  .sidebar-nav .navbar li a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}

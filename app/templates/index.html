@@ -18,14 +18,37 @@
 		<base href="/" />
 	</head>
 	<body>
-		<img>
-			<img src="static/png/gacfacg.png" />
-		</header>
-		<main ng-view>
-
-		</main>
-		<footer>
-			by Mr. T.
-		</footer>
+        <div class="container">
+            <header class="row">
+                <img src="static/png/gacfacg.png" />
+            </header>
+            <div class="row">
+                <div class="col-sm-3">
+					<nav class="sidebar-nav" ng-controller="NavController">
+						<div class="navbar navbar-default">
+                            <div class="navbar-collapse collapse sidebar-navbar-collapse">
+                                <ul class="nav navbar-nav">
+                                    <li ng-class="{ active: isActive(0) }" ng-click="selectPage(0)">
+                                        <a href="entities">Entities</a>
+                                    </li>
+                                    <li ng-class="{ active: isActive(1) }" ng-click="selectPage(1)">
+                                        <a href="histories">Histories</a>
+                                    </li>
+                                    <li ng-class="{ active: isActive(2) }" ng-click="selectPage(2)">
+                                        <a href="#">Graphs</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+				<div class="col-sm-9">
+                    <main ng-view></main>
+				</div>
+            </div>
+            <footer class="row">
+                by Mr. T.
+            </footer>
+		</div>
 	</body>
 </html>

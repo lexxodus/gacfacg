@@ -23,6 +23,7 @@ angular.module("controllers", [])
         function($scope, Player, Level, LevelType, Task, Event) {
             $scope.tab = 0;
             $scope.entity = "Player";
+            $scope.addLink = "player-add";
             $scope.rows;
 
             // initialize with player
@@ -73,6 +74,7 @@ angular.module("controllers", [])
                 });
                 $scope.rows = players;
                 $scope.entity = "Player";
+                $scope.addLink = "player-add";
             };
 
             function getLevels() {
@@ -88,6 +90,7 @@ angular.module("controllers", [])
                 });
                 $scope.rows = levels;
                 $scope.entity = "Level";
+                $scope.addLink = "level-add";
             };
 
             function getLevelTypes() {
@@ -103,6 +106,7 @@ angular.module("controllers", [])
                 });
                 $scope.rows = levelTypes;
                 $scope.entity = "Level Type";
+                $scope.addLink = "level-type-add";
             };
 
             function getTasks() {
@@ -118,6 +122,7 @@ angular.module("controllers", [])
                 });
                 $scope.rows = tasks;
                 $scope.entity = "Task";
+                $scope.addLink = "task-add";
             };
 
             function getEvents() {
@@ -134,6 +139,7 @@ angular.module("controllers", [])
                 });
                 $scope.rows = events;
                 $scope.entity = "Event";
+                $scope.addLink = "event-add";
             };
     }])
     .controller("HistoryController", [
@@ -215,9 +221,135 @@ angular.module("controllers", [])
                 $scope.entity = "Triggered Events";
             };
     }])
+    .controller("PlayerAddController", [
+        "$scope", "Player",
+        function($scope, Player) {
+
+    }])
+    .controller("LevelAddController", [
+        "$scope", "$location", "Level", "LevelType",
+        function($scope, $location, Level, LevelType) {
+            $scope.expected_values = ["name", "description"];
+            $scope.required_values = ["name"];
+            $scope.name = "";
+            $scope.description = "";
+            $scope.levelTypes = {};
+            $scope.levelTypesSelected = {};
+            $scope.uniques = [];
+            $scope.customKeys = [];
+            $scope.customValues = [];
+            $scope.customRows = 0;
+
+            getLevelTypes();
+            getLevelNames();
+
+            $scope.addCustomValue = function () {
+                $scope.customKeys.push("");
+                $scope.customValues.push("");
+                $scope.customRows++;
+            };
+
+            $scope.removeCustomValue = function (i) {
+                $scope.customRows--;
+                $scope.customKeys.splice(i, 1);
+                $scope.customValues.splice(i, 1);
+            };
+
+            $scope.range = function (n) {
+                return new Array(n);
+            };
+
+            $scope.save = function () {
+                var lt = [];
+                for (var k in $scope.levelTypesSelected){
+                    if($scope.levelTypesSelected[k]) {
+                        lt.push(k);
+                    }
+                }
+                var data = {
+                    "name": $scope.name,
+                    "description": $scope.description,
+                    "level_types": lt
+                }
+                for (var k in $scope.customKeys){
+                    data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
+                }
+                Level.save(data);
+
+                $location.path("entities")
+            };
+
+            $scope.cancel = function (form) {
+                if (form) {
+                    form.$setPristine();
+                    form.$setUntouched();
+                }
+                $scope.name = "";
+                $scope.description = "";
+                $scope.customRows = 0;
+                $scope.customKeys = [];
+                $scope.customValues = [];
+            };
+
+            function getLevelTypes() {
+                LevelType.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.levelTypes[d.id] = d.name;
+                        $scope.levelTypesSelected[d.id] = false;
+                    });
+                });
+            };
+
+            function getLevelNames() {
+                Level.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.uniques.push(d.name);
+                    });
+                });
+            };
+    }])
     .filter('capitalize', function() {
     return function(input) {
       return input.charAt(0).toUpperCase() + input.substr(1).toLowerCase();
-    }
-})
+    }})
+    .directive("unexpected", function () {
+        return {
+            require: "ngModel",
+            link: function(scope, elm, attrs, ctrl) {
+                ctrl.$validators.unexpected = function(modelValue, viewValue){
+                    if (ctrl.$isEmpty(modelValue)) {
+                        return true;
+                    }
+
+                    for (var value in scope.expected_values) {
+                        if (modelValue.toLowerCase() == scope.expected_values[value]){
+                            return false;
+                        }
+                    };
+
+                    return true;
+                };
+            }
+        };
+    })
+    .directive("unique", function () {
+        return {
+            require: "ngModel",
+            link: function(scope, elm, attrs, ctrl) {
+                ctrl.$validators.unique = function(modelValue, viewValue){
+                    if (ctrl.$isEmpty(modelValue)) {
+                        return true;
+                    }
+
+                    for (var value in scope.uniques) {
+                        if (modelValue == scope.uniques[value]){
+                            return false;
+                        }
+                    };
+
+                    return true;
+                };
+            }
+        };
+    })
 ;

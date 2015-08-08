@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import Level as LevelModel
+from app.models import LevelType
 from flask import abort, request
 from flask.ext.restful import Resource
 
@@ -29,7 +30,9 @@ class Level(Resource):
             abort(400)
         name = data["name"]
         description = data.get("description", "")
-        level_types = data.get("level_types", None)
+        level_types = data.get("level_types", [])
+        for i, lt in enumerate(level_types):
+            level_types[i] = LevelType.query.get(lt)
         custom_values = {}
         for k, v in data.iteritems():
             if k not in expected_values:

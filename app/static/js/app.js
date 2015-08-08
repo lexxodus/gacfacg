@@ -14,6 +14,16 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 controller: "HistoryController",
                 controllerAs: "history-ctl"
             })
+            .when("/player-add", {
+                templateUrl: "static/views/player-add.html",
+                controller: "PlayerAddController",
+                controllerAs: "player-add-ctl"
+            })
+            .when("/level-add", {
+                templateUrl: "static/views/level-add.html",
+                controller: "LevelAddController",
+                controllerAs: "level-add-ctl"
+            })
             .otherwise({
                 redirectTo: "/entities"
             })

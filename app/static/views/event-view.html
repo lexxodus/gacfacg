@@ -2,12 +2,40 @@
     Back to Entities
 </a>
 <div class="panel panel-default">
+    <div class="panel-heading">Task:</div>
+    <div class="panel-body">{{ task }}</div>
+</div>
+<div class="panel panel-default">
     <div class="panel-heading">Name:</div>
     <div class="panel-body">{{ name }}</div>
 </div>
 <div class="panel panel-default">
     <div class="panel-heading">Description:</div>
     <div class="panel-body">{{ description }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Skill Points:</div>
+    <div class="panel-body">{{ skill_points }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Skill Interval:</div>
+    <div class="panel-body">{{ skill_interval }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Skill Rule:</div>
+    <div class="panel-body">{{ skill_rule }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Score Points:</div>
+    <div class="panel-body">{{ score_points }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Score Interval:</div>
+    <div class="panel-body">{{ score_interval }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Score Rule:</div>
+    <div class="panel-body">{{ score_rule }}</div>
 </div>
 <div class="panel panel-default" ng-repeat="(k, v) in customValues">
     <div class="panel-heading">{{ k|capitalize }}:</div>

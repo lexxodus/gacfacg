@@ -903,17 +903,37 @@ angular.module("controllers", [])
             $scope.expected_values = ["id", "tid", "name", "description",
                 "skill_points", "skill_interval", "skill_rule",
                 "score_points", "score_interval", "score_rule"];
+            $scope.task = "";
             $scope.name = "";
             $scope.description = "";
+            $scope.skill_points = 0;
+            $scope.skill_interval = 1;
+            $scope.skill_rule = "";
+            $scope.score_points = 0;
+            $scope.score_interval = 1;
+            $scope.score_rule = "";
             $scope.customValues = {};
 
             loadEvent($routeParams.id);
 
+            function getTask(id) {
+                Task.get({id: id}).$promise.then(function (data) {
+                    $scope.task = data.name;
+                });
+            };
+
             function loadEvent(id) {
                 Event.get({id: id}).$promise.then(function (data) {
                     var clone = {};
+                    getTask(data.tid);
                     $scope.name = data.name;
                     $scope.description = data.description;
+                    $scope.skill_points = data.skill_points;
+                    $scope.skill_interval = data.skill_interval;
+                    $scope.skill_rule = data.skill_rule;
+                    $scope.score_points = data.score_points;
+                    $scope.score_interval = data.score_interval;
+                    $scope.score_rule = data.score_rule;
                     angular.copy(data, clone);
                     for (var key in RESOURCE_KEYS){
                         delete clone[RESOURCE_KEYS[key]];

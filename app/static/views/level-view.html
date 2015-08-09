@@ -1,0 +1,24 @@
+<a href="entities">
+    Back to Entities
+</a>
+<div class="panel panel-default">
+    <div class="panel-heading">Name:</div>
+    <div class="panel-body">{{ name }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Description:</div>
+    <div class="panel-body">{{ description }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Level Types:</div>
+    <table class="table">
+        <tr ng-repeat="lt in levelTypesSelected">
+            <td>{{ lt }}</td>
+        </tr>
+    </table>
+</div>
+<div class="panel panel-default" ng-repeat="(k, v) in customValues">
+    <div class="panel-heading">{{ k|capitalize }}:</div>
+    <div class="panel-body">{{ v }}</div>
+</div>
+

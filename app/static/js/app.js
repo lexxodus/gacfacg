@@ -59,6 +59,36 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 controller: "LevelTypeAddEditController",
                 controllerAs: "level_type-add-edit-ctl"
             })
+            .when("/task-add", {
+                templateUrl: "static/views/task-add-edit.html",
+                controller: "TaskAddEditController",
+                controllerAs: "task-add-edit-ctl"
+            })
+            .when("/task-view/:id", {
+                templateUrl: "static/views/task-view.html",
+                controller: "TaskViewController",
+                controllerAs: "task-view-ctl"
+            })
+            .when("/task-edit/:id", {
+                templateUrl: "static/views/task-add-edit.html",
+                controller: "TaskAddEditController",
+                controllerAs: "task-add-edit-ctl"
+            })
+            .when("/event-add", {
+                templateUrl: "static/views/event-add-edit.html",
+                controller: "EventAddEditController",
+                controllerAs: "event-add-edit-ctl"
+            })
+            .when("/event-view/:id", {
+                templateUrl: "static/views/event-view.html",
+                controller: "EventViewController",
+                controllerAs: "event-view-ctl"
+            })
+            .when("/event-edit/:id", {
+                templateUrl: "static/views/event-add-edit.html",
+                controller: "EventAddEditController",
+                controllerAs: "event-add-edit-ctl"
+            })
             .otherwise({
                 redirectTo: "/entities"
             })

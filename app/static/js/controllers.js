@@ -142,6 +142,8 @@ angular.module("controllers", [])
                         task["id"] = d.id;
                         task["name"] = d.name;
                         task["description"] = d.description;
+                        task["view_url"] = "task-view/" + d.id;
+                        task["edit_url"] = "task-edit/" + d.id;
                         tasks.push(task);
                     });
                 });
@@ -159,6 +161,8 @@ angular.module("controllers", [])
                         event["tid"] = d.tid;
                         event["name"] = d.name;
                         event["description"] = d.description;
+                        event["view_url"] = "event-view/" + d.id;
+                        event["edit_url"] = "event-edit/" + d.id;
                         events.push(event);
                     });
                 });
@@ -635,7 +639,283 @@ angular.module("controllers", [])
                     var clone = {};
                     $scope.name = data.name;
                     $scope.description = data.description;
+                    angular.copy(data, clone);
                     for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
+                    });
+                });
+            };
+    }])
+    .controller("TaskAddEditController", [
+        "$scope", "$routeParams", "$location", "Task",
+        function($scope, $routeParams, $location, Task) {
+            $scope.expected_values = ["id", "name", "description"];
+            $scope.required_values = ["name"];
+            $scope.unique_edit = "";
+            $scope.name = "";
+            $scope.description = "";
+            $scope.uniques = [];
+            $scope.customKeys = [];
+            $scope.customValues = [];
+            $scope.customRows = 0;
+
+            getTaskNames();
+
+            if ($routeParams.hasOwnProperty("id")){
+                loadTask($routeParams.id);
+            }
+
+            $scope.addCustomValue = function () {
+                $scope.customKeys.push("");
+                $scope.customValues.push("");
+                $scope.customRows++;
+            };
+
+            $scope.removeCustomValue = function (i) {
+                $scope.customRows--;
+                $scope.customKeys.splice(i, 1);
+                $scope.customValues.splice(i, 1);
+            };
+
+            $scope.range = function (n) {
+                return new Array(n);
+            };
+
+            $scope.save = function () {
+                var data = {
+                    "name": $scope.name,
+                    "description": $scope.description,
+                }
+                for (var k in $scope.customKeys){
+                    if($scope.customKeys.hasOwnProperty(k)){
+                        data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
+                    }
+                }
+                if($scope.unique_edit){
+                    Task.update({id:$routeParams.id}, data)
+                } else {
+                    Task.save(data);
+                }
+
+                $location.path("entities")
+            };
+
+            $scope.cancel = function (form) {
+                if (form) {
+                    form.$setPristine();
+                    form.$setUntouched();
+                }
+                $scope.name = "";
+                $scope.description = "";
+                $scope.customRows = 0;
+                $scope.customKeys = [];
+                $scope.customValues = [];
+            };
+
+            function getTaskNames() {
+                Task.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.uniques.push(d.name);
+                    });
+                });
+            };
+
+            function loadTask(id) {
+                Task.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    $scope.unique_edit = data.name;
+                    $scope.description = data.description;
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customRows++;
+                        $scope.customKeys.push(k);
+                        $scope.customValues.push(v);
+                    });
+                });
+            };
+    }])
+    .controller("TaskViewController", [
+        "$scope", "$routeParams", "$location", "Task",
+        function($scope, $routeParams, $location, Task) {
+            $scope.expected_values = ["id", "name", "description"];
+            $scope.name = "";
+            $scope.description = "";
+            $scope.customValues = {};
+
+            loadTask($routeParams.id);
+
+            function loadTask(id) {
+                Task.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    $scope.description = data.description;
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
+                    });
+                });
+            };
+    }])
+    .controller("EventAddEditController", [
+        "$scope", "$routeParams", "$location", "Event", "Task",
+        function($scope, $routeParams, $location, Event, Task) {
+            $scope.expected_values = ["id", "tid", "name", "description",
+                "skill_points", "skill_interval", "skill_rule",
+                "score_points", "score_interval", "score_rule"];
+            $scope.required_values = ["tid", "name"];
+            $scope.unique_edit = "";
+            $scope.tid = 0;
+            $scope.name = "";
+            $scope.description = "";
+            $scope.skill_points = 0;
+            $scope.skill_interval = 1;
+            $scope.skill_rule = "";
+            $scope.score_points = 0;
+            $scope.score_interval = 1;
+            $scope.score_rule = "";
+            $scope.tasks = {};
+            $scope.uniques = [];
+            $scope.customKeys = [];
+            $scope.customValues = [];
+            $scope.customRows = 0;
+
+            getTasks();
+            getEventNames();
+
+            if ($routeParams.hasOwnProperty("id")){
+                loadEvent($routeParams.id);
+            }
+
+            $scope.addCustomValue = function () {
+                $scope.customKeys.push("");
+                $scope.customValues.push("");
+                $scope.customRows++;
+            };
+
+            $scope.removeCustomValue = function (i) {
+                $scope.customRows--;
+                $scope.customKeys.splice(i, 1);
+                $scope.customValues.splice(i, 1);
+            };
+
+            $scope.range = function (n) {
+                return new Array(n);
+            };
+
+            $scope.save = function () {
+                var data = {
+                    "tid": $scope.tid,
+                    "name": $scope.name,
+                    "description": $scope.description,
+                    "skill_points": $scope.skill_points,
+                    "skill_interval": $scope.skill_interval,
+                    "skill_rule": $scope.skill_rule,
+                    "score_points": $scope.score_points,
+                    "score_interval": $scope.score_interval,
+                    "score_rule": $scope.score_rule,
+                }
+                for (var k in $scope.customKeys){
+                    if($scope.customKeys.hasOwnProperty(k)){
+                        data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
+                    }
+                }
+                if($scope.unique_edit){
+                    Event.update({id:$routeParams.id}, data)
+                } else {
+                    Event.save(data);
+                }
+
+                $location.path("entities")
+            };
+
+            $scope.cancel = function (form) {
+                if (form) {
+                    form.$setPristine();
+                    form.$setUntouched();
+                }
+                $scope.name = "";
+                $scope.description = "";
+                $scope.customRows = 0;
+                $scope.customKeys = [];
+                $scope.customValues = [];
+            };
+
+            function getTasks() {
+                Task.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.tasks[d.id] = [d.name, d.description];
+                    });
+                });
+            };
+
+            function getEventNames() {
+                Event.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.uniques.push(d.name);
+                    });
+                });
+            };
+
+            function loadEvent(id) {
+                Event.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.tid = data.tid;
+                    $scope.name = data.name;
+                    $scope.unique_edit = data.name;
+                    $scope.description = data.description;
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customRows++;
+                        $scope.customKeys.push(k);
+                        $scope.customValues.push(v);
+                    });
+                });
+            };
+    }])
+    .controller("EventViewController", [
+        "$scope", "$routeParams", "$location", "Event", "Task",
+        function($scope, $routeParams, $location, Event, Task) {
+            $scope.expected_values = ["id", "tid", "name", "description",
+                "skill_points", "skill_interval", "skill_rule",
+                "score_points", "score_interval", "score_rule"];
+            $scope.name = "";
+            $scope.description = "";
+            $scope.customValues = {};
+
+            loadEvent($routeParams.id);
+
+            function loadEvent(id) {
+                Event.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    $scope.description = data.description;
+                    angular.copy(data, clone);
+                    for (var key in RESOURCE_KEYS){
                         delete clone[RESOURCE_KEYS[key]];
                     }
                     for (var key in $scope.expected_values){
@@ -691,4 +971,17 @@ angular.module("controllers", [])
             }
         };
     })
+    .directive('convertToNumber', function() {
+        return {
+            require: 'ngModel',
+            link: function(scope, element, attrs, ngModel) {
+                ngModel.$parsers.push(function(val) {
+                    return parseInt(val, 10);
+                });
+                ngModel.$formatters.push(function(val) {
+                    return '' + val;
+                });
+            }
+        };
+    });
 ;

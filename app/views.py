@@ -16,6 +16,15 @@ from flask import make_response
 @app.route('/level_type-add')
 @app.route('/level_type-edit/<int:id>')
 @app.route('/level_type-view/<int:id>')
+@app.route('/event-add')
+@app.route('/event-edit/<int:id>')
+@app.route('/event-view/<int:id>')
+@app.route('/task-add')
+@app.route('/task-edit/<int:id>')
+@app.route('/task-view/<int:id>')
+@app.route('/level_instances-view/<int:id>')
+@app.route('/participations-view/<int:id>')
+@app.route('/triggered_events-view/<int:id>')
 def angular(id=None):
     resp = make_response(open('app/templates/index.html').read())
     resp.mimetype = 'text/html'

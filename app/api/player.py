@@ -72,4 +72,4 @@ class Player(Resource):
             abort(404)
         db.session.delete(player)
         db.session.commit()
-        return "",
+        return "", 204

@@ -9,7 +9,8 @@ from flask import make_response, render_template
 @app.route('/histories')
 @app.route('/player-add')
 @app.route('/level-add')
-def angular():
-    resp = make_response(render_template('index.html'))
+@app.route('/level-edit/<int:id>')
+def angular(id=None):
+    resp = make_response(open('app/templates/index.html').read())
     resp.mimetype = 'text/html'
     return resp

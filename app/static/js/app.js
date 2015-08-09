@@ -20,9 +20,14 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 controllerAs: "player-add-ctl"
             })
             .when("/level-add", {
-                templateUrl: "static/views/level-add.html",
-                controller: "LevelAddController",
-                controllerAs: "level-add-ctl"
+                templateUrl: "static/views/level-add-edit.html",
+                controller: "LevelAddEditController",
+                controllerAs: "level-add-edit-ctl"
+            })
+            .when("/level-edit/:lid", {
+                templateUrl: "static/views/level-add-edit.html",
+                controller: "LevelAddEditController",
+                controllerAs: "level-add-edit-ctl"
             })
             .otherwise({
                 redirectTo: "/entities"

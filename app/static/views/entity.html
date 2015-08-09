@@ -23,18 +23,18 @@
     <div class="panel-body">
         <table class="table">
            <tr>
-               <th ng-repeat="(k, v) in rows[0]">{{ k|capitalize }}</th>
+               <th ng-repeat="(k, v) in rows[0]" ng-if="k != 'edit_url'">{{ k|capitalize }}</th>
                <th>Actions</th>
            </tr>
            <tr ng-repeat="row in rows">
-               <td ng-repeat="col in row">{{ col }}</td>
+               <td ng-repeat="(k, v) in row" ng-if="k != 'edit_url'">{{ v }}</td>
                <td>
                    <button class="btn btn-default read" type="button">
                        <span class="glyphicon glyphicon-eye-open"></span>
                    </button>
-                   <button class="btn btn-default update" type="button">
+                   <a href="{{ row.edit_url }}" class="btn btn-default update">
                        <span class="glyphicon glyphicon-pencil"></span>
-                   </button>
+                   </a>
                    <button class="btn btn-default delete" type="button">
                        <span class="glyphicon glyphicon-trash"></span>
                    </button>

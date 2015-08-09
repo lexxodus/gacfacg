@@ -1,5 +1,7 @@
 "use strict";
 
+var RESOURCE_KEYS = ["$promise", "$resolved"];
+
 angular.module("controllers", [])
     .controller("NavController", ["$scope",
         function($scope) {
@@ -85,6 +87,7 @@ angular.module("controllers", [])
                         level["id"] = d.id;
                         level["name"] = d.name;
                         level["description"] = d.description;
+                        level["edit_url"] = "level-edit/" + d.id;
                         levels.push(level);
                     });
                 });
@@ -226,11 +229,12 @@ angular.module("controllers", [])
         function($scope, Player) {
 
     }])
-    .controller("LevelAddController", [
-        "$scope", "$location", "Level", "LevelType",
-        function($scope, $location, Level, LevelType) {
-            $scope.expected_values = ["name", "description"];
+    .controller("LevelAddEditController", [
+        "$scope", "$routeParams", "$location", "Level", "LevelType",
+        function($scope, $routeParams, $location, Level, LevelType) {
+            $scope.expected_values = ["id", "name", "description", "level_types"];
             $scope.required_values = ["name"];
+            $scope.unique_edit = "";
             $scope.name = "";
             $scope.description = "";
             $scope.levelTypes = {};
@@ -242,6 +246,10 @@ angular.module("controllers", [])
 
             getLevelTypes();
             getLevelNames();
+
+            if ($routeParams.hasOwnProperty("lid")){
+                loadLevel($routeParams.lid);
+            }
 
             $scope.addCustomValue = function () {
                 $scope.customKeys.push("");
@@ -262,7 +270,8 @@ angular.module("controllers", [])
             $scope.save = function () {
                 var lt = [];
                 for (var k in $scope.levelTypesSelected){
-                    if($scope.levelTypesSelected[k]) {
+                    if($scope.levelTypesSelected.hasOwnProperty(k) &&
+                            $scope.levelTypesSelected[k]) {
                         lt.push(k);
                     }
                 }
@@ -272,7 +281,9 @@ angular.module("controllers", [])
                     "level_types": lt
                 }
                 for (var k in $scope.customKeys){
-                    data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
+                    if($scope.customKeys.hasOwnProperty(k)){
+                        data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
+                    }
                 }
                 Level.save(data);
 
@@ -307,6 +318,30 @@ angular.module("controllers", [])
                     });
                 });
             };
+
+            function loadLevel(lid) {
+                Level.get({id: lid}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    $scope.unique_edit = data.name;
+                    $scope.description = data.description;
+                    for(var lt in data.level_types){
+                        $scope.levelTypesSelected[data.level_types[lt]] = true;
+                    }
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customRows++;
+                        $scope.customKeys.push(k);
+                        $scope.customValues.push(v);
+                    });
+                });
+            };
     }])
     .filter('capitalize', function() {
     return function(input) {
@@ -337,7 +372,7 @@ angular.module("controllers", [])
             require: "ngModel",
             link: function(scope, elm, attrs, ctrl) {
                 ctrl.$validators.unique = function(modelValue, viewValue){
-                    if (ctrl.$isEmpty(modelValue)) {
+                    if (ctrl.$isEmpty(modelValue) || modelValue == scope.unique_edit) {
                         return true;
                     }
 

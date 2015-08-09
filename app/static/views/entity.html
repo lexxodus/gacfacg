@@ -5,7 +5,7 @@
     <li role="presentation" ng-class="{ active: isActive(1)}"
         ng-click="selectTab(1)"><a href="#">Levels</a></li>
     <li role="presentation" ng-class="{ active: isActive(2)}"
-        ng-click="selectTab(2)"><a href="#">LevelTypes</a></li>
+        ng-click="selectTab(2)"><a href="#">Level Types</a></li>
     <li role="presentation" ng-class="{ active: isActive(3)}"
         ng-click="selectTab(3)"><a href="#">Tasks</a></li>
     <li role="presentation" ng-class="{ active: isActive(4)}"
@@ -40,7 +40,7 @@
                        <span class="glyphicon glyphicon-pencil"></span>
                    </a>
                    <button class="btn btn-default delete" type="button"
-                           ng-click="remove(entity, row.id)">
+                           ng-click="remove(row.id)">
                        <span class="glyphicon glyphicon-trash"></span>
                    </button>
                </td>

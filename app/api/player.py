@@ -10,6 +10,7 @@ from flask.ext.restful import Resource
 def get_player_json(player, public=False):
     data = {}
     data["id"] = player.id
+    data["name"] = player.name
     if public:
         data['api_url'] = "%s%s" % (api.url_for(Player), player.id)
     if player.custom_values:
@@ -21,10 +22,13 @@ def get_player_json(player, public=False):
 class Player(Resource):
     def post(self):
         data = request.get_json()
+        if "name" not in data:
+            abort(404)
+        name = data["name"]
         custom_values = {}
         for k, v in data.iteritems():
             custom_values[k] = v
-        player = PlayerModel(custom_values)
+        player = PlayerModel(name, custom_values)
         db.session.add(player)
         db.session.commit()
         return get_player_json(player), 201
@@ -52,8 +56,9 @@ class Player(Resource):
         if not player:
             abort(404)
         data = request.get_json()
-        if "name" in data:
-            player.name = data["name"]
+        if "name" not in data:
+            abort(404)
+        player.name = data["name"]
         custom_values = {}
         for k, v in data.iteritems():
             custom_values[k] = v

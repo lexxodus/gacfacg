@@ -1,0 +1,31 @@
+<a href="entities">
+    Back to Entities
+</a>
+<form name="playerForm" novalidate>
+    <div class="form-group">
+        <label for="nameInput">Name:</label>
+        <input type="text" class="form-control" id="nameInput" ng-model="name" required unique />
+    </div>
+    <div ng-repeat="row in range(customRows) track by $index">
+        <div class="form-group">
+            <label for="customKey{{ $index }}">Key:</label>
+            <input type="text" class="form-control" id="customKey{{ $index }}" ng-model="customKeys[$index]" required unexpected />
+            <label for="customValue{{ $index }}">Value:</label>
+            <input type="text" class="form-control" id="customValue{{ $index }}" ng-model="customValues[$index]" required />
+            <a href="#" ng-click="removeCustomValue($index)">
+                <span class="glyphicon glyphicon-minus"></span>
+                Remove Custom Value
+            </a>
+        </div>
+    </div>
+    <button class="btn btn-default" ng-click="addCustomValue()">
+        <span class="glyphicon glyphicon-plus"></span>
+        Add Custom Value
+    </button>
+    <hr />
+    <div class="form-group">
+        <button type="submit" class="btn btn-default update" ng-click="save()" ng-disabled="playerForm.$invalid">Save Player</button>
+        <button type="button" class="btn btn-default" ng-click="cancel(playerForm)">Cancel</button>
+    </div>
+</form>
+

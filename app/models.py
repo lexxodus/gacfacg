@@ -14,13 +14,15 @@ class Player(db.Model):
     __tablename__ = "player"
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
     custom_values = db.Column(JSONB)
 
-    def __init__(self, custom_values=None):
+    def __init__(self, name, custom_values=None):
+        self.name = name
         self.custom_values = custom_values
 
     def __repr__(self):
-        return "<player: %s>" % self.id
+        return "<player: %s, %s>" % (self.id, self.name)
 
 
 type_assignment = db.Table(

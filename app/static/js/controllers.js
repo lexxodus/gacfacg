@@ -57,7 +57,7 @@ angular.module("controllers", [])
             };
 
             $scope.remove = function(id) {
-                switch(tab){
+                switch($scope.tab){
                     case 0:
                         Player.remove({id: id});
                         getPlayers();
@@ -87,6 +87,9 @@ angular.module("controllers", [])
                     angular.forEach(data, function (d) {
                         var player = {};
                         player["id"] = d.id;
+                        player["name"] = d.name;
+                        player["view_url"] = "player-view/" + d.id;
+                        player["edit_url"] = "player-edit/" + d.id;
                         players.push(player);
                     });
                 });
@@ -241,10 +244,122 @@ angular.module("controllers", [])
                 $scope.entity = "Triggered Events";
             };
     }])
-    .controller("PlayerAddController", [
-        "$scope", "Player",
-        function($scope, Player) {
+    .controller("PlayerAddEditController", [
+        "$scope", "$routeParams", "$location", "Player",
+        function($scope, $routeParams, $location, Player) {
+            $scope.expected_values = ["id", "name"];
+            $scope.required_values = ["name"];
+            $scope.unique_edit = "";
+            $scope.name = "";
+            $scope.uniques = [];
+            $scope.customKeys = [];
+            $scope.customValues = [];
+            $scope.customRows = 0;
 
+            getPlayerNames();
+
+            if ($routeParams.hasOwnProperty("id")){
+                loadPlayer($routeParams.id);
+            }
+
+            $scope.addCustomValue = function () {
+                $scope.customKeys.push("");
+                $scope.customValues.push("");
+                $scope.customRows++;
+            };
+
+            $scope.removeCustomValue = function (i) {
+                $scope.customRows--;
+                $scope.customKeys.splice(i, 1);
+                $scope.customValues.splice(i, 1);
+            };
+
+            $scope.range = function (n) {
+                return new Array(n);
+            };
+
+            $scope.save = function () {
+                var data = {
+                    "name": $scope.name,
+                }
+                for (var k in $scope.customKeys){
+                    if($scope.customKeys.hasOwnProperty(k)){
+                        data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
+                    }
+                }
+                if($scope.unique_edit){
+                    Player.update({id:$routeParams.id}, data)
+                } else {
+                    Player.save(data);
+                }
+
+                $location.path("entities")
+            };
+
+            $scope.cancel = function (form) {
+                if (form) {
+                    form.$setPristine();
+                    form.$setUntouched();
+                }
+                $scope.name = "";
+                $scope.customRows = 0;
+                $scope.customKeys = [];
+                $scope.customValues = [];
+            };
+
+            function getPlayerNames() {
+                Player.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.uniques.push(d.name);
+                    });
+                });
+            };
+
+            function loadPlayer(id) {
+                Player.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    $scope.unique_edit = data.name;
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customRows++;
+                        $scope.customKeys.push(k);
+                        $scope.customValues.push(v);
+                    });
+                });
+            };
+    }])
+    .controller("PlayerViewController", [
+        "$scope", "$routeParams", "$location", "Player",
+        function($scope, $routeParams, $location, Player) {
+            $scope.expected_values = ["id", "name"];
+            $scope.name = "";
+            $scope.customValues = {};
+
+            loadPlayer($routeParams.id);
+
+            function loadPlayer(id) {
+                Player.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
+                    });
+                });
+            };
     }])
     .controller("LevelAddEditController", [
         "$scope", "$routeParams", "$location", "Level", "LevelType",
@@ -264,8 +379,8 @@ angular.module("controllers", [])
             getLevelTypes();
             getLevelNames();
 
-            if ($routeParams.hasOwnProperty("lid")){
-                loadLevel($routeParams.lid);
+            if ($routeParams.hasOwnProperty("id")){
+                loadLevel($routeParams.id);
             }
 
             $scope.addCustomValue = function () {
@@ -302,7 +417,11 @@ angular.module("controllers", [])
                         data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
                     }
                 }
-                Level.save(data);
+                if($scope.unique_edit){
+                    Level.update({id:$routeParams.id}, data)
+                } else {
+                    Level.save(data);
+                }
 
                 $location.path("entities")
             };
@@ -336,8 +455,8 @@ angular.module("controllers", [])
                 });
             };
 
-            function loadLevel(lid) {
-                Level.get({id: lid}).$promise.then(function (data) {
+            function loadLevel(id) {
+                Level.get({id: id}).$promise.then(function (data) {
                     var clone = {};
                     $scope.name = data.name;
                     $scope.unique_edit = data.name;
@@ -371,24 +490,25 @@ angular.module("controllers", [])
             $scope.customValues = {};
 
             getLevelTypes();
-            loadLevel($routeParams.lid);
+            loadLevel($routeParams.id);
 
             function getLevelTypes() {
                 LevelType.query().$promise.then(function (data) {
                     angular.forEach(data, function (d) {
+                        console.log(d.id, d.name);
                         $scope.levelTypes[d.id] = d.name;
                     });
                 });
             };
 
-            function loadLevel(lid) {
-                Level.get({id: lid}).$promise.then(function (data) {
+            function loadLevel(id) {
+                Level.get({id: id}).$promise.then(function (data) {
                     var clone = {};
                     $scope.name = data.name;
                     $scope.description = data.description;
                     for(var lt in data.level_types){
                         $scope.levelTypesSelected.push(
-                            $scope.levelTypes[lt]);
+                            $scope.levelTypes[data.level_types[lt]]);
                     }
                     angular.copy(data, clone);
                     for (var key  in RESOURCE_KEYS){

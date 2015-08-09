@@ -71,8 +71,9 @@ class Level(Resource):
             level.name = data["name"]
         if "description" in data:
             level.description = data["description"]
-        if "level_types" in data:
-            level.level_types = data["level_types"]
+        level.level_types = []
+        for lt in data["level_types"]:
+            level.level_types.append(LevelType.query.get(lt))
         custom_values = {}
         for k, v in data.iteritems():
             if k not in expected_values:

@@ -52,18 +52,34 @@ angular.module("controllers", [])
                     case 4:
                         getEvents();
                         break;
-                    case 5:
-                        getLevelInstances();
-                        break;
-                    case 6:
-                        getParticipations();
-                        break;
-                    case 7:
-                        getTriggeredEvents();
-                        break;
                 }
                 $scope.tab = tab;
             };
+
+            $scope.remove = function(id) {
+                switch(tab){
+                    case 0:
+                        Player.remove({id: id});
+                        getPlayers();
+                        break;
+                    case 1:
+                        Level.remove({id: id});
+                        getLevels();
+                        break;
+                    case 2:
+                        LevelType.remove({id: id});
+                        getLevelTypes();
+                        break;
+                    case 3:
+                        Task.remove({id: id});
+                        getTasks();
+                        break;
+                    case 4:
+                        Event.remove({id: id});
+                        getEvents();
+                        break;
+                }
+            }
 
             function getPlayers() {
                 var players = [];

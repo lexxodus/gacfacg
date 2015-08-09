@@ -44,6 +44,21 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 controller: "LevelAddEditController",
                 controllerAs: "level-add-edit-ctl"
             })
+            .when("/level_type-add", {
+                templateUrl: "static/views/level_type-add-edit.html",
+                controller: "LevelTypeAddEditController",
+                controllerAs: "level_type-add-edit-ctl"
+            })
+            .when("/level_type-view/:id", {
+                templateUrl: "static/views/level_type-view.html",
+                controller: "LevelTypeViewController",
+                controllerAs: "level_type-view-ctl"
+            })
+            .when("/level_type-edit/:id", {
+                templateUrl: "static/views/level_type-add-edit.html",
+                controller: "LevelTypeAddEditController",
+                controllerAs: "level_type-add-edit-ctl"
+            })
             .otherwise({
                 redirectTo: "/entities"
             })

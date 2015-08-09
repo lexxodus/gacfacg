@@ -87,6 +87,7 @@ angular.module("controllers", [])
                         level["id"] = d.id;
                         level["name"] = d.name;
                         level["description"] = d.description;
+                        level["view_url"] = "level-view/" + d.id;
                         level["edit_url"] = "level-edit/" + d.id;
                         levels.push(level);
                     });
@@ -339,6 +340,49 @@ angular.module("controllers", [])
                         $scope.customRows++;
                         $scope.customKeys.push(k);
                         $scope.customValues.push(v);
+                    });
+                });
+            };
+    }])
+    .controller("LevelViewController", [
+        "$scope", "$routeParams", "$location", "Level", "LevelType",
+        function($scope, $routeParams, $location, Level, LevelType) {
+            $scope.expected_values = ["id", "name", "description", "level_types"];
+            $scope.name = "";
+            $scope.description = "";
+            $scope.levelTypes = {};
+            $scope.levelTypesSelected = [];
+            $scope.customValues = {};
+
+            getLevelTypes();
+            loadLevel($routeParams.lid);
+
+            function getLevelTypes() {
+                LevelType.query().$promise.then(function (data) {
+                    angular.forEach(data, function (d) {
+                        $scope.levelTypes[d.id] = d.name;
+                    });
+                });
+            };
+
+            function loadLevel(lid) {
+                Level.get({id: lid}).$promise.then(function (data) {
+                    var clone = {};
+                    $scope.name = data.name;
+                    $scope.description = data.description;
+                    for(var lt in data.level_types){
+                        $scope.levelTypesSelected.push(
+                            $scope.levelTypes[lt]);
+                    }
+                    angular.copy(data, clone);
+                    for (var key  in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
                     });
                 });
             };

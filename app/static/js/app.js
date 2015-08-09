@@ -24,6 +24,11 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 controller: "LevelAddEditController",
                 controllerAs: "level-add-edit-ctl"
             })
+            .when("/level-view/:lid", {
+                templateUrl: "static/views/level-view.html",
+                controller: "LevelViewController",
+                controllerAs: "level-view-ctl"
+            })
             .when("/level-edit/:lid", {
                 templateUrl: "static/views/level-add-edit.html",
                 controller: "LevelAddEditController",

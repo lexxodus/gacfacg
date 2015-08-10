@@ -89,6 +89,21 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 controller: "EventAddEditController",
                 controllerAs: "event-add-edit-ctl"
             })
+            .when("/level_instance-view/:id", {
+                templateUrl: "static/views/level_instance-view.html",
+                controller: "LevelInstanceViewController",
+                controllerAs: "level_instance-view-ctl"
+            })
+            .when("/participation-view/:id", {
+                templateUrl: "static/views/participation-view.html",
+                controller: "ParticipationViewController",
+                controllerAs: "participation-view-ctl"
+            })
+            .when("/triggered_event-view/:id", {
+                templateUrl: "static/views/triggered_event-view.html",
+                controller: "TriggeredEventViewController",
+                controllerAs: "triggered_event-view-ctl"
+            })
             .otherwise({
                 redirectTo: "/entities"
             })

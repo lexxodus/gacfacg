@@ -13,15 +13,15 @@
     <div class="panel-body">
         <table class="table">
            <tr>
-               <th ng-repeat="(k, v) in rows[0]">{{ k|capitalize }}</th>
+               <th ng-repeat="(k, v) in rows[0]" ng-if="k != 'view_url'">{{ k|capitalize }}</th>
                <th>Actions</th>
            </tr>
            <tr ng-repeat="row in rows">
-               <td ng-repeat="col in row">{{ col }}</td>
+               <td ng-repeat="(k, v) in row" ng-if="k != 'view_url'">{{ v }}</td>
                <td>
-                   <button class="btn btn-default read" type="button">
+                   <a href="{{ row.view_url }}" class="btn btn-default read">
                        <span class="glyphicon glyphicon-eye-open"></span>
-                   </button>
+                   </a>
                </td>
            </tr>
         </table>

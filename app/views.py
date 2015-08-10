@@ -22,9 +22,9 @@ from flask import make_response
 @app.route('/task-add')
 @app.route('/task-edit/<int:id>')
 @app.route('/task-view/<int:id>')
-@app.route('/level_instances-view/<int:id>')
-@app.route('/participations-view/<int:id>')
-@app.route('/triggered_events-view/<int:id>')
+@app.route('/level_instance-view/<int:id>')
+@app.route('/participation-view/<int:id>')
+@app.route('/triggered_event-view/<int:id>')
 def angular(id=None):
     resp = make_response(open('app/templates/index.html').read())
     resp.mimetype = 'text/html'

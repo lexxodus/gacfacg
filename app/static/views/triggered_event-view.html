@@ -1,0 +1,32 @@
+<a href="histories">
+    Back to Histories
+</a>
+<div class="panel panel-default">
+    <div class="panel-heading">Player:</div>
+    <div class="panel-body">{{ player }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Level:</div>
+    <div class="panel-body">{{ level }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Event:</div>
+    <div class="panel-body">{{ event }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Timestamp:</div>
+    <div class="panel-body">{{ timestamp }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Skill Points Given:</div>
+    <div class="panel-body">{{ given_skill_points }}</div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Score Points Given:</div>
+    <div class="panel-body">{{ given_score_points }}</div>
+</div>
+<div class="panel panel-default" ng-repeat="(k, v) in customValues">
+    <div class="panel-heading">{{ k|capitalize }}:</div>
+    <div class="panel-body">{{ v }}</div>
+</div>
+

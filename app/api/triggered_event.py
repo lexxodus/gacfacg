@@ -19,6 +19,8 @@ def get_triggered_event_json(triggered_event, public=False):
     data["paid"] = triggered_event.paid
     data["eid"] = triggered_event.eid
     data["timestamp"] = triggered_event.timestamp.isoformat()
+    data["given_skill_points"] = triggered_event.given_skill_points;
+    data["given_score_points"] = triggered_event.given_score_points;
     if public:
         data['api_url'] = "%s%s" % (
             api.url_for(TriggeredEvent), triggered_event.id)

@@ -186,7 +186,6 @@ angular.module("controllers", [])
             };
 
             $scope.selectTab = function(tab){
-                console.log(tab);
                 switch(tab){
                     case 0:
                         getLevelInstances();
@@ -210,6 +209,7 @@ angular.module("controllers", [])
                         levelInstance["lid"] = d.lid;
                         levelInstance["start time"] = d.start_time;
                         levelInstance["end time"] = d.end_time;
+                        levelInstance["view_url"] = "level_instance-view/" + d.id;
                         levelInstances.push(levelInstance);
                     });
                 });
@@ -227,6 +227,7 @@ angular.module("controllers", [])
                         participation["liid"] = d.liid;
                         participation["start time"] = d.start_time;
                         participation["end time"] = d.end_time;
+                        participation["view_url"] = "participation-view/" + d.id;
                         participations.push(participation);
                     });
                 });
@@ -243,6 +244,7 @@ angular.module("controllers", [])
                         triggeredEvent["paid"] = d.paid;
                         triggeredEvent["eid"] = d.eid;
                         triggeredEvent["timestamp"] = d.timestamp;
+                        triggeredEvent["view_url"] = "triggered_event-view/" + d.id;
                         triggeredEvents.push(triggeredEvent);
                     });
                 });
@@ -501,7 +503,6 @@ angular.module("controllers", [])
             function getLevelTypes() {
                 LevelType.query().$promise.then(function (data) {
                     angular.forEach(data, function (d) {
-                        console.log(d.id, d.name);
                         $scope.levelTypes[d.id] = d.name;
                     });
                 });
@@ -934,6 +935,151 @@ angular.module("controllers", [])
                     $scope.score_points = data.score_points;
                     $scope.score_interval = data.score_interval;
                     $scope.score_rule = data.score_rule;
+                    angular.copy(data, clone);
+                    for (var key in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
+                    });
+                });
+            };
+    }])
+    .controller("LevelInstanceViewController", [
+        "$scope", "$routeParams", "$location", "LevelInstance", "Level",
+        function($scope, $routeParams, $location, LevelInstance, Level) {
+            $scope.expected_values = ["id", "lid", "start_time", "end_time"];
+            $scope.level = "";
+            $scope.start_time = "";
+            $scope.end_time = "";
+            $scope.customValues = {};
+
+            loadLevelInstance($routeParams.id);
+
+            function getLevel(id) {
+                Level.get({id: id}).$promise.then(function (data) {
+                    $scope.level = data.name;
+                });
+            };
+
+            function loadLevelInstance(id) {
+                LevelInstance.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    getLevel(data.lid);
+                    $scope.start_time = data.start_time;
+                    $scope.end_time = data.end_time;
+                    angular.copy(data, clone);
+                    for (var key in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
+                    });
+                });
+            };
+    }])
+    .controller("ParticipationViewController", [
+        "$scope", "$routeParams", "$location", "Participation",
+        "Player", "LevelInstance", "Level",
+        function($scope, $routeParams, $location, Participation,
+                Player, LevelInstance, Level) {
+            $scope.expected_values = ["id", "pid", "liid", "start_time", "end_time"];
+            $scope.player = "";
+            $scope.level = "";
+            $scope.start_time = "";
+            $scope.end_time = "";
+            $scope.customValues = {};
+
+            loadParticipation($routeParams.id);
+
+            function getPlayer(id) {
+                Player.get({id: id}).$promise.then(function (data) {
+                    $scope.player = data.name;
+                });
+            };
+
+            function getLevel(id) {
+                LevelInstance.get({id: id}).$promise.then(function (data) {
+                    var lid = data.lid;
+                    Level.get({id: lid}).$promise.then(function (data) {
+                        $scope.level = data.name;
+                    });
+                });
+            };
+
+            function loadParticipation(id) {
+                Participation.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    getPlayer(data.pid);
+                    getLevel(data.liid);
+                    $scope.start_time = data.start_time;
+                    $scope.end_time = data.end_time;
+                    angular.copy(data, clone);
+                    for (var key in RESOURCE_KEYS){
+                        delete clone[RESOURCE_KEYS[key]];
+                    }
+                    for (var key in $scope.expected_values){
+                        delete clone[$scope.expected_values[key]];
+                    }
+                    angular.forEach(clone, function (v, k){
+                        $scope.customValues[k] = v;
+                    });
+                });
+            };
+    }])
+    .controller("TriggeredEventViewController", [
+        "$scope", "$routeParams", "$location", "TriggeredEvent",
+        "Participation", "Player", "LevelInstance", "Level", "Event",
+        function($scope, $routeParams, $location, TriggeredEvent,
+                Participation, Player, LevelInstance, Level, Event) {
+            $scope.expected_values = ["id", "paid", "eid", "timestamp",
+                "given_skill_points", "given_score_points"];
+            $scope.player = "";
+            $scope.level = "";
+            $scope.event = "";
+            $scope.timestamp = "";
+            $scope.given_skill_points = 0;
+            $scope.given_score_points = 0;
+            $scope.customValues = {};
+
+            loadTriggeredEvent($routeParams.id);
+
+            function getParticipation(id) {
+                Participation.get({id: id}).$promise.then(function (data) {
+                    var pid = data.pid;
+                    var liid = data.liid;
+                    Player.get({id: pid}).$promise.then(function (data) {
+                        $scope.player = data.name;
+                    });
+                    LevelInstance.get({id: liid}).$promise.then(function (data) {
+                        var lid = data.lid;
+                        Level.get({id: lid}).$promise.then(function (data) {
+                            $scope.level = data.name;
+                        });
+                    });
+                });
+            };
+
+            function getEvent(id) {
+                Event.get({id: id}).$promise.then(function (data) {
+                    $scope.event = data.name;
+                });
+            };
+
+            function loadTriggeredEvent(id) {
+                TriggeredEvent.get({id: id}).$promise.then(function (data) {
+                    var clone = {};
+                    getParticipation(data.paid);
+                    getEvent(data.eid);
+                    $scope.timestamp = data.timestamp;
+                    $scope.given_skill_points = data.given_skill_points;
+                    $scope.given_score_points = data.given_score_points;
                     angular.copy(data, clone);
                     for (var key in RESOURCE_KEYS){
                         delete clone[RESOURCE_KEYS[key]];

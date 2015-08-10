@@ -43,6 +43,7 @@ class LevelInstance(Resource):
         return get_level_instance_json(level_instance), 201
 
     def get(self, id=None):
+        print(id)
         if id:
             level_instance = LevelInstanceModel.query.get(id)
             if not level_instance:

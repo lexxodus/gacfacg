@@ -50,8 +50,6 @@ class Task(Resource):
 
     def get_all(self):
         tasks = TaskModel.query.order_by(TaskModel.id).all()
-        if not tasks:
-            abort(404)
         data = []
         for t in tasks:
             data.append(get_task_json(t))

@@ -60,8 +60,6 @@ class Participation(Resource):
     def get_all(self):
         participations = ParticipationModel.query.order_by(
             ParticipationModel.id).all()
-        if not participations:
-            abort(404)
         data = []
         for pa in participations:
             data.append(get_participation_json(pa))

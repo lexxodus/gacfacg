@@ -61,8 +61,6 @@ class Event(Resource):
 
     def get_all(self):
         events = EventModel.query.order_by(EventModel.id).all()
-        if not events:
-            abort(404)
         data = []
         for e in events:
             data.append(get_event_json(e))

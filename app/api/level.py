@@ -54,8 +54,6 @@ class Level(Resource):
 
     def get_all(self):
         levels = LevelModel.query.order_by(LevelModel.id).all()
-        if not levels:
-            abort(404)
         data = []
         for l in levels:
             data.append(get_level_json(l))

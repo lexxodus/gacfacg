@@ -51,8 +51,6 @@ class LevelType(Resource):
 
     def get_all(self):
         level_types = LevelTypeModel.query.order_by(LevelTypeModel.id).all()
-        if not level_types:
-            abort(404)
         data = []
         for lt in level_types:
             data.append(get_level_type_json(lt))

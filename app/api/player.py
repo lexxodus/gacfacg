@@ -44,8 +44,6 @@ class Player(Resource):
 
     def get_all(self):
         players = PlayerModel.query.order_by(PlayerModel.id).all()
-        if not players:
-            abort(404)
         data = []
         for p in players:
             data.append(get_player_json(p))

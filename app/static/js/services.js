@@ -52,5 +52,21 @@ angular.module('aPIServices', ["ngResource"])
         function($resource){
             return $resource("/api/triggered_event/:id");
     }])
+    .factory("LevelSkill", ["$resource",
+        function($resource){
+            return $resource("/api/level_skill/:id");
+    }])
+    .factory("LevelTypeSkill", ["$resource",
+        function($resource){
+            return $resource("/api/level_type_skill/:id");
+    }])
+    .factory("TaskSkill", ["$resource",
+        function($resource){
+            return $resource("/api/task_skill/:id");
+    }])
+    .factory("EventSkill", ["$resource",
+        function($resource){
+            return $resource("/api/event_skill/:id");
+    }])
 ;
 

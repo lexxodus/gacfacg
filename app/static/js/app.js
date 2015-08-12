@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
+angular.module('GACFACG', ["aPIServices", "controllers", "graphController", "ngRoute"])
     .config(["$routeProvider", "$locationProvider",
             function($routeProvider, $locationProvider) {
             $routeProvider
@@ -103,6 +103,11 @@ angular.module('GACFACG', ["aPIServices", "controllers", "ngRoute"])
                 templateUrl: "static/views/triggered_event-view.html",
                 controller: "TriggeredEventViewController",
                 controllerAs: "triggered_event-view-ctl"
+            })
+            .when("/graphs", {
+                templateUrl: "static/views/graph.html",
+                controller: "FlotController",
+                controllerAs: "flot-ctl"
             })
             .otherwise({
                 redirectTo: "/entities"

@@ -25,6 +25,7 @@ from flask import make_response
 @app.route('/level_instance-view/<int:id>')
 @app.route('/participation-view/<int:id>')
 @app.route('/triggered_event-view/<int:id>')
+@app.route('/graphs')
 def angular(id=None):
     resp = make_response(open('app/templates/index.html').read())
     resp.mimetype = 'text/html'

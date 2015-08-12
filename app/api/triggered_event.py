@@ -113,7 +113,7 @@ class TriggeredEvent(Resource):
             abort(404)
         data = request.get_json()
         if "paid" in data:
-            triggered_event.paid = data["lid"]
+            triggered_event.paid = data["paid"]
         if "eid" in data:
             triggered_event.eid = data["eid"]
         if "timestamp" in data:

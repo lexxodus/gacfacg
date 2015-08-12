@@ -1,0 +1,46 @@
+<div class="col-sm-4 col-lg-3">
+    <form name="graphForm" novalidate>
+        <div class="form-group">
+            <label for="skillSelect">Skilltype:</label>
+            <select class="form-control" id="skillSelect" ng-model="skillType" required>
+                <option value="level">Level</option>
+                <option value="level_type">Level Type</option>
+                <option value="task">Task</option>
+                <option value="event">Event</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Player:</label>
+            <div ng-repeat="(k, v) in players">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="playersSelected[k]" ng-change="selectPlayer(k)" />
+                        {{ v }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Level:</label>
+            <div ng-repeat="(k, v) in levels">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="levelsSelected[k]" ng-change="selectLevel(k)" />
+                        {{ v }}
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-sm-8 col-lg-9">
+    <flot dataset="dataset" options="options" height="480px"></flot>
+    <div id="legend" style="width: 200px; height: 200px;"></div>
+</div>
+
+<!-- Events
+<hr>
+<flot dataset="eventDataset" options="eventOptions" height="480px"
+    on-plot-click="onEventExampleClicked(event, pos, item)"
+    on-plot-hover="onEventExampleHover(event, pos, item)"></flot>
+<!-- Events -->

@@ -3,8 +3,8 @@
 </a>
 <form name="levelForm" novalidate>
     <div class="form-group">
-        <label for="nameInput">Task:</label>
-        <select class="form-control" ng-model="tid" convert-to-number required>
+        <label for="taskSelect">Task:</label>
+        <select class="form-control" id="taskSelect" ng-model="tid" convert-to-number required>
             <option value="{{ k }}" ng-repeat="(k, v) in tasks">{{ v[0] }}</option>
         </select>
     </div>

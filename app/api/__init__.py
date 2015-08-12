@@ -80,3 +80,14 @@ api.add_resource(
     ROOT_URL + "event_skill/",
     ROOT_URL + "event_skill/<int:id>",
     )
+# api.add_resource(
+#     EventSkill,
+#     ROOT_URL + "player/<int:pid>/level/",
+#     ROOT_URL + "player/<int:pid>/level/<int:lid>",
+#     ROOT_URL + "player/<int:pid>/level_type/",
+#     ROOT_URL + "player/<int:pid>/level_type/<int:ltid>",
+#     ROOT_URL + "player/<int:pid>/task/",
+#     ROOT_URL + "player/<int:pid>/task/<int:tid>",
+#     ROOT_URL + "player/<int:pid>/event/",
+#     ROOT_URL + "player/<int:pid>/event/<int:eid>",
+#     )

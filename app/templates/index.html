@@ -36,13 +36,16 @@
 						<div class="navbar navbar-default">
                             <div class="navbar-collapse collapse sidebar-navbar-collapse">
                                 <ul class="nav navbar-nav">
-                                    <li ng-class="{ active: isActive(0) }" ng-click="selectPage(0)">
+                                    <li ng-class="{ active: isActive('/entities') }"
+                                        ng-click="selectPage('/entities')">
                                         <a href="entities">Entities</a>
                                     </li>
-                                    <li ng-class="{ active: isActive(1) }" ng-click="selectPage(1)">
+                                    <li ng-class="{ active: isActive('/histories') }"
+                                        ng-click="selectPage('/histories')">
                                         <a href="histories">Histories</a>
                                     </li>
-                                    <li ng-class="{ active: isActive(2) }" ng-click="selectPage(2)">
+                                    <li ng-class="{ active: isActive('/graphs') }"
+                                        ng-click="selectPage('/graphs')">
                                         <a href="graphs">Graphs</a>
                                     </li>
                                 </ul>

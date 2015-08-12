@@ -17,8 +17,6 @@ angular.module('graphController', ['angular-flot', 'directives'])
         $scope.levels = {};
         $scope.levelsSelected = {};
         $scope.sets = {};
-        $scope.pid = 89;
-        $scope.lid = 1;
         $scope.dataset = [];
         $scope.options = {
             xaxis: {
@@ -35,7 +33,7 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 }
             } else {
                 $scope.cntPlayersSelected--;
-                drawGraph();
+                redrawGraph();
             }
         };
 
@@ -47,14 +45,26 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 }
             } else {
                 $scope.cntLevelsSelected--;
-                drawGraph();
+                redrawGraph();
             }
+        };
+
+        $scope.selectXAxis = function(){
+            var xaxis;
+            if ($scope.interval == "timestamp"){
+                xaxis = {
+                    mode: time,
+                    timeformat: "%Y/%m/%d"
+                };
+            } else {
+                xaxis = 1;
+            }
+            redrawGraph();
+            $scope.options.xaxis = xaxis;
         };
 
         getPlayers();
         getLevels();
-
-        // getData();
 
         function getPlayers(){
             var pid;
@@ -103,23 +113,66 @@ angular.module('graphController', ['angular-flot', 'directives'])
                             };
                             loadData(pid, lid);
                         } else {
-                            drawGraph($scope.sets[pid][$scope.skillType][lid]);
+                            drawLevelSkillGraph($scope.sets[pid][$scope.skillType][lid], pid, lid);
                         }
                     }
                 }
             } else {
+                for(pid in $scope.playersSelected){
+                    if($scope.playersSelected[pid]){
+                        if(!$scope.sets[pid]){
+                            $scope.sets[pid] = {};
+                        }
+                        if(!$scope.sets[pid][$scope.skillType]){
+                            $scope.sets[pid][$scope.skillType] = {};
+                        }
+                        if(!$scope.sets[pid][$scope.skillType][lid]){
+                            $scope.sets[pid][$scope.skillType][lid] = {
+                                attempt: [],
+                                timestamp: []
+                            };
+                            loadData(pid, lid);
+                        } else {
+                            drawLevelSkillGraph($scope.sets[pid][$scope.skillType][lid], pid, lid);
+                        }
+                    }
+                }
             }
-            console.log($scope.dataset);
         };
 
-        function drawGraph (data){
+        function redrawGraph() {
+            $scope.dataset = [];
+            for(var pid in $scope.playersSelected){
+                if($scope.playersSelected[pid]){
+                    for(var lid in $scope.levelsSelected){
+                        if($scope.levelsSelected[lid]){
+                            drawLevelSkillGraph($scope.sets[pid][$scope.skillType][lid], pid, lid);
+                        }
+                    }
+                }
+            }
+        };
+
+        function drawGraph (data, label){
             var xdata;
             if($scope.interval == "attempt"){
                 xdata = data.attempt;
             } else {
                 xdata = data.timestamp;
             }
-            $scope.dataset.push({data: xdata});
+            $scope.dataset.push(
+                {
+                    data: xdata,
+                    label:label
+                }
+            );
+        }
+
+        function drawLevelSkillGraph(data, pid, lid){
+            var label =
+                "Player: " + $scope.players[pid] + " - " +
+                "Level: " + $scope.levels[lid];
+            drawGraph(data, label);
         }
 
         function loadData (pid, lid){
@@ -138,8 +191,7 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 });
                 $scope.sets[pid][$scope.skillType][lid].attempt = dataByAttempt;
                 $scope.sets[pid][$scope.skillType][lid].timestamp = dataByTimeStamp;
-                console.log($scope.sets[pid][$scope.skillType][lid]);
-                drawGraph($scope.sets[pid][$scope.skillType][lid]);
+                drawLevelSkillGraph($scope.sets[pid][$scope.skillType][lid], pid, lid);
             });
         };
 

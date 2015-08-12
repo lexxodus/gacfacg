@@ -4,11 +4,11 @@ var RESOURCE_KEYS = ["$promise", "$resolved"];
 
 angular.module("controllers", ["directives"])
     .controller("NavController", [
-        "$scope", function($scope) {
-            $scope.page = 0;
+        "$scope", "$location", function($scope, $location) {
+            $scope.page = $location.path();
 
             $scope.isActive = function (page){
-                return $scope.page === page;
+                return $scope.page == page;
             };
 
             $scope.selectPage = function(page){

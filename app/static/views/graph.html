@@ -5,7 +5,7 @@
             <select class="form-control" id="skillSelect"
                     ng-model="skillType" required>
                 <option value="level">Level</option>
-                <option value="level_type">Level Type</option>
+                <option value="levelType">Level Type</option>
                 <option value="task">Task</option>
                 <option value="event">Event</option>
             </select>
@@ -22,13 +22,25 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-show="skillType == 'level'">
             <label>Level:</label>
             <div ng-repeat="(k, v) in levels">
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" ng-model="levelsSelected[k]"
                                ng-change="selectLevel(k)" />
+                        {{ v }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="skillType == 'levelType'">
+            <label>Level Type:</label>
+            <div ng-repeat="(k, v) in levelTypes">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="levelTypesSelected[k]"
+                               ng-change="selectLevelType(k)" />
                         {{ v }}
                     </label>
                 </div>
@@ -43,10 +55,11 @@
                     Timeline
                 </label>
             </div>
-            <div class="checkbox">
+            <div class="checkbox" ng-class="{ disabled: skillType != 'level' }">
                 <label>
                     <input type="radio" ng-model="interval" value="attempt"
-                            ng-change="selectXAxis()" />
+                           ng-change="selectXAxis()"
+                           ng-disabled="skillType != 'level'" />
                     Attempts
                 </label>
             </div>

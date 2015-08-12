@@ -49,9 +49,15 @@ class LevelTypeSkill(Resource):
             return self.get_all()
 
     def get_all(self):
-        level_type_skills = LevelTypeSkillModel.query.order_by(LevelTypeSkillModel.id).all()
-        if not level_type_skills:
-            abort(404)
+        args = request.args
+        level_type_skills = LevelTypeSkillModel.query.order_by(LevelTypeSkillModel.calculated_on)
+        pids = args.getlist("pid")
+        ltids = args.getlist("lid")
+        if pids:
+            level_type_skills = level_type_skills.filter(LevelTypeSkillModel.pid.in_(pids))
+        if ltids:
+            level_type_skills = level_type_skills.filter(LevelTypeSkillModel.ltid.in_(ltids))
+        level_type_skills = level_type_skills.all()
         data = []
         for l in level_type_skills:
             data.append(get_level_type_skill_json(l))

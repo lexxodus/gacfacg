@@ -4,9 +4,9 @@
 
 angular.module('graphController', ['angular-flot', 'directives'])
 .controller('FlotController', [
-    '$scope', "Player", "Level", "LevelType", "LevelSkill", "LevelTypeSkill",
+    '$scope', "$q", "Player", "Level", "LevelType", "LevelSkill", "LevelTypeSkill",
     "TaskSkill", "EventSkill",
-    function ($scope, Player, Level, LevelType, LevelSkill, LevelTypeSkill,
+    function ($scope, $q, Player, Level, LevelType, LevelSkill, LevelTypeSkill,
             TaskSkill, EventSkill) {
         $scope.skillType = "level";
         $scope.interval = "timestamp"
@@ -19,6 +19,9 @@ angular.module('graphController', ['angular-flot', 'directives'])
         $scope.levelTypes = {};
         $scope.levelTypesSelected = {};
         $scope.cntLevelTypesSelected = 0;
+        $scope.other = {};
+        $scope.otherSelected = {};
+        $scope.cntOtherSelected = 0;
         $scope.sets = {};
         $scope.dataset = [];
         $scope.options = {
@@ -82,14 +85,38 @@ angular.module('graphController', ['angular-flot', 'directives'])
             $scope.options.xaxis = xaxis;
         };
 
-        getPlayers();
-        getLevels();
-        getLevelTypes();
+        var playersPrep = getPlayers();
+        var levelSkillPrep = $q.all([playersPrep, getLevels()]);
+        var levelTypeSkillPrep = $q.all([playersPrep, getLevelTypes()]);
+
+        levelSkillPrep.then(loadAllLevelSkills);
+        levelTypeSkillPrep.then(loadAllLevelTypeSkills);
+
+        function loadAllLevelSkills(){
+            for(var pid in $scope.players){
+                if(!$scope.sets[pid]){
+                    $scope.sets[pid] = {};
+                }
+                $scope.sets[pid]["level"] = {};
+                for(var lid in $scope.levels){
+                    $scope.sets[pid]["level"][lid] = {
+                        attempt: [],
+                        label: "",
+                        timestamp: []
+                    }
+                    loadLevelSkillData(pid, lid, "level")
+                }
+            }
+        };
+        function loadAllLevelTypeSkills(){
+            console.log("nog");
+             //for(pid in $scope.players[])
+        }
 
         function getPlayers(){
             var pid;
             var pname;
-            Player.query().$promise.then(function (data) {
+            var result = Player.query().$promise.then(function (data) {
                 angular.forEach(data, function(d){
                     pid = d.id;
                     pname = d.name;
@@ -97,12 +124,13 @@ angular.module('graphController', ['angular-flot', 'directives'])
                     $scope.playersSelected[pid] = false;
                 });
             });
+            return result;
         };
 
         function getLevels(){
             var lid;
             var lname;
-            Level.query().$promise.then(function (data) {
+            var result = Level.query().$promise.then(function (data) {
                 angular.forEach(data, function(d){
                     lid = d.id;
                     lname = d.name;
@@ -110,12 +138,13 @@ angular.module('graphController', ['angular-flot', 'directives'])
                     $scope.levelsSelected[lid] = false;
                 });
             });
+            return result;
         };
 
         function getLevelTypes(){
             var ltid;
             var ltname;
-            LevelType.query().$promise.then(function (data) {
+            var result = LevelType.query().$promise.then(function (data) {
                 angular.forEach(data, function(d){
                     ltid = d.id;
                     ltname = d.name;
@@ -123,81 +152,29 @@ angular.module('graphController', ['angular-flot', 'directives'])
                     $scope.levelTypesSelected[ltid] = false;
                 });
             });
+            return result;
         };
 
         function updateGraph(pid, oid) {
-            // if a player was selected
             if(pid){
-                // if there are already sets for player
-                if(!$scope.sets[pid]){
-                    $scope.sets[pid] = {};
-                }
-                // for all currently selected levels
+                var otherSelected;
                 switch($scope.skillType){
                     case "level":
-                        updateLevelSkillGraph(pid, oid);
+                        otherSelected = $scope.levelsSelected;
                         break;
                     case "levelType":
-                        updateLevelTypeSkillGraph(pid, oid);
+                        otherSelected = $scope.levelTypesSelected;
                         break;
+                }
+                for(oid in otherSelected){
+                    if(otherSelected[oid]){
+                        drawGraph($scope.sets[pid][$scope.skillType][oid]);
+                    }
                 }
             } else {
                 for(pid in $scope.playersSelected){
                     if($scope.playersSelected[pid]){
-                        if(!$scope.sets[pid]){
-                            $scope.sets[pid] = {};
-                        }
-                        if(!$scope.sets[pid][$scope.skillType]){
-                            $scope.sets[pid][$scope.skillType] = {};
-                        }
-                        if(!$scope.sets[pid][$scope.skillType][oid]){
-                            $scope.sets[pid][$scope.skillType][oid] = {
-                                attempt: [],
-                                timestamp: []
-                            };
-                            loadData(pid, oid);
-                        } else {
-                            drawSkillGraph(pid, oid);
-                        }
-                    }
-                }
-            }
-        };
-
-        function updateLevelSkillGraph(pid){
-            for(var lid in $scope.levelsSelected){
-                if($scope.levelsSelected[lid]){
-                    // if there are already skilltype
-                    if(!$scope.sets[pid][$scope.skillType]){
-                        $scope.sets[pid][$scope.skillType] = {};
-                    }
-                    if(!$scope.sets[pid][$scope.skillType][lid]){
-                        $scope.sets[pid][$scope.skillType][lid] = {
-                            attempt: [],
-                            timestamp: []
-                        };
-                        loadData(pid, lid);
-                    } else {
-                        drawSkillGraph($scope.sets[pid][$scope.skillType][lid], pid, lid);
-                    }
-                }
-            }
-        };
-
-        function updateLevelTypeSkillGraph(pid){
-            for(var ltid in $scope.levelTypesSelected){
-                if($scope.levelTypesSelected[ltid]){
-                    // if there are already skilltype
-                    if(!$scope.sets[pid][$scope.skillType]){
-                        $scope.sets[pid][$scope.skillType] = {};
-                    }
-                    if(!$scope.sets[pid][$scope.skillType][ltid]){
-                        $scope.sets[pid][$scope.skillType][ltid] = {
-                            timestamp: []
-                        };
-                        loadData(pid, ltid);
-                    } else {
-                        drawSkillGraph($scope.sets[pid][$scope.skillType][ltid], pid, ltid);
+                        drawGraph($scope.sets[pid][$scope.skillType][oid]);
                     }
                 }
             }
@@ -205,27 +182,30 @@ angular.module('graphController', ['angular-flot', 'directives'])
 
         function redrawGraph() {
             $scope.dataset = [];
+            var otherSelected;
             for(var pid in $scope.playersSelected){
                 if($scope.playersSelected[pid]){
                     switch($scope.skillType){
                         case "level":
-                            for(var lid in $scope.levelsSelected){
-                                if($scope.levelsSelected[lid]){
-                                    drawSkillGraph($scope.sets[pid][$scope.skillType][lid], pid, lid);
-                                }
-                            }
+                            otherSelected = $scope.levelsSelected;
+                            break;
                         case "levelType":
-                            for(var ltid in $scope.levelTypesSelected){
-                                if($scope.levelTypesSelected[ltid]){
-                                    drawSkillGraph($scope.sets[pid][$scope.skillType][ltid], pid, ltid);
-                                }
-                            }
+                            otherSelected = $scope.levelTypesSelected;
+                            break;
+                    }
+                    console.log($scope.levelsSelected);
+                    console.log(otherSelected);
+                    for(var oid in otherSelected){
+                        console.log(oid);
+                        if(otherSelected[oid]){
+                            drawGraph($scope.sets[pid][$scope.skillType][oid]);
+                        }
                     }
                 }
             }
         };
 
-        function drawGraph (data, label){
+        function drawGraph (data){
             var xdata;
             if($scope.interval == "attempt"){
                 xdata = data.attempt;
@@ -235,68 +215,52 @@ angular.module('graphController', ['angular-flot', 'directives'])
             $scope.dataset.push(
                 {
                     data: xdata,
-                    label:label
+                    label: data.label
                 }
             );
         };
 
+        function loadLevelSkillData(pid, lid){
+            LevelSkill.query({pid:pid, lid:lid}).$promise.then(function (data){
+                var dataByAttempt = [];
+                var dataByTimeStamp = [];
+                var timestamp;
+                var attempt;
+                var skill_points;
+                var high_score;
+                angular.forEach(data, function(d){
+                    timestamp = isotimeToInt(d.calculated_on);
+                    attempt = d.attempt;
+                    skill_points = d.skill_points;
+                    dataByAttempt.push([attempt, skill_points]);
+                    dataByTimeStamp.push([timestamp, skill_points]);
+                });
+                $scope.sets[pid]["level"][lid].attempt = dataByAttempt;
+                $scope.sets[pid]["level"][lid].timestamp = dataByTimeStamp;
+                $scope.sets[pid]["level"][lid].label =
+                    "Player: " + $scope.players[pid] + " - " +
+                    "Level: " + $scope.levels[lid];
+                // drawGraph($scope.sets[pid]["level"][lid]);
+            });
+        }
 
-        function drawSkillGraph(data, pid, oid){
-            var label;
-            switch($scope.skillType){
-                case "level":
-                    label =
-                        "Player: " + $scope.players[pid] + " - " +
-                        "Level: " + $scope.levels[oid];
-                    break;
-                case "levelType":
-                    label =
-                        "Player: " + $scope.players[pid] + " - " +
-                        "Level Type: " + $scope.levelTypes[oid];
-                    break;
-            }
-            drawGraph(data, label);
-        };
-
-        function loadData (pid, oid){
-            switch($scope.skillType){
-                case "level":
-                    LevelSkill.query({pid:pid, lid:oid}).$promise.then(function (data){
-                        var dataByAttempt = [];
-                        var dataByTimeStamp = [];
-                        var timestamp;
-                        var attempt;
-                        var skill_points;
-                        var high_score;
-                        angular.forEach(data, function(d){
-                            timestamp = isotimeToInt(d.calculated_on);
-                            attempt = d.attempt;
-                            skill_points = d.skill_points;
-                            dataByAttempt.push([attempt, skill_points]);
-                            dataByTimeStamp.push([timestamp, skill_points]);
-                        });
-                        $scope.sets[pid][$scope.skillType][oid].attempt = dataByAttempt;
-                        $scope.sets[pid][$scope.skillType][oid].timestamp = dataByTimeStamp;
-                        drawSkillGraph($scope.sets[pid][$scope.skillType][oid], pid, oid);
-                    });
-                    break;
-                case "levelType":
-                    LevelTypeSkill.query({pid:pid, lid:oid}).$promise.then(function (data){
-                        var dataByAttempt = [];
-                        var dataByTimeStamp = [];
-                        var timestamp;
-                        var attempt;
-                        var skill_points;
-                        angular.forEach(data, function(d){
-                            timestamp = isotimeToInt(d.calculated_on);
-                            skill_points = d.skill_points;
-                            dataByTimeStamp.push([timestamp, skill_points]);
-                        });
-                        $scope.sets[pid][$scope.skillType][oid].timestamp = dataByTimeStamp;
-                        drawSkillGraph($scope.sets[pid][$scope.skillType][oid], pid, oid);
-                    });
-                    break;
-            }
+        function loadLevelTypeData (pid, ltid){
+           LevelTypeSkill.query({pid:pid, lid:ltid}).$promise.then(function (data){
+                var dataByAttempt = [];
+                var dataByTimeStamp = [];
+                var timestamp;
+                var attempt;
+                var skill_points;
+                angular.forEach(data, function(d){
+                    timestamp = isotimeToInt(d.calculated_on);
+                    skill_points = d.skill_points;
+                    dataByTimeStamp.push([timestamp, skill_points]);
+                });
+                $scope.sets[pid]["levelType"][ltid].timestamp = dataByTimeStamp;
+                $scope.sets[pid]["levelType"][ltid].label =
+                    "Player: " + $scope.players[pid] + " - " +
+                    "Level Type: " + $scope.levelTypes[ltid];
+            });
         };
 
         function isotimeToInt(iso){

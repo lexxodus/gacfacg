@@ -48,14 +48,14 @@ class EventSkill(Resource):
             return self.get_all()
 
     def get_all(self):
-        args = request.args();
-        event_skills = EventSkillModel.query.order_by(EventSkillModel.calculated_on).all()
+        args = request.args
+        event_skills = EventSkillModel.query.order_by(EventSkillModel.calculated_on)
         pids = args.getlist("pid")
         eids = args.getlist("eid")
         if pids:
             event_skills = event_skills.filter(EventSkillModel.pid.in_(pids))
         if eids:
-            event_skills = event_skills.filter(EventSkillModel.lid.in_(eids))
+            event_skills = event_skills.filter(EventSkillModel.eid.in_(eids))
         event_skills = event_skills.all()
         data = []
         for l in event_skills:

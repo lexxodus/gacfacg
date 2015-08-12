@@ -48,14 +48,14 @@ class TaskSkill(Resource):
             return self.get_all()
 
     def get_all(self):
-        args = request.args();
-        task_skills = TaskSkillModel.query.order_by(TaskSkillModel.calculated_on).all()
+        args = request.args
+        task_skills = TaskSkillModel.query.order_by(TaskSkillModel.calculated_on)
         pids = args.getlist("pid")
         tids = args.getlist("tid")
         if pids:
             task_skills = task_skills.filter(TaskSkillModel.pid.in_(pids))
         if tids:
-            task_skills = task_skills.filter(TaskSkillModel.lid.in_(tids))
+            task_skills = task_skills.filter(TaskSkillModel.tid.in_(tids))
         task_skills = task_skills.all()
         data = []
         for l in task_skills:

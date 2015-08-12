@@ -4,10 +4,10 @@
 
 angular.module('graphController', ['angular-flot', 'directives'])
 .controller('FlotController', [
-    '$scope', "$q", "Player", "Level", "LevelType", "LevelSkill", "LevelTypeSkill",
-    "TaskSkill", "EventSkill",
-    function ($scope, $q, Player, Level, LevelType, LevelSkill, LevelTypeSkill,
-            TaskSkill, EventSkill) {
+    '$scope', "$q", "Player", "Level", "LevelType", "Task", "Event",
+    "LevelSkill", "LevelTypeSkill", "TaskSkill", "EventSkill",
+    function ($scope, $q, Player, Level, LevelType, Task, Event,
+            LevelSkill, LevelTypeSkill, TaskSkill, EventSkill) {
         $scope.skillType = "level";
         $scope.interval = "timestamp"
         $scope.players = {};
@@ -15,10 +15,12 @@ angular.module('graphController', ['angular-flot', 'directives'])
         $scope.cntPlayersSelected = 0;
         $scope.levels = {};
         $scope.levelsSelected = {};
-        $scope.cntLevelsSelected = 0;
         $scope.levelTypes = {};
         $scope.levelTypesSelected = {};
-        $scope.cntLevelTypesSelected = 0;
+        $scope.tasks = {};
+        $scope.tasksSelected = {};
+        $scope.events = {};
+        $scope.eventsSelected = {};
         $scope.othersSelected = $scope.levelsSelected;
         $scope.cntOthersSelected = 0;
         $scope.sets = {};
@@ -30,13 +32,20 @@ angular.module('graphController', ['angular-flot', 'directives'])
             }
         };
 
-        $scope.selectSkill = function (skillType) {
+        $scope.selectSkill = function () {
+            console.log($scope.skillType)
             switch($scope.skillType){
                 case "level":
                     $scope.othersSelected = $scope.levelsSelected;
                     break;
                 case "levelType":
                     $scope.othersSelected = $scope.levelTypesSelected;
+                    break;
+                case "task":
+                    $scope.othersSelected = $scope.tasksSelected;
+                    break;
+                case "event":
+                    $scope.othersSelected = $scope.eventsSelected;
                     break;
             }
             for(var oid in $scope.othersSelected){
@@ -87,9 +96,13 @@ angular.module('graphController', ['angular-flot', 'directives'])
         var playersPrep = getPlayers();
         var levelSkillPrep = $q.all([playersPrep, getLevels()]);
         var levelTypeSkillPrep = $q.all([playersPrep, getLevelTypes()]);
+        var taskSkillPrep = $q.all([playersPrep, getTasks()]);
+        var eventSkillPrep = $q.all([playersPrep, getEvents()]);
 
         levelSkillPrep.then(loadAllLevelSkills);
         levelTypeSkillPrep.then(loadAllLevelTypeSkills);
+        taskSkillPrep.then(loadAllTaskSkills);
+        eventSkillPrep.then(loadAllEventSkills);
 
         function loadAllLevelSkills(){
             for(var pid in $scope.players){
@@ -107,6 +120,7 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 }
             }
         };
+
         function loadAllLevelTypeSkills(){
             for(var pid in $scope.players){
                 if(!$scope.sets[pid]){
@@ -119,6 +133,38 @@ angular.module('graphController', ['angular-flot', 'directives'])
                         timestamp: []
                     }
                     loadLevelTypeSkillData(pid, ltid)
+                }
+            }
+        };
+
+        function loadAllTaskSkills(){
+            for(var pid in $scope.players){
+                if(!$scope.sets[pid]){
+                    $scope.sets[pid] = {};
+                }
+                $scope.sets[pid]["task"] = {};
+                for(var tid in $scope.tasks){
+                    $scope.sets[pid]["task"][tid] = {
+                        label: "",
+                        timestamp: []
+                    }
+                    loadTaskSkillData(pid, tid)
+                }
+            }
+        };
+
+        function loadAllEventSkills(){
+            for(var pid in $scope.players){
+                if(!$scope.sets[pid]){
+                    $scope.sets[pid] = {};
+                }
+                $scope.sets[pid]["event"] = {};
+                for(var eid in $scope.events){
+                    $scope.sets[pid]["event"][eid] = {
+                        label: "",
+                        timestamp: []
+                    }
+                    loadEventSkillData(pid, eid)
                 }
             }
         };
@@ -165,6 +211,34 @@ angular.module('graphController', ['angular-flot', 'directives'])
             return result;
         };
 
+        function getTasks(){
+            var tid;
+            var tname;
+            var result = Task.query().$promise.then(function (data) {
+                angular.forEach(data, function(d){
+                    tid = d.id;
+                    tname = d.name;
+                    $scope.tasks[tid] = tname;
+                    $scope.tasksSelected[tid] = false;
+                });
+            });
+            return result;
+        };
+
+        function getEvents(){
+            var eid;
+            var ename;
+            var result = Event.query().$promise.then(function (data) {
+                angular.forEach(data, function(d){
+                    eid = d.id;
+                    ename = d.name;
+                    $scope.events[eid] = ename;
+                    $scope.eventsSelected[eid] = false;
+                });
+            });
+            return result;
+        };
+
         function updateGraph(pid, oid) {
             if(pid){
                 for(oid in $scope.othersSelected){
@@ -173,7 +247,6 @@ angular.module('graphController', ['angular-flot', 'directives'])
                     }
                 }
             } else {
-                console.log(oid);
                 for(pid in $scope.playersSelected){
                     if($scope.playersSelected[pid]){
                         console.log(pid);
@@ -250,6 +323,42 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 $scope.sets[pid]["levelType"][ltid].label =
                     "Player: " + $scope.players[pid] + " - " +
                     "Level Type: " + $scope.levelTypes[ltid];
+            });
+        };
+
+        function loadTaskSkillData (pid, tid){
+           TaskSkill.query({pid:pid, tid:tid}).$promise.then(function (data){
+                var dataByAttempt = [];
+                var dataByTimeStamp = [];
+                var timestamp;
+                var skill_points;
+                angular.forEach(data, function(d){
+                    timestamp = isotimeToInt(d.calculated_on);
+                    skill_points = d.skill_points;
+                    dataByTimeStamp.push([timestamp, skill_points]);
+                });
+                $scope.sets[pid]["task"][tid].timestamp = dataByTimeStamp;
+                $scope.sets[pid]["task"][tid].label =
+                    "Player: " + $scope.players[pid] + " - " +
+                    "Task: " + $scope.tasks[tid];
+            });
+        };
+
+        function loadEventSkillData (pid, eid){
+           EventSkill.query({pid:pid, eid:eid}).$promise.then(function (data){
+                var dataByAttempt = [];
+                var dataByTimeStamp = [];
+                var timestamp;
+                var skill_points;
+                angular.forEach(data, function(d){
+                    timestamp = isotimeToInt(d.calculated_on);
+                    skill_points = d.skill_points;
+                    dataByTimeStamp.push([timestamp, skill_points]);
+                });
+                $scope.sets[pid]["event"][eid].timestamp = dataByTimeStamp;
+                $scope.sets[pid]["event"][eid].label =
+                    "Player: " + $scope.players[pid] + " - " +
+                    "Task: " + $scope.events[eid];
             });
         };
 

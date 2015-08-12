@@ -46,6 +46,30 @@
                 </div>
             </div>
         </div>
+        <div class="form-group" ng-show="skillType == 'task'">
+            <label>Task Type:</label>
+            <div ng-repeat="(k, v) in tasks">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="tasksSelected[k]"
+                               ng-change="selectOther(k)" />
+                        {{ v }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="skillType == 'event'">
+            <label>Task Type:</label>
+            <div ng-repeat="(k, v) in events">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="eventsSelected[k]"
+                               ng-change="selectOther(k)" />
+                        {{ v }}
+                    </label>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label>Display Interval:</label>
             <div class="checkbox">

@@ -3,7 +3,7 @@
         <div class="form-group">
             <label for="skillSelect">Skilltype:</label>
             <select class="form-control" id="skillSelect"
-                    ng-model="skillType" required>
+                    ng-model="skillType" ng-change="selectSkill()" required>
                 <option value="level">Level</option>
                 <option value="levelType">Level Type</option>
                 <option value="task">Task</option>
@@ -28,7 +28,7 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" ng-model="levelsSelected[k]"
-                               ng-change="selectLevel(k)" />
+                               ng-change="selectOther(k)" />
                         {{ v }}
                     </label>
                 </div>
@@ -40,7 +40,7 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" ng-model="levelTypesSelected[k]"
-                               ng-change="selectLevelType(k)" />
+                               ng-change="selectOther(k)" />
                         {{ v }}
                     </label>
                 </div>

@@ -17,35 +17,34 @@ angular.module("controllers", ["directives"])
 
     }])
     .controller("EntityController", [
-        "$scope", "Player", "Level", "LevelType", "Task", "Event",
-        function($scope, Player, Level, LevelType, Task, Event) {
-            $scope.tab = 0;
+        "$scope", "$route", "Player", "Level", "LevelType", "Task", "Event",
+        function($scope, $route, Player, Level, LevelType, Task, Event) {
+            $scope.tab = "players";
             $scope.entity = "Player";
             $scope.addLink = "player-add";
             $scope.rows;
 
-            // initialize with player
-            getPlayers();
+            getActive();
 
             $scope.isActive = function (tab){
-                return $scope.tab === tab;
+                return $scope.tab == tab;
             };
 
             $scope.selectTab = function(tab){
                 switch(tab){
-                    case 0:
+                    case 'players':
                         getPlayers();
                         break;
-                    case 1:
+                    case 'levels':
                         getLevels();
                         break;
-                    case 2:
+                    case 'level-types':
                         getLevelTypes();
                         break;
-                    case 3:
+                    case 'tasks':
                         getTasks();
                         break;
-                    case 4:
+                    case 'events':
                         getEvents();
                         break;
                 }
@@ -54,28 +53,63 @@ angular.module("controllers", ["directives"])
 
             $scope.remove = function(id) {
                 switch($scope.tab){
-                    case 0:
+                    case "players":
                         Player.remove({id: id});
                         getPlayers();
                         break;
-                    case 1:
+                    case "levels":
                         Level.remove({id: id});
                         getLevels();
                         break;
-                    case 2:
+                    case "level-types":
                         LevelType.remove({id: id});
                         getLevelTypes();
                         break;
-                    case 3:
+                    case "tasks":
                         Task.remove({id: id});
                         getTasks();
                         break;
-                    case 4:
+                    case "events":
                         Event.remove({id: id});
                         getEvents();
                         break;
                 }
             }
+
+            function getActive(){
+                var param = $route.current.params;
+                if(param["tab"]){
+                    switch(param.tab){
+                        case "players":
+                            $scope.tab = "players";
+                            getPlayers();
+                            break;
+                        case "levels":
+                            $scope.tab = "levels";
+                            getLevels();
+                            break;
+                        case "level-types":
+                            $scope.tab = "level-types";
+                            getLevelTypes();
+                            break;
+                        case "tasks":
+                            $scope.tab = "tasks";
+                            getTasks();
+                            break;
+                        case "events":
+                            $scope.tab = "events";
+                            getEvents();
+                            break;
+                        default:
+                            $scope.tab = "players";
+                            getPlayers();
+                            break;
+                    }
+                } else {
+                    $scope.tab = "players";
+                    getPlayers();
+                }
+            };
 
             function getPlayers() {
                 var players = [];
@@ -168,32 +202,58 @@ angular.module("controllers", ["directives"])
             };
     }])
     .controller("HistoryController", [
-        "$scope", "LevelInstance", "Participation", "TriggeredEvent",
-        function($scope, LevelInstance, Participation, TriggeredEvent) {
-            $scope.tab = 0;
+        "$scope", "$route", "LevelInstance", "Participation", "TriggeredEvent",
+        function($scope, $route, LevelInstance, Participation, TriggeredEvent) {
+            $scope.tab = "level-instance";
             $scope.entity = "Level Instance";
             $scope.rows;
 
-            // initialize with Level Instances
-            getLevelInstances();
+            getActive();
 
             $scope.isActive = function (tab){
-                return $scope.tab === tab;
+                return $scope.tab == tab;
             };
 
             $scope.selectTab = function(tab){
                 switch(tab){
-                    case 0:
+                    case 'level-instance':
                         getLevelInstances();
                         break;
-                    case 1:
+                    case 'participations':
                         getParticipations();
                         break;
-                    case 2:
+                    case 'triggered-events':
                         getTriggeredEvents();
                         break;
                 }
                 $scope.tab = tab;
+            };
+
+            function getActive(){
+                var param = $route.current.params;
+                if(param["tab"]){
+                    switch(param.tab){
+                        case "level-instances":
+                            $scope.tab = "level-instances";
+                            getLevelInstances();
+                            break;
+                        case "participations":
+                            $scope.tab = "participations";
+                            getParticipations();
+                            break;
+                        case "triggered-events":
+                            $scope.tab = "triggered-events";
+                            getTriggeredEvents();
+                            break;
+                        default:
+                            $scope.tab = "level-instances";
+                            getLevelInstances();
+                            break;
+                    }
+                } else {
+                    $scope.tab = "level-instances";
+                    getLevelInstances();
+                }
             };
 
             function getLevelInstances() {

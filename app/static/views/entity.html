@@ -1,15 +1,15 @@
 <div>
 <ul class="nav nav-tabs">
-    <li role="presentation" ng-class="{ active: isActive(0)}"
-        ng-click="selectTab(0)"><a href="#">Players</a></li>
-    <li role="presentation" ng-class="{ active: isActive(1)}"
-        ng-click="selectTab(1)"><a href="#">Levels</a></li>
-    <li role="presentation" ng-class="{ active: isActive(2)}"
-        ng-click="selectTab(2)"><a href="#">Level Types</a></li>
-    <li role="presentation" ng-class="{ active: isActive(3)}"
-        ng-click="selectTab(3)"><a href="#">Tasks</a></li>
-    <li role="presentation" ng-class="{ active: isActive(4)}"
-        ng-click="selectTab(4)"><a href="#">Events</a></li>
+    <li role="presentation" ng-class="{ active: isActive('players')}"
+        ng-click="selectTab('players')"><a href="#">Players</a></li>
+    <li role="presentation" ng-class="{ active: isActive('levels')}"
+        ng-click="selectTab('levels')"><a href="#">Levels</a></li>
+    <li role="presentation" ng-class="{ active: isActive('level-types')}"
+        ng-click="selectTab('level-types')"><a href="#">Level Types</a></li>
+    <li role="presentation" ng-class="{ active: isActive('tasks')}"
+        ng-click="selectTab('tasks')"><a href="#">Tasks</a></li>
+    <li role="presentation" ng-class="{ active: isActive('events')}"
+        ng-click="selectTab('events')"><a href="#">Events</a></li>
 </ul>
 </div>
 <div>

@@ -28,7 +28,18 @@ angular.module('graphController', ['angular-flot', 'directives'])
         $scope.options = {
             xaxis: {
                 mode: "time",
-                timeformat: "%Y/%m/%d"
+                timeformat: "%Y/%m/%d - %H:%M"
+            },
+            series: {
+                lines: { show: true },
+                points: { show: true }
+            },
+            grid: {
+                hoverable: true
+            },
+            tooltip: {
+                show: true,
+                xDateFormat:"%Y/%m/%d - %H:%M:%S"
             }
         };
 
@@ -431,13 +442,14 @@ angular.module('graphController', ['angular-flot', 'directives'])
   $scope.eventOptions.grid = {
     clickable: true,
     hoverable: true
-  }
+  };
 
   $scope.onEventExampleClicked = function (event, pos, item) {
+    console.log($scope.eventDataset);
     alert('Click! ' + event.timeStamp + ' ' + pos.pageX + ' ' + pos.pageY)
-  }
+  };
 
   $scope.onEventExampleHover = function (event, pos, item) {
     console.log('Hover! ' + event.timeStamp + ' ' + pos.pageX + ' ' + pos.pageY)
-  }
+  };
 }])

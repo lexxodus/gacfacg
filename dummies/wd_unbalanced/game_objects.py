@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
-from datetime import datetime
-from event_handler import get_events, trigger_event
+from gacfacg.dummies.wd_unbalanced.event_handler import get_events, trigger_event
 from random import choice
-import time
 
 
 class GameObjects(object):

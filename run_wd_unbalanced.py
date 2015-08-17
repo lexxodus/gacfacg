@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
-from dummy.simulation import Simulation
+from gacfacg.dummies.wd_unbalanced import Simulation
 # from app import app
 
 PLAYER_AMOUNT = 6

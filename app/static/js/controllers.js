@@ -191,6 +191,12 @@ angular.module("controllers", ["directives"])
                         event["tid"] = d.tid;
                         event["name"] = d.name;
                         event["description"] = d.description;
+                        event["skill_points"] = d.skill_points;
+                        event["skill_interval"] = d.skill_interval;
+                        event["skill_rule"] = d.skill_rule;
+                        event["score_points"] = d.score_points;
+                        event["score_interval"] = d.score_interval;
+                        event["score_rule"] = d.score_rule;
                         event["view_url"] = "event-view/" + d.id;
                         event["edit_url"] = "event-edit/" + d.id;
                         events.push(event);
@@ -300,6 +306,8 @@ angular.module("controllers", ["directives"])
                         triggeredEvent["paid"] = d.paid;
                         triggeredEvent["eid"] = d.eid;
                         triggeredEvent["timestamp"] = d.timestamp;
+                        triggeredEvent["given_skill_points"] = d.given_skill_points;
+                        triggeredEvent["given_score_points"] = d.given_score_points;
                         triggeredEvent["view_url"] = "triggered_event-view/" + d.id;
                         triggeredEvents.push(triggeredEvent);
                     });

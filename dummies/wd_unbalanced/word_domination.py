@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
-from dummy import event_handler
-from dummy.game_objects import Answer, Base, Level, Question, Quiz, Player, Team
+from dummies.wd_unbalanced import event_handler
+from dummies.wd_unbalanced.game_objects import Answer, Base, Level, Question, Quiz, Player, Team
 
 class WordDomination(object):
 

@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
-from dummy import event_handler
-from dummy.game_objects import Answer, Base, Question, Quiz, Player, Team
-from dummy.word_domination import WordDomination
+from dummies.wd_unbalanced import event_handler
+from dummies.wd_unbalanced.game_objects import Answer, Base, Question, Quiz, Player, Team
+from dummies.wd_unbalanced.word_domination import WordDomination
 from random import choice, randint, random, shuffle
 import string
 
@@ -57,6 +57,7 @@ class Simulation(object):
                 "weakness": weakness,
                 "location": None,
             })
+            print(player.name, strength, weakness)
             self.teams[team].append(p)
 
     def create_teams(self, amount=2):
@@ -151,7 +152,7 @@ class Simulation(object):
             defense = []
             if location:
                 for p in player_locations[location]:
-                    # tries to shoot enemy player last player is removed
+                    # tries to shoot enemy player, shot players are removed
                     if random() < 0.2:
                         if len(player_locations[location]) > 1:
                             target, weapon = self.action_shoot(p, player_locations[location], location)
@@ -215,6 +216,9 @@ class Simulation(object):
             # unfreeze players
             for p in self.players:
                 p["player"].active = True
+        else:
+            pass
+            # player.
 
     def action_shoot(self, player, possible_targets=None, location=None):
         if possible_targets:

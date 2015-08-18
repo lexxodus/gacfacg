@@ -193,10 +193,10 @@ angular.module("controllers", ["directives"])
                         event["description"] = d.description;
                         event["skill_points"] = d.skill_points;
                         event["skill_interval"] = d.skill_interval;
-                        event["skill_rule"] = d.skill_rule;
+                        event["skill_rule"] = d.skill_rule ? "✔" : "";
                         event["score_points"] = d.score_points;
                         event["score_interval"] = d.score_interval;
-                        event["score_rule"] = d.score_rule;
+                        event["score_rule"] = d.score_rule ? "✔" : "";
                         event["view_url"] = "event-view/" + d.id;
                         event["edit_url"] = "event-edit/" + d.id;
                         events.push(event);
@@ -365,7 +365,7 @@ angular.module("controllers", ["directives"])
                     Player.save(data);
                 }
 
-                $location.path("entities")
+                $location.path("entities").search({tab:"players"})
             };
 
             $scope.cancel = function (form) {
@@ -495,7 +495,7 @@ angular.module("controllers", ["directives"])
                     Level.save(data);
                 }
 
-                $location.path("entities")
+                $location.path("entities").search({tab:"levels"})
             };
 
             $scope.cancel = function (form) {
@@ -645,7 +645,7 @@ angular.module("controllers", ["directives"])
                     LevelType.save(data);
                 }
 
-                $location.path("entities")
+                $location.path("entities").search({tab:"levelTypes"})
             };
 
             $scope.cancel = function (form) {
@@ -768,7 +768,7 @@ angular.module("controllers", ["directives"])
                     Task.save(data);
                 }
 
-                $location.path("entities")
+                $location.path("entities").search({tab:"tasks"})
             };
 
             $scope.cancel = function (form) {
@@ -909,7 +909,7 @@ angular.module("controllers", ["directives"])
                     Event.save(data);
                 }
 
-                $location.path("entities")
+                $location.path("entities").search({tab:"events"})
             };
 
             $scope.cancel = function (form) {
@@ -947,6 +947,12 @@ angular.module("controllers", ["directives"])
                     $scope.name = data.name;
                     $scope.unique_edit = data.name;
                     $scope.description = data.description;
+                    $scope.skill_points = data.skill_points;
+                    $scope.score_points = data.score_points;
+                    $scope.skill_interval = data.skill_interval;
+                    $scope.score_interval = data.score_interval;
+                    $scope.skill_rule = data.skill_rule;
+                    $scope.score_rule = data.score_rule;
                     angular.copy(data, clone);
                     for (var key  in RESOURCE_KEYS){
                         delete clone[RESOURCE_KEYS[key]];

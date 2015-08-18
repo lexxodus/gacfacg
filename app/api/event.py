@@ -18,6 +18,8 @@ def get_event_json(event, public=False):
     data["score_points"] = event.score_points
     data["skill_interval"] = event.skill_interval
     data["score_interval"] = event.score_interval
+    data["skill_rule"] = event.skill_rule
+    data["score_rule"] = event.score_rule
     if public:
         data['api_url'] = "%s%s" % (api.url_for(Event), event.id)
     if event.custom_values:
@@ -67,7 +69,9 @@ class Event(Resource):
         return data
 
     def put(self, id):
-        expected_values = ["tid", "name", "description", "skill_points", "score_points", "skill_interval", "score_interval"]
+        expected_values = ["tid", "name", "description", "skill_points",
+                           "score_points", "skill_interval",
+                           "score_interval", "skill_rule", "score_rule"]
         event = EventModel.query.get(id)
         if not event:
             abort(404)
@@ -85,7 +89,7 @@ class Event(Resource):
         if "skill_interval" in data:
             event.skill_interval = data["skill_interval"]
         if "score_interval" in data:
-            event.score_interval = data.get["score_interval"]
+            event.score_interval = data["score_interval"]
         custom_values = {}
         for k, v in data.iteritems():
             if k not in expected_values:

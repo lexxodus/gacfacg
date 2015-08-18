@@ -51,12 +51,15 @@ angular.module('graphController', ['angular-flot', 'directives'])
                     break;
                 case "levelType":
                     $scope.othersSelected = $scope.levelTypesSelected;
+                    $scope.interval = "timestamp";
                     break;
                 case "task":
                     $scope.othersSelected = $scope.tasksSelected;
+                    $scope.interval = "timestamp";
                     break;
                 case "event":
                     $scope.othersSelected = $scope.eventsSelected;
+                    $scope.interval = "timestamp";
                     break;
             }
             for(var oid in $scope.othersSelected){

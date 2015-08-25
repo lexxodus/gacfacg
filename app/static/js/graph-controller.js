@@ -10,6 +10,8 @@ angular.module('graphController', ['angular-flot', 'directives'])
             LevelSkill, LevelTypeSkill, TaskSkill, EventSkill) {
         $scope.skillType = "level";
         $scope.interval = "timestamp"
+        $scope.legend = "nw"
+        $scope.showPoints = false;
         $scope.players = {};
         $scope.playersSelected = {};
         $scope.cntPlayersSelected = 0;
@@ -26,13 +28,17 @@ angular.module('graphController', ['angular-flot', 'directives'])
         $scope.sets = {};
         $scope.dataset = [];
         $scope.options = {
+            legend: {
+                container: "#legend",
+                show: true
+            },
             xaxis: {
                 mode: "time",
                 timeformat: "%Y/%m/%d - %H:%M"
             },
             series: {
                 lines: { show: true },
-                points: { show: true }
+                points: { show: false }
             },
             grid: {
                 hoverable: true
@@ -106,6 +112,27 @@ angular.module('graphController', ['angular-flot', 'directives'])
             redrawGraph();
             $scope.options.xaxis = xaxis;
         };
+
+        // $scope.selectLegend = function(){
+        //     var legend;
+        //     if($scope.legend != "hide"){
+        //         legend = {
+        //             show: true,
+        //             position: $scope.legend
+        //         }
+        //     } else {
+        //         legend = {
+        //             show: false,
+        //         }
+        //     }
+        //     $scope.options.legend = legend;
+        // };
+
+        $scope.togglePoints = function(){
+            console.log($scope.options.series.points.show);
+            $scope.options.series.points["show"] = !$scope.options.series.points.show;
+            console.log($scope.options.series.points.show);
+        }
 
         var playersPrep = getPlayers();
         var levelSkillPrep = $q.all([playersPrep, getLevels()]);

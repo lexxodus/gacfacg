@@ -219,7 +219,6 @@ class TriggeredEvent(db.Model):
         base_points = event.skill_points
         interval = event.skill_interval
         if rule:
-            print(rule)
             points = self.parse_rule(rule)
         else:
             points = base_points

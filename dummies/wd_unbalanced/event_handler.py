@@ -10,6 +10,7 @@ events = None
 tasks = None
 levels = None
 level_types = None
+current_liid = None
 
 def create_player(name, clan):
     url = ROOT_URL + "player/"
@@ -44,6 +45,7 @@ def get_level(id):
 
 
 def create_level_instance(level_id, teams=[]):
+    global current_liid
     url = ROOT_URL + "level_instance/"
     params = {}
     data = {
@@ -57,6 +59,7 @@ def create_level_instance(level_id, teams=[]):
             for p in players:
                 participation = login_player_into_level_instance(p.id, level_instance_id, p.team.name)
                 p.participation = participation["id"]
+    current_liid = level_instance_id
     return level_instance_id
 
 
@@ -220,33 +223,39 @@ def calc_level_type_skill(pid, ltid, timestamp=None):
     response = requests.post(url, params=params, json=data).json()
     return response
 
-def player_was_hit(player, liid):
+def player_was_hit(player, shooter, weapon):
     current_hit = datetime.now()
-    last_hit = get_player_last_hit(player, liid)
-    url = ROOT_URL + "triggered_event/"
+    last_hit = get_player_last_hit(player)
     params = {}
     if last_hit:
         award_player_survival(player, last_hit, current_hit)
-    data = {
-        "paid": player.participation,
-        "eid": events["was hit"],
-    }
-    requests.post(url, params=params, json=data).json()
+    trigger_event(player.participation, events["was hit"],
+                  player=shooter, weapon=weapon)
 
 def award_player_survival(player, last_hit, current_hit=None):
+    print("%s, %s, %s" % (player, last_hit, current_hit))
     url = ROOT_URL + "triggered_event/"
     params = {}
     eid = None
     if current_hit:
-        if (current_hit - last_hit).total_seconds() > 4 * 60:
+        if (current_hit - last_hit).total_seconds() > 30:
+            print("SURVIVOR: %s" % (current_hit - last_hit).total_seconds())
             eid = events["survivor"]
-        elif (current_hit - last_hit).total_seconds() > 1 * 60:
+        elif (current_hit - last_hit).total_seconds() > 15:
+            print("AMATEUR: %s" % (current_hit - last_hit).total_seconds())
             eid = events["amateur"]
         else:
+            print("VICTIM: %s" % (current_hit - last_hit).total_seconds())
             eid = events["victim"]
+    elif last_hit:
+        current_hit = datetime.now()
+        if (current_hit - last_hit).total_seconds() > 30:
+            print("SURVIVOR: %s" % (current_hit - last_hit).total_seconds())
+            eid = events["survivor"]
     elif not last_hit:
+        print("LEGENDARY: %s" % player)
         eid = events["legendary"]
-    else:
+    if not eid:
         return
     data = {
         "paid": player.participation,
@@ -268,9 +277,9 @@ def get_level_instance(liid):
     response = requests.get(url, params=params).json()
     return response
 
-def get_player_last_hit(player, liid):
+def get_player_last_hit(player):
     url = ROOT_URL + "triggered_event/"
-    params = {"pid": player.id, "liid": liid, "eid": events["was hit"]}
+    params = {"pid": player.id, "liid": current_liid, "eid": events["was hit"]}
     response = requests.get(url, params=params).json()
     hits = []
     for i in response:

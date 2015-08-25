@@ -62,7 +62,7 @@ class Event(Resource):
             return self.get_all()
 
     def get_all(self):
-        events = EventModel.query.order_by(EventModel.id).all()
+        events = EventModel.query.order_by(EventModel.tid, EventModel.id).all()
         data = []
         for e in events:
             data.append(get_event_json(e))

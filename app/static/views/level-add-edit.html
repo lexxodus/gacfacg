@@ -26,7 +26,7 @@
             <label for="customKey{{ $index }}">Key:</label>
             <input type="text" class="form-control" id="customKey{{ $index }}" ng-model="customKeys[$index]" required unexpected />
             <label for="customValue{{ $index }}">Value:</label>
-            <input type="text" class="form-control" id="customValue{{ $index }}" ng-model="customValues[$index]" required />
+            <input type="text" class="form-control" id="customValue{{ $index }}" ng-model="customValues[$index]" />
             <a href="#" ng-click="removeCustomValue($index)">
                 <span class="glyphicon glyphicon-minus"></span>
                 Remove Custom Value

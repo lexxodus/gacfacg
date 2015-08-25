@@ -129,15 +129,16 @@ class Simulation(object):
     def fight_for_location(self, location, players, lone_wolves):
         teams = {}
         team_points = {}
+        available_players = list(players)
         shot_players = []
         shuffle(players)
         for p in players:
-            if len(players) > 1:
-                target, weapon = self.action_shoot(p, players, location)
+            if len(available_players) > 1 and p in available_players:
+                target, weapon = self.action_shoot(p, available_players, location)
                 if target:
-                    shot_players.append(p)
-                    players.remove(p)
-        for p in players:
+                    available_players.remove(target)
+                    shot_players.append(target)
+        for p in available_players:
             if not teams.has_key(p["team"]):
                 teams[p["team"]] = []
                 team_points[p["team"]] = 0
@@ -225,6 +226,8 @@ class Simulation(object):
                 location = choice(self.wd.level.bases)
             w["location"] = location
             player_locations[location].append(w)
+        for l in player_locations:
+            print("l: %s, p: %s" % (l, [str(x["player"]) for x in player_locations[l]]))
         return player_locations
 
     def action_shoot(self, player, possible_targets, location):
@@ -282,21 +285,17 @@ class Simulation(object):
             else:
                 if p["team"] is friendly_team and p is not player:
                     real_targets.append(p)
-        for p in real_targets:
-            if p["strength"] == "surviving":
-                if random() < (1.0 / len(real_targets)) / 3:
-                    target = p
-                    real_targets.remove(p)
-                    break
-            elif p["weakness"] == "surviving":
-                if random() < (1.0 / len(real_targets)) * 3:
-                    target = p
-                    real_targets.remove(p)
-                    break
-        if not "target" in locals():
-            if not real_targets:
-                return None, None
-            target = choice(real_targets)
+        if not real_targets:
+            return None, None
+        target = choice(real_targets)
+        if target["strength"] == "surviving":
+            dodge = 0.4
+        elif target["weakness"] == "surviving":
+            dodge = 0.1
+        else:
+            dodge = 0.2
+        if random() < dodge:
+            return None, None
         self.wd.player_shoots_player(player["player"], target["player"], weapon, location)
         answers = self.answer_question(target["player"].question, target)
         target["player"].give_answers(answers)

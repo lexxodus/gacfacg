@@ -30,7 +30,7 @@ class WordDomination(object):
         event_handler.end_level_instance(self.level.lid, self.teams)
         for t in self.teams:
             for p in t.get_players():
-                last_hit = event_handler.get_player_last_hit(p, self.level.lid)
+                last_hit = event_handler.get_player_last_hit(p)
                 event_handler.award_player_survival(
                     p, last_hit)
 

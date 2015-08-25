@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
-from dummies.wd_unbalanced.event_handler import get_events, trigger_event
+from dummies.wd_unbalanced.event_handler import get_events, trigger_event, player_was_hit
 from random import choice
 
 
@@ -48,7 +48,7 @@ class Level(GameObjects):
 
     def generate_bases(self, amount):
         bases = []
-        for b in range(1, amount):
+        for b in range(1, amount + 1):
             bases.append(Base(b))
         return bases
 
@@ -127,8 +127,7 @@ class Player(GameObjects):
                           player=player.id, weapon=weapon, base=str(base))
             print("%s was hit by %s with %s while defending %s" %
                   (self, player, weapon, base))
-        trigger_event(self.participation, self.events["was hit"],
-                          player=player.id, weapon=weapon)
+        player_was_hit(self, player.id, weapon)
         print("%s was hit by %s with %s" % (self, player, weapon))
 
     def ask_question(self, question):
@@ -185,7 +184,7 @@ class Player(GameObjects):
                       base=str(base))
 
     def __str__(self):
-        return self.name
+        return "%s, %s" % (self.name, self.team)
 
 
 class Question(GameObjects):

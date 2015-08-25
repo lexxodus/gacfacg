@@ -12,6 +12,6 @@ s = Simulation()
 s.load_players(PLAYER_AMOUNT)
 for e in range(100):
     s.start_level()
-    s.run_rounds(20 * PLAYER_AMOUNT)
+    s.run_rounds(20)
     # s.perform_actions(1)
     s.end_level()

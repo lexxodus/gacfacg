@@ -88,9 +88,52 @@
                 </label>
             </div>
         </div>
+        <!--
+        <div class="form-group">
+            <label>Legend:</label>
+            <div class="checkbox">
+                <label>
+                    <input type="radio" ng-model="legend" value="nw"
+                            ng-change="selectLegend()" />
+                    Place top left
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="radio" ng-model="legend" value="ne"
+                            ng-change="selectLegend()" />
+                    Place top right
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="radio" ng-model="legend" value="sw"
+                            ng-change="selectLegend()" />
+                    Place bottom left
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="radio" ng-model="legend" value="hide"
+                            ng-change="selectLegend()" />
+                    Hide legend
+                </label>
+            </div>
+        </div>
+        -->
+        <div class="form-group">
+            <label>Show data points:</label>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="showPoints"
+                           ng-change="togglePoints()" />
+                    On/ Off
+                </label>
+            </div>
+        </div>
     </form>
 </div>
 <div class="col-sm-8 col-lg-9">
     <flot dataset="dataset" options="options" height="480px"></flot>
-    <div id="legend" style="width: 200px; height: 200px;"></div>
+    <div id="legend"></div>
 </div>

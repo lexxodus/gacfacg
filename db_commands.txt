@@ -1,0 +1,2 @@
+pg_dump -a -t player -t level -t level_type -t task -t event -U user1 worddomination1 > worddomation.sql
+psql -d worddomination2 -U user1 -f worddomation.sql

@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import EventSkill as EventSkillModel
+from datetime import datetime, timedelta
 from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
@@ -52,10 +53,13 @@ class EventSkill(Resource):
         event_skills = EventSkillModel.query.order_by(EventSkillModel.calculated_on)
         pids = args.getlist("pid")
         eids = args.getlist("eid")
+        interval = args.getlist("interval")
         if pids:
             event_skills = event_skills.filter(EventSkillModel.pid.in_(pids))
         if eids:
             event_skills = event_skills.filter(EventSkillModel.eid.in_(eids))
+        if interval:
+            event_skills = event_skills.filter(EventSkillModel.calculated_on >= datetime.now() - timedelta(seconds=interval))
         event_skills = event_skills.all()
         data = []
         for l in event_skills:

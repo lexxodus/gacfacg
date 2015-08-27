@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
 
-from dummies.wd_unbalanced import event_handler
-from dummies.wd_unbalanced.game_objects import Answer, Base, Level, Question, Quiz, Player, Team
+from dummies.wd_balanced import event_handler
+from dummies.wd_balanced.game_objects import Answer, Base, Level, Question, Quiz, Player, Team
+from random import choice
 
 class WordDomination(object):
 
@@ -13,6 +14,8 @@ class WordDomination(object):
     }
 
     def __init__(self, level_id, quiz):
+        self.events = event_handler.get_events()
+        self.tasks = event_handler.get_tasks()
         self.teams = []
         self.level = self.load_level(level_id)
         self.quiz = quiz
@@ -60,8 +63,19 @@ class WordDomination(object):
     def player_shoots_player(self, player, target, weapon, base=None):
         player.hit_target(target, weapon)
         target.was_hit(player, weapon, base)
-        question = self.quiz.load_question(
-                self.WEAPONS_TO_QUESTION_DIFFICULTY[weapon])
+        quiz_skill = event_handler.get_recent_task_skill(self.tasks["quiz solving"], 180)
+        difficulties = self.WEAPONS_TO_QUESTION_DIFFICULTY
+        if quiz_skill > 50 or quiz_skill < -50:
+            difficulties.remove("2d")
+        if quiz_skill > 30:
+            difficulties.remove("3d")
+        if quiz_skill < -30:
+            difficulties.remove("1d")
+        if weapon in difficulties:
+            question = self.quiz.load_question(
+                    self.WEAPONS_TO_QUESTION_DIFFICULTY[weapon])
+        else:
+            question = self.quiz.load_question(choice(difficulties))
         target.ask_question(question)
 
     def player_answers_question(self, player, answers):

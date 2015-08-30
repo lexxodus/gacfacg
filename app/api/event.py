@@ -90,6 +90,10 @@ class Event(Resource):
             event.skill_interval = data["skill_interval"]
         if "score_interval" in data:
             event.score_interval = data["score_interval"]
+        if "skill_rule" in data:
+            event.skill_rule = data["skill_rule"]
+        if "score_rule" in data:
+            event.score_rule = data["score_rule"]
         custom_values = {}
         for k, v in data.iteritems():
             if k not in expected_values:

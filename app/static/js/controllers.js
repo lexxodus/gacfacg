@@ -161,7 +161,7 @@ angular.module("controllers", ["directives"])
                 });
                 $scope.rows = levelTypes;
                 $scope.entity = "Level Type";
-                $scope.addLink = "level_type-type-add";
+                $scope.addLink = "level_type-add";
             };
 
             function getTasks() {
@@ -353,19 +353,19 @@ angular.module("controllers", ["directives"])
             $scope.save = function () {
                 var data = {
                     "name": $scope.name,
-                }
+                };
                 for (var k in $scope.customKeys){
                     if($scope.customKeys.hasOwnProperty(k)){
                         data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
                     }
                 }
                 if($scope.unique_edit){
-                    Player.update({id:$routeParams.id}, data)
+                    Player.update({id:$routeParams.id}, data);
                 } else {
                     Player.save(data);
                 }
 
-                $location.path("entities").search({tab:"players"})
+                $location.path("entities").search({tab:"players"});
             };
 
             $scope.cancel = function (form) {
@@ -483,19 +483,19 @@ angular.module("controllers", ["directives"])
                     "name": $scope.name,
                     "description": $scope.description,
                     "level_types": lt
-                }
+                };
                 for (var k in $scope.customKeys){
                     if($scope.customKeys.hasOwnProperty(k)){
                         data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
                     }
                 }
                 if($scope.unique_edit){
-                    Level.update({id:$routeParams.id}, data)
+                    Level.update({id:$routeParams.id}, data);
                 } else {
                     Level.save(data);
                 }
 
-                $location.path("entities").search({tab:"levels"})
+                $location.path("entities").search({tab:"levels"});
             };
 
             $scope.cancel = function (form) {
@@ -632,20 +632,20 @@ angular.module("controllers", ["directives"])
             $scope.save = function () {
                 var data = {
                     "name": $scope.name,
-                    "description": $scope.description,
+                    "description": $scope.description
                 }
                 for (var k in $scope.customKeys){
                     if($scope.customKeys.hasOwnProperty(k)){
                         data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
-                    }
+                    };
                 }
                 if($scope.unique_edit){
-                    LevelType.update({id:$routeParams.id}, data)
+                    LevelType.update({id:$routeParams.id}, data);
                 } else {
                     LevelType.save(data);
                 }
 
-                $location.path("entities").search({tab:"levelTypes"})
+                $location.path("entities").search({tab:"levelTypes"});
             };
 
             $scope.cancel = function (form) {
@@ -755,7 +755,7 @@ angular.module("controllers", ["directives"])
             $scope.save = function () {
                 var data = {
                     "name": $scope.name,
-                    "description": $scope.description,
+                    "description": $scope.description
                 }
                 for (var k in $scope.customKeys){
                     if($scope.customKeys.hasOwnProperty(k)){
@@ -763,12 +763,12 @@ angular.module("controllers", ["directives"])
                     }
                 }
                 if($scope.unique_edit){
-                    Task.update({id:$routeParams.id}, data)
+                    Task.update({id:$routeParams.id}, data);
                 } else {
                     Task.save(data);
                 }
 
-                $location.path("entities").search({tab:"tasks"})
+                $location.path("entities").search({tab:"tasks"});
             };
 
             $scope.cancel = function (form) {
@@ -896,20 +896,20 @@ angular.module("controllers", ["directives"])
                     "skill_rule": $scope.skill_rule,
                     "score_points": $scope.score_points,
                     "score_interval": $scope.score_interval,
-                    "score_rule": $scope.score_rule,
-                }
+                    "score_rule": $scope.score_rule
+                };
                 for (var k in $scope.customKeys){
                     if($scope.customKeys.hasOwnProperty(k)){
                         data[$scope.customKeys[k].toLowerCase()] = $scope.customValues[k];
                     }
                 }
                 if($scope.unique_edit){
-                    Event.update({id:$routeParams.id}, data)
+                    Event.update({id:$routeParams.id}, data);
                 } else {
                     Event.save(data);
                 }
 
-                $location.path("entities").search({tab:"events"})
+                $location.path("entities").search({tab:"events"});
             };
 
             $scope.cancel = function (form) {

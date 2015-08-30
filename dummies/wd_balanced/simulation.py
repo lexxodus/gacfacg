@@ -263,9 +263,9 @@ class Simulation(object):
         weapons = ["1d", "2d", "3d"]
         hit_skill = event_handler.get_recent_event_skill(self.events["hit"], 60)
         if hit_skill > 50:
-            weapons.remove("3d")
-        if hit_skill > 30:
             weapons.remove("2d")
+        if hit_skill > 30:
+            weapons.remove("3d")
         if hit_skill < 20:
             weapons.remove("1d")
         if hit_skill < 10:

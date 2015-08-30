@@ -207,7 +207,7 @@ class TriggeredEvent(db.Model):
 
     def parse_rule(self, rule):
         e = eval_arithmetics.Evaluator()
-        return e.safe_eval(rule, self.paid, self.eid, self.timestamp)
+        return e.safe_eval(rule, self.paid, self.eid, self.timestamp, self.custom_values)
 
     def calc_given_points(self):
         event = Event.query.get(self.eid)

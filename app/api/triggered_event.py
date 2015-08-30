@@ -46,9 +46,9 @@ class TriggeredEvent(Resource):
             if k not in expected_values:
                custom_values[k] = v
         try:
-            triggered_event = TriggeredEventModel(paid, eid, timestamp, custom_values)
+          triggered_event = TriggeredEventModel(paid, eid, timestamp, custom_values)
         except:
-            return 404
+            abort(404)
         db.session.add(triggered_event)
         db.session.commit()
         return get_triggered_event_json(triggered_event), 201

@@ -50,6 +50,8 @@ class Evaluator(object):
     def _try_datetime(self, value):
         try:
             value = parser.parse(value)
+        except AttributeError:
+            assert not self.calc_timedelta
         except ValueError:
             assert not self.calc_timedelta
         else:
@@ -65,24 +67,24 @@ class Evaluator(object):
             player = models.Player.query.join(models.Participation).\
                 filter(models.Participation.id == self.paid).first()
             custom_value = self._try_datetime(player.custom_values[parts[1]])
-            return custom_value
+            return float(custom_value)
         elif parts[0] == "level":
             level = models.Level.query.join(models.LevelInstance, models.Participation).\
                 filter(models.Participation.id == self.paid).first()
             custom_value = self._try_datetime(level.custom_values[parts[1]])
-            return custom_value
+            return float(custom_value)
         elif parts[0] == "level_type":
             level_type = models.LevelType.query.join(
                 models.Level, models.Level.level_types, models.LevelInstance, models.Participation).\
                 filter(models.Participation.id == self.paid).first()
             custom_value = self._try_datetime(
                 level_type.custom_values[parts[1]])
-            return custom_value
+            return float(custom_value)
         elif parts[0] == "task":
             task = models.Task.query.join(models.Event).\
                 filter(models.Event.id == self.eid).first()
             custom_value = self._try_datetime(task.custom_values[parts[1]])
-            return custom_value
+            return float(custom_value)
         elif parts[0] == "level_instance":
             level_instance = models.LevelInstance.query.join(models.Participation).\
                 filter(models.Participation.id == self.paid).first()
@@ -95,7 +97,7 @@ class Evaluator(object):
             else:
                 custom_value = self._try_datetime(
                     level_instance.custom_values[parts[1]])
-                return custom_value
+                return float(custom_value)
         elif parts[0] == "event":
             event = models.Event.query.get(self.eid)
             if not self.calc_timedelta:
@@ -106,7 +108,7 @@ class Evaluator(object):
             else:
                 custom_value = self._try_datetime(
                     event.custom_values[parts[1]])
-                return custom_value
+                return float(custom_value)
         elif parts[0] == "participation":
             participation = models.Participation.query.get(models.Participation.id == self.paid)
             if parts[1] == "start_time":
@@ -118,7 +120,7 @@ class Evaluator(object):
             else:
                 custom_value = self._try_datetime(
                     participation.custom_values[parts[1]])
-                return custom_value
+                return float(custom_value)
         elif parts[0] == "triggered_event":
             if parts[1] == "timestamp":
                 self.calc_timedelta = True
@@ -126,7 +128,7 @@ class Evaluator(object):
             else:
                 custom_value = self._try_datetime(
                     self.custom_values[parts[1]])
-                return custom_value
+                return float(custom_value)
         else:
             assert False, "Unknown Value: %s" % expr
 

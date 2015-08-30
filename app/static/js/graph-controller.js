@@ -50,7 +50,6 @@ angular.module('graphController', ['angular-flot', 'directives'])
         };
 
         $scope.selectSkill = function () {
-            console.log($scope.skillType)
             switch($scope.skillType){
                 case "level":
                     $scope.othersSelected = $scope.levelsSelected;
@@ -129,9 +128,7 @@ angular.module('graphController', ['angular-flot', 'directives'])
         // };
 
         $scope.togglePoints = function(){
-            console.log($scope.options.series.points.show);
             $scope.options.series.points["show"] = !$scope.options.series.points.show;
-            console.log($scope.options.series.points.show);
         }
 
         var playersPrep = getPlayers();
@@ -290,8 +287,6 @@ angular.module('graphController', ['angular-flot', 'directives'])
             } else {
                 for(pid in $scope.playersSelected){
                     if($scope.playersSelected[pid]){
-                        console.log(pid);
-                        console.log($scope.skillType);
                         drawGraph($scope.sets[pid][$scope.skillType][oid]);
                     }
                 }

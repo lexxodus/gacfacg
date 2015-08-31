@@ -36,7 +36,7 @@ class BottleQuizQuest(object):
             difficulty = "medium"
         elif level_skill < 60:
             difficulty = "hard"
-        elif level_skill >= 60:
+        else:
             difficulty = "very hard"
         level = Level(
             lid,
@@ -55,13 +55,13 @@ class BottleQuizQuest(object):
             if event_skill:
                 if event_skill < -20:
                     difficulty = "very easy"
-                if event_skill < -5:
+                elif event_skill < -5:
                     difficulty = "easy"
-                if event_skill < 5:
+                elif event_skill < 5:
                     difficulty = "medium"
-                if event_skill < 20:
+                elif event_skill < 20:
                     difficulty = "hard"
-                if event_skill >= 20:
+                else:
                     difficulty = "very hard"
             else:
                 difficulty=None

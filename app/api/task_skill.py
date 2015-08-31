@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import TaskSkill as TaskSkillModel
+from datetime import datetime, timedelta
 from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
@@ -49,14 +50,21 @@ class TaskSkill(Resource):
 
     def get_all(self):
         args = request.args
-        task_skills = TaskSkillModel.query.order_by(TaskSkillModel.calculated_on)
+        task_skills = TaskSkillModel.query
         pids = args.getlist("pid")
         tids = args.getlist("tid")
+        interval = args.getlist("interval")
+        last = args.get("last", None)
         if pids:
             task_skills = task_skills.filter(TaskSkillModel.pid.in_(pids))
         if tids:
             task_skills = task_skills.filter(TaskSkillModel.tid.in_(tids))
-        task_skills = task_skills.all()
+        if interval:
+            task_skills = task_skills.filter(TaskSkillModel.calculated_on >= datetime.now() - timedelta(seconds=interval))
+        if last:
+            task_skills = task_skills.order_by(TaskSkillModel.calculated_on.desc()).limit(last)
+        else:
+            task_skills = task_skills.order_by(TaskSkillModel.calculated_on).all()
         data = []
         for l in task_skills:
             data.append(get_task_skill_json(l))

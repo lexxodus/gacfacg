@@ -50,17 +50,21 @@ class EventSkill(Resource):
 
     def get_all(self):
         args = request.args
-        event_skills = EventSkillModel.query.order_by(EventSkillModel.calculated_on)
+        event_skills = EventSkillModel.query
         pids = args.getlist("pid")
         eids = args.getlist("eid")
         interval = args.getlist("interval")
+        last = args.get("last", None)
         if pids:
             event_skills = event_skills.filter(EventSkillModel.pid.in_(pids))
         if eids:
             event_skills = event_skills.filter(EventSkillModel.eid.in_(eids))
         if interval:
             event_skills = event_skills.filter(EventSkillModel.calculated_on >= datetime.now() - timedelta(seconds=interval))
-        event_skills = event_skills.all()
+        if last:
+            event_skills = event_skills.order_by(EventSkillModel.calculated_on.desc()).limit(last)
+        else:
+            event_skills = event_skills.order_by(EventSkillModel.calculated_on).all()
         data = []
         for l in event_skills:
             data.append(get_event_skill_json(l))

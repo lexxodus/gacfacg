@@ -4,6 +4,7 @@ __author__ = 'lexxodus'
 from app import db
 from app.api import api
 from app.models import LevelTypeSkill as LevelTypeSkillModel
+from datetime import datetime, timedelta
 from dateutil import parser
 from flask import abort, request
 from flask.ext.restful import Resource
@@ -50,14 +51,21 @@ class LevelTypeSkill(Resource):
 
     def get_all(self):
         args = request.args
-        level_type_skills = LevelTypeSkillModel.query.order_by(LevelTypeSkillModel.calculated_on)
+        level_type_skills = LevelTypeSkillModel.query
         pids = args.getlist("pid")
         ltids = args.getlist("lid")
+        interval = args.getlist("interval")
+        last = args.get("last", None)
         if pids:
             level_type_skills = level_type_skills.filter(LevelTypeSkillModel.pid.in_(pids))
         if ltids:
             level_type_skills = level_type_skills.filter(LevelTypeSkillModel.ltid.in_(ltids))
-        level_type_skills = level_type_skills.all()
+        if interval:
+            level_type_skills = level_type_skills.filter(LevelTypeSkillModel.calculated_on >= datetime.now() - timedelta(seconds=interval))
+        if last:
+            level_type_skills = level_type_skills.order_by(LevelTypeSkillModel.calculated_on.desc()).limit(last)
+        else:
+            level_type_skills = level_type_skills.order_by(LevelTypeSkillModel.calculated_on).all()
         data = []
         for l in level_type_skills:
             data.append(get_level_type_skill_json(l))

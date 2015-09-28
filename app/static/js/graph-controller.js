@@ -45,7 +45,7 @@ angular.module('graphController', ['angular-flot', 'directives'])
             },
             tooltip: {
                 show: true,
-                content: "%s | X: %x | Y: %y | Considred Rows: "
+                content: "%s | X: %x | Y: %y | %ct",
                 xDateFormat:"%Y/%m/%d - %H:%M:%S"
             }
         };
@@ -330,12 +330,19 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 var attempt;
                 var skill_points;
                 var high_score;
+                var considered_rows;
+                var high_score;
+                var custom_template;
                 angular.forEach(data, function(d){
                     timestamp = isotimeToInt(d.calculated_on);
                     attempt = d.attempt;
                     skill_points = d.skill_points;
-                    dataByAttempt.push([attempt, skill_points]);
-                    dataByTimeStamp.push([timestamp, skill_points]);
+                    considered_rows = d.considered_rows;
+                    high_score = d.high_score;
+                    custom_template = "Considered Rows: " + considered_rows +
+                        " | High Score: " + high_score;
+                    dataByAttempt.push([attempt, skill_points, custom_template]);
+                    dataByTimeStamp.push([timestamp, skill_points, custom_template]);
                 });
                 $scope.sets[pid]["level"][lid].attempt = dataByAttempt;
                 $scope.sets[pid]["level"][lid].timestamp = dataByTimeStamp;
@@ -351,10 +358,14 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 var dataByTimeStamp = [];
                 var timestamp;
                 var skill_points;
+                var considered_rows;
+                var custom_template;
                 angular.forEach(data, function(d){
                     timestamp = isotimeToInt(d.calculated_on);
                     skill_points = d.skill_points;
-                    dataByTimeStamp.push([timestamp, skill_points]);
+                    considered_rows = d.considered_rows;
+                    custom_template = "Considered Rows: " + considered_rows;
+                    dataByTimeStamp.push([timestamp, skill_points, custom_template]);
                 });
                 $scope.sets[pid]["levelType"][ltid].timestamp = dataByTimeStamp;
                 $scope.sets[pid]["levelType"][ltid].label =
@@ -369,10 +380,14 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 var dataByTimeStamp = [];
                 var timestamp;
                 var skill_points;
+                var considered_rows;
+                var custom_template;
                 angular.forEach(data, function(d){
                     timestamp = isotimeToInt(d.calculated_on);
                     skill_points = d.skill_points;
-                    dataByTimeStamp.push([timestamp, skill_points]);
+                    considered_rows = d.considered_rows;
+                    custom_template = "Considered Rows: " + considered_rows;
+                    dataByTimeStamp.push([timestamp, skill_points, custom_template]);
                 });
                 $scope.sets[pid]["task"][tid].timestamp = dataByTimeStamp;
                 $scope.sets[pid]["task"][tid].label =
@@ -387,10 +402,14 @@ angular.module('graphController', ['angular-flot', 'directives'])
                 var dataByTimeStamp = [];
                 var timestamp;
                 var skill_points;
+                var considered_rows;
+                var custom_template;
                 angular.forEach(data, function(d){
                     timestamp = isotimeToInt(d.calculated_on);
                     skill_points = d.skill_points;
-                    dataByTimeStamp.push([timestamp, skill_points]);
+                    considered_rows = d.considered_rows;
+                    custom_template = "Considered Rows: " + considered_rows;
+                    dataByTimeStamp.push([timestamp, skill_points, custom_template]);
                 });
                 $scope.sets[pid]["event"][eid].timestamp = dataByTimeStamp;
                 $scope.sets[pid]["event"][eid].label =

@@ -45,16 +45,16 @@ class Level(GameObjects):
             question = "Find the refreshment with 0 per cent alc!"
             answers = self.generate_answers(1);
         elif difficulty == "easy":
-            question = "Find the three refreshments with 0 per cent alc!"
+            question = "Find the two refreshments with 0 per cent alc!"
             answers = self.generate_answers(2);
         if difficulty == "medium":
-            question = "Find the five refreshments with 0 per cent alc!"
+            question = "Find the three refreshments with 0 per cent alc!"
             answers = self.generate_answers(3);
         elif difficulty == "hard":
-            question = "Find the seven refreshments with 0 per cent alc!"
+            question = "Find the four refreshments with 0 per cent alc!"
             answers = self.generate_answers(4);
         elif difficulty == "very hard":
-            question = "Find the nine refreshments with 0 per cent alc!"
+            question = "Find the five refreshments with 0 per cent alc!"
             answers = self.generate_answers(5);
         self.question = Question(question, difficulty, answers)
         self.rounds_left -= 1

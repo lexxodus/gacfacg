@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
+
 __author__ = 'lexxodus'
 
 from dummies.bqq_balanced import event_handler
 from dummies.bqq_balanced.game_objects import Answer, Level, Question, Player
+from random import choice
+
 
 class BottleQuizQuest(object):
-
     def start_level_instance(self, player_id, level_id):
         self.player = self.load_player(player_id)
         self.level = self.load_level(level_id)
@@ -28,13 +30,13 @@ class BottleQuizQuest(object):
         data = event_handler.get_level(lid)
         level_skill = event_handler.get_recent_level_skill(
             self.player.id, lid, last=2)
-        if level_skill < -60:
+        if level_skill < -40:
             difficulty = "very easy"
-        elif level_skill < -30:
+        elif level_skill < -20:
             difficulty = "easy"
-        elif level_skill < 30:
+        elif level_skill < 20:
             difficulty = "medium"
-        elif level_skill < 60:
+        elif level_skill < 40:
             difficulty = "hard"
         else:
             difficulty = "very hard"
@@ -53,16 +55,18 @@ class BottleQuizQuest(object):
             event_skill = event_handler.get_recent_event_skill(
                 self.player.id, self.level.id, last=3)
             if event_skill:
+                print(event_skill)
                 if event_skill < -20:
-                    difficulty = "very easy"
-                elif event_skill < -5:
-                    difficulty = "easy"
+                    difficulties = ["very easy"]
+                elif event_skill < -10:
+                    difficulties = ["very easy", "easy", "medium"]
                 elif event_skill < 5:
-                    difficulty = "medium"
-                elif event_skill < 20:
-                    difficulty = "hard"
+                    difficulties = ["very easy", "easy", "medium", "hard", "very hard"]
+                elif event_skill < 8:
+                    difficulties = ["medium", "hard", "very hard"]
                 else:
-                    difficulty = "very hard"
+                    difficulties = ["very hard"]
+                difficulty = choice(difficulties)
             else:
-                difficulty=None
+                difficulty = None
             self.level.generate_question(difficulty)

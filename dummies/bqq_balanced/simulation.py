@@ -30,56 +30,23 @@ class Simulation(object):
             else:
                 wrong_answers.append(a)
         if player["skill"] == "strong":
-            answer_very_easy = 0.90
-            answer_easy = 0.80
-            answer_medium = 0.70
-            answer_hard = 0.60
-            answer_very_hard = 0.50
+            chance = 0.90
         elif player["skill"] == "average":
-            answer_very_easy = 0.80
-            answer_easy = 0.65
-            answer_medium = 0.50
-            answer_hard = 0.35
-            answer_very_hard = 0.20
+            chance = 0.80
         elif player["skill"] == "weak":
-            answer_very_easy = 0.50
-            answer_easy = 0.40
-            answer_medium = 0.30
-            answer_hard = 0.20
-            answer_very_hard = 0.10
-        rnd = random()
-        correct = False
-        if question.difficulty == "very easy":
-            if rnd < answer_very_easy:
-                correct = True
-        elif question.difficulty == "easy":
-            if rnd < answer_easy:
-                correct = True
-        elif question.difficulty == "medium":
-            if rnd < answer_medium:
-                correct = True
-        elif question.difficulty == "hard":
-            if rnd < answer_hard:
-                correct = True
-        elif question.difficulty == "very hard":
-            if rnd < answer_very_hard:
-                correct = True
-        if correct:
-            given_answers = right_answers
-        else:
-            for w in wrong_answers:
-                if random() < 1.0 / len(question.answers):
-                    print("answer wrong: %s" % w)
-                    given_answers.append(w)
-            if not given_answers:
-                w = choice(wrong_answers)
-                print("answer wrong: %s" % w)
-                given_answers.append(w)
-                # given_answers.append(choice(wrong_answers))
-            for r in right_answers:
-                if random() < 1.0 / len(question.answers):
-                    print("answer right: %s" % r)
-                    given_answers.append(r)
+            chance = 0.70
+        for r in right_answers:
+            if random() < chance:
+                print("answer right: %s" % r)
+                given_answers.append(r)
+                if chance > 0.1:
+                    chance -= 0.1
+        wrong_selection = wrong_answers[:]
+        while len(given_answers) < len(right_answers) and wrong_selection:
+            answer = choice(wrong_selection)
+            print("answer wrong: %s" % answer)
+            given_answers.append(answer)
+            wrong_selection.remove(answer)
         response_time = timedelta(seconds=randint(5, 30))
         end_time = datetime.now() + response_time
         return given_answers, end_time

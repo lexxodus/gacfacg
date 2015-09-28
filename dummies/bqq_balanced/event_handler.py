@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 __author__ = 'lexxodus'
 
 from datetime import datetime
@@ -12,6 +13,7 @@ levels = None
 level_types = None
 current_liid = None
 
+
 def get_player(id):
     url = ROOT_URL + "player/%s" % id
     params = {}
@@ -19,12 +21,14 @@ def get_player(id):
     player = response.json()
     return player
 
+
 def get_all_players():
     url = ROOT_URL + "player/"
     params = {}
     response = requests.get(url, params=params)
     players = response.json()
     return players
+
 
 def get_level(id):
     url = ROOT_URL + "level/%s" % id
@@ -70,6 +74,7 @@ def login_player_into_level_instance(pid, liid):
     response = requests.post(url, params=params, json=data).json()
     return response
 
+
 def logout_player_from_level_instance(paid, end_time):
     url = ROOT_URL + "participation/"
     url += str(paid)
@@ -77,6 +82,7 @@ def logout_player_from_level_instance(paid, end_time):
     participation = requests.get(url, params=params).json()
     participation["end_time"] = end_time
     requests.put(url, params=params, json=participation).json()
+
 
 def load_events():
     url = ROOT_URL + "event/"
@@ -89,11 +95,13 @@ def load_events():
     events = loaded_events
     return events
 
+
 def get_events():
     if events:
         return events
     else:
         return load_events()
+
 
 def load_levels():
     url = ROOT_URL + "level/"
@@ -106,11 +114,13 @@ def load_levels():
     levels = loaded_levels
     return levels
 
+
 def get_levels():
     if levels:
         return levels
     else:
         return load_levels()
+
 
 def load_level_types():
     url = ROOT_URL + "level_type/"
@@ -123,11 +133,13 @@ def load_level_types():
     level_types = loaded_level_types
     return level_types
 
+
 def get_level_types():
     if level_types:
         return level_types
     else:
         return load_level_types()
+
 
 def load_tasks():
     url = ROOT_URL + "task/"
@@ -140,11 +152,13 @@ def load_tasks():
     tasks = loaded_tasks
     return tasks
 
+
 def get_tasks():
     if tasks:
         return tasks
     else:
         return load_tasks()
+
 
 def trigger_event(paid, eid, **kwargs):
     url = ROOT_URL + "triggered_event/"
@@ -157,6 +171,7 @@ def trigger_event(paid, eid, **kwargs):
     response = requests.post(url, params=params, json=data).json()
     return response
 
+
 def calc_task_skill(pid, tid, timestamp=None):
     url = ROOT_URL + "task_skill/"
     params = {}
@@ -167,6 +182,7 @@ def calc_task_skill(pid, tid, timestamp=None):
     }
     response = requests.post(url, params=params, json=data).json()
     return response
+
 
 def calc_event_skill(pid, eid, timestamp=None):
     url = ROOT_URL + "event_skill/"
@@ -179,6 +195,7 @@ def calc_event_skill(pid, eid, timestamp=None):
     response = requests.post(url, params=params, json=data).json()
     return response
 
+
 def calc_level_skill(pid, lid, timestamp=None):
     url = ROOT_URL + "level_skill/"
     params = {}
@@ -189,6 +206,7 @@ def calc_level_skill(pid, lid, timestamp=None):
     }
     response = requests.post(url, params=params, json=data).json()
     return response
+
 
 def calc_level_type_skill(pid, ltid, timestamp=None):
     url = ROOT_URL + "level_type_skill/"
@@ -201,6 +219,7 @@ def calc_level_type_skill(pid, ltid, timestamp=None):
     response = requests.post(url, params=params, json=data).json()
     return response
 
+
 def get_participation(paid):
     url = ROOT_URL + "participation/"
     url += str(paid)
@@ -208,13 +227,14 @@ def get_participation(paid):
     response = requests.get(url, params=params).json()
     return response
 
+
 def get_level_instance(liid):
     url = ROOT_URL + "level_instance/"
     url += str(liid)
     params = {}
     response = requests.get(url, params=params).json()
     return response
-    return response
+
 
 def get_player_last_hit(player):
     url = ROOT_URL + "triggered_event/"
@@ -230,6 +250,7 @@ def get_player_last_hit(player):
         last_hit = None
     return last_hit
 
+
 def get_recent_event_skill(pid, eid, last=None):
     url = ROOT_URL + "event_skill/"
     params = {"pid": pid, "eid": eid, "last": last}
@@ -242,6 +263,7 @@ def get_recent_event_skill(pid, eid, last=None):
                 return (skill_2 - skill_1)
             else:
                 return -(skill_1 - skill_2)
+
 
 def get_recent_level_skill(pid, lid, interval=None, last=None):
     url = ROOT_URL + "level_skill/"

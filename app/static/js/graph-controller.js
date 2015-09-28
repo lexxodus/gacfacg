@@ -45,6 +45,7 @@ angular.module('graphController', ['angular-flot', 'directives'])
             },
             tooltip: {
                 show: true,
+                content: "%s | X: %x | Y: %y | Considred Rows: "
                 xDateFormat:"%Y/%m/%d - %H:%M:%S"
             }
         };

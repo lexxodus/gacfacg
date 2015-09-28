@@ -197,7 +197,7 @@ class Simulation(object):
             if p["player"].active:
                 if p["strength"] == "assisting":
                     assisting.append(p)
-                elif p["weakness"]  == "assisting":
+                elif p["weakness"] == "assisting":
                     wandering.append(p)
                 else:
                     if random() < 0.75:
@@ -209,9 +209,9 @@ class Simulation(object):
         for a in assisting:
             if random() < 0.75:
                 if random() < 0.75:
-                    for l in player_locations:
-                        if l:
-                            location = l
+                    for k, v in player_locations.iteritems():
+                        if [t for t in v if t["team"] is a["team"]]:
+                            location = k
                             break
                 else:
                     location = choice(self.wd.level.bases)
@@ -231,10 +231,6 @@ class Simulation(object):
         return player_locations
 
     def action_shoot(self, player, possible_targets, location):
-        for t in possible_targets:
-            if player["team"] is not t["team"]:
-                will_shoot = True
-                break
         enemy_shot = False
         if player["strength"] == "shooting":
             # randomly missed shots
@@ -250,18 +246,19 @@ class Simulation(object):
             genereal_hit_chance = 0.3
             enemy_hit_chance = 0.6
             weapon_hit_chance_3d = 1.0
-            weapon_hit_chance_2d = 0.8
-            weapon_hit_chance_1d = 0.6
+            weapon_hit_chance_2d = 0.7
+            weapon_hit_chance_1d = 0.4
         else:
             # randomly missed shots
             miss_limit = 10
             genereal_hit_chance = 0.5
             enemy_hit_chance = 0.9
             weapon_hit_chance_3d = 1.0
-            weapon_hit_chance_2d = 0.7
-            weapon_hit_chance_1d = 0.4
+            weapon_hit_chance_2d = 0.8
+            weapon_hit_chance_1d = 0.6
         weapons = ["1d", "2d", "3d"]
-        hit_skill = event_handler.get_recent_event_skill(self.events["hit"], 60)
+        hit_skill = event_handler.get_recent_event_skill(
+                self.events["hit"], 60)
         if hit_skill > 50:
             weapons.remove("2d")
         if hit_skill > 30:
@@ -271,17 +268,18 @@ class Simulation(object):
         if hit_skill < 10:
             weapons.remove("2d")
         weapon = choice(weapons)
-        teamhit_skill = event_handler.get_recent_event_skill(self.events["teamhit"], 60)
+        teamhit_skill = event_handler.get_recent_event_skill(
+                self.events["teamhit"], 60)
         if teamhit_skill > -30:
             player["player"].teamhit = True
         else:
             player["player"].teamhit = False
         if weapon == "3d":
-            accuracy =  weapon_hit_chance_3d
+            accuracy = weapon_hit_chance_3d
         elif weapon == "2d":
-            accuracy =  weapon_hit_chance_2d
+            accuracy = weapon_hit_chance_2d
         else:
-            accuracy =  weapon_hit_chance_1d
+            accuracy = weapon_hit_chance_1d
         miss_limit += miss_limit * (1 - accuracy)
         for s in range(randint(1, int(miss_limit))):
             player["player"].misses()
@@ -310,7 +308,8 @@ class Simulation(object):
             dodge = 0.2
         if random() < dodge:
             return None, None
-        self.wd.player_shoots_player(player["player"], target["player"], weapon, location)
+        self.wd.player_shoots_player(
+                player["player"], target["player"], weapon, location)
         answers = self.answer_question(target["player"].question, target)
         target["player"].give_answers(answers)
         return target, weapon

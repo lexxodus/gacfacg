@@ -55,7 +55,7 @@ class LevelSkill(Resource):
         level_skills = LevelSkillModel.query
         pids = args.getlist("pid")
         lids = args.getlist("lid")
-        interval = args.getlist("interval")
+        interval = args.get("interval", None)
         last = args.get("last", None)
         if pids:
             level_skills = level_skills.filter(LevelSkillModel.pid.in_(pids))

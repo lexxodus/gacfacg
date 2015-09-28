@@ -53,7 +53,7 @@ class EventSkill(Resource):
         event_skills = EventSkillModel.query
         pids = args.getlist("pid")
         eids = args.getlist("eid")
-        interval = args.getlist("interval")
+        interval = args.get("interval", None)
         last = args.get("last", None)
         if pids:
             event_skills = event_skills.filter(EventSkillModel.pid.in_(pids))

@@ -53,13 +53,14 @@ class TaskSkill(Resource):
         task_skills = TaskSkillModel.query
         pids = args.getlist("pid")
         tids = args.getlist("tid")
-        interval = args.getlist("interval")
+        interval = args.get("interval", None)
         last = args.get("last", None)
         if pids:
             task_skills = task_skills.filter(TaskSkillModel.pid.in_(pids))
         if tids:
             task_skills = task_skills.filter(TaskSkillModel.tid.in_(tids))
         if interval:
+            interval = int(interval)
             task_skills = task_skills.filter(TaskSkillModel.calculated_on >= datetime.now() - timedelta(seconds=interval))
         if last:
             task_skills = task_skills.order_by(TaskSkillModel.calculated_on.desc()).limit(last)

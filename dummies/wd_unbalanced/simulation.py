@@ -209,11 +209,12 @@ class Simulation(object):
         for a in assisting:
             if random() < 0.75:
                 if random() < 0.75:
-                    for l in player_locations:
-                        if l:
-                            location = l
+                    for k, v in player_locations.iteritems():
+                        if [t for t in v if t["team"] is a["team"]]:
+                            location = k
                             break
                 else:
+                    print "False"
                     location = choice(self.wd.level.bases)
             else:
                 location = None
@@ -231,10 +232,6 @@ class Simulation(object):
         return player_locations
 
     def action_shoot(self, player, possible_targets, location):
-        for t in possible_targets:
-            if player["team"] is not t["team"]:
-                will_shoot = True
-                break
         enemy_shot = False
         if player["strength"] == "shooting":
             # randomly missed shots
@@ -250,16 +247,16 @@ class Simulation(object):
             genereal_hit_chance = 0.3
             enemy_hit_chance = 0.6
             weapon_hit_chance_3d = 1.0
-            weapon_hit_chance_2d = 0.8
-            weapon_hit_chance_1d = 0.6
+            weapon_hit_chance_2d = 0.7
+            weapon_hit_chance_1d = 0.4
         else:
             # randomly missed shots
             miss_limit = 10
             genereal_hit_chance = 0.5
             enemy_hit_chance = 0.9
             weapon_hit_chance_3d = 1.0
-            weapon_hit_chance_2d = 0.7
-            weapon_hit_chance_1d = 0.4
+            weapon_hit_chance_2d = 0.8
+            weapon_hit_chance_1d = 0.6
         weapons = ["1d", "2d", "3d"]
         weapon = choice(weapons)
         if weapon == "3d":

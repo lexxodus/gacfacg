@@ -39,7 +39,7 @@ class Simulation(object):
             answer_very_easy = 0.80
             answer_easy = 0.65
             answer_medium = 0.50
-            answer_hard = 0.45
+            answer_hard = 0.35
             answer_very_hard = 0.20
         elif player["skill"] == "weak":
             answer_very_easy = 0.50
@@ -75,7 +75,6 @@ class Simulation(object):
                 w = choice(wrong_answers)
                 print("answer wrong: %s" % w)
                 given_answers.append(w)
-                # given_answers.append(choice(wrong_answers))
             for r in right_answers:
                 if random() < 1.0 / len(question.answers):
                     print("answer right: %s" % r)

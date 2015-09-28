@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 __author__ = 'lexxodus'
-# adoption of
+# adaptation of
 # http://stackoverflow.com/questions/26505420/evaluate-math-equations-from-unsafe-user-input-in-python
 # by http://stackoverflow.com/users/680727/aleksi-torhamo
 
@@ -103,8 +103,12 @@ class Evaluator(object):
             if not self.calc_timedelta:
                 if parts[1] == "skill_points":
                     return event.skill_points
+                if parts[1] == "skill_interval":
+                    return event.skill_interval
                 elif parts[1] == "score_points":
                     return event.score_points
+                elif parts[1] == "score_interval":
+                    return event.score_interval
             else:
                 custom_value = self._try_datetime(
                     event.custom_values[parts[1]])

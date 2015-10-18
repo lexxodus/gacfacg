@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
+from app import app
+from flask import make_response, render_template
 __author__ = 'lexxodus'
 
-from app import app
-from flask import make_response
 
 @app.route('/')
 @app.route('/entities')
@@ -27,6 +27,7 @@ from flask import make_response
 @app.route('/triggered_event-view/<int:id>')
 @app.route('/graphs')
 def angular(id=None):
-    resp = make_response(open('app/templates/index.html').read())
+    # resp = make_response(open(app.root_path + '/templates/index.html').read())
+    resp = make_response(render_template('index.html'))
     resp.mimetype = 'text/html'
     return resp

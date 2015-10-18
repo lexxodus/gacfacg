@@ -3,34 +3,34 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>GACfaCG - Generic Analytics Component for adaptive Computer Games</title>
-        <link rel="stylesheet" href="/static/lib/bootstrap/bootstrap.css" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='/lib/bootstrap/bootstrap.css') }}" />
 
-        <script src="/static/lib/jquery/jquery.js"></script>
+        <script src="{{ url_for('static', filename='lib/jquery/jquery.js') }}"></script>
 
-        <script src="/static/lib/flot_charts/jquery.flot.js"></script>
-        <script src="/static/lib/flot_charts/jquery.flot.time.js"></script>
+        <script src="{{ url_for('static', filename='lib/flot_charts/jquery.flot.js') }}"></script>
+        <script src="{{ url_for('static', filename='lib/flot_charts/jquery.flot.time.js') }}"></script>
 
-        <script src="/static/lib/flot_tooltips/jquery.flot.tooltips.js"></script>
+        <script src="{{ url_for('static', filename='lib/flot_tooltips/jquery.flot.tooltips.js') }}"></script>
 
-		<script src="/static/lib/angular/angular.js"></script>
-		<script src="/static/lib/angular/angular-resource.js"></script>
-		<script src="/static/lib/angular/angular-route.js"></script>
-        <script src="/static/lib/angular/angular-flot.js"></script>
+		<script src="{{ url_for('static', filename='lib/angular/angular.js') }}"></script>
+		<script src="{{ url_for('static', filename='lib/angular/angular-resource.js') }}"></script>
+		<script src="{{ url_for('static', filename='lib/angular/angular-route.js') }}"></script>
+        <script src="{{ url_for('static', filename='lib/angular/angular-flot.js') }}"></script>
 
-    	<script src="/static/js/app.js"></script>
-        <script src="/static/js/directives.js"></script>
-		<script src="/static/js/services.js"></script>
-        <script src="/static/js/controllers.js"></script>
-        <script src="/static/js/graph-controller.js"></script>
+    	<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/directives.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/services.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/controllers.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/graph-controller.js') }}"></script>
 
-		<link rel="stylesheet" href="/static/css/style.css" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 
 		<base href="/" />
 	</head>
 	<body>
         <div class="container">
             <header class="row">
-                <img src="/static/png/gacfacg.png" />
+                <img src="{{ url_for('static', filename='png/gacfacg.png') }}" />
                 <!--button class="button col-sm-offset-8">Export CSV</button-->
             </header>
             <div class="row">

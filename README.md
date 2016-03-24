@@ -140,8 +140,8 @@ By providing `interval` or `amount` parameters to get requests only the sum of e
 
 Required actions:
 POST: calculate the corresponing skill.
-GET: ?interval - return the skill of values calculated in the last <interval> seconds.
-GET: ?amount   - return the skill last <amount> values calculated.
+GET: ?interval - return the skill of values calculated in the last (interval) seconds.
+GET: ?amount   - return the skill last (amount) values calculated.
 
 Attributes:
 - pid: corresponding player id

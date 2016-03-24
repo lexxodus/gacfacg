@@ -98,7 +98,7 @@ Attributes:
 - lid: The corresponding level id.
 - start_time: The time when the instance was created (ISO 8601 formated string: e.g. "2015-09-23T16:23:15").
 - end_time: The time of destruction of the instance (ISO 8601 formated string).
-- <custom_attributes>: Self defined attributes that can be accessed by the game.
+- (custom_attributes): Self defined attributes that can be accessed by the game.
 
 ### Participation(api entity: participation)
 
@@ -113,7 +113,7 @@ Attributes:
 - lid: The corresponding level id.
 - start_time: The time when the instance was created (ISO 8601 formated string: e.g. "2015-09-23T16:23:15").
 - end_time: The time of destruction of the instance (ISO 8601 formated string).
-- <custom_attributes>: Self defined attributes that can be accessed by the game.
+- (custom_attributes): Self defined attributes that can be accessed by the game.
 
 ### Triggered Event(api entity: triggered_event)
 
@@ -128,7 +128,7 @@ Attributes:
 - timestamp: time when the event was triggered by the player (ISO 8601 formated string: e.g. "2015-09-23T16:23:15").
 - given_skill_points (calculated by the application): awared skill points.
 - given_score_points (calculated by the application): awared score points.
-- <custom_attributes>: Self defined attributes that can be accessed by the game (useful for event_rule evaluation).
+- (custom_attributes): Self defined attributes that can be accessed by the game (useful for event_rule evaluation).
 
 
 ## Performance calculation and adaptation

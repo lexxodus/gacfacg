@@ -109,6 +109,9 @@ angular.module('GACFACG', ["aPIServices", "controllers", "graphController", "ngR
                 controller: "FlotController",
                 controllerAs: "flot-ctl"
             })
+            .when("/data-export", {
+                redirectTo: "/data-export"
+            })
             .otherwise({
                 redirectTo: "/entities"
             })
